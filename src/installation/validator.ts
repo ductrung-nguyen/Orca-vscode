@@ -164,39 +164,80 @@ export class OrcaValidator {
     }
     
     /**
-     * Get ORCA version by running bare command
+     * Get ORCA version by running with a minimal input file
+     * ORCA requires an input file to show its banner with version info
      */
     private async getVersion(binaryPath: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const process = spawn(binaryPath, [], { shell: false });
-            let stderr = '';
+        // Create a minimal temporary input file
+        const tmpDir = os.tmpdir();
+        const tmpInputFile = path.join(tmpDir, `orca_version_check_${Date.now()}.inp`);
+        
+        try {
+            // Write minimal ORCA input that will fail fast but still show banner
+            await fs.promises.writeFile(tmpInputFile, '! HF\n');
             
-            process.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-            
-            const timeout = setTimeout(() => {
-                process.kill('SIGTERM');
-                reject(new Error('Version check timeout (5 seconds)'));
-            }, 5000);
-            
-            process.on('close', () => {
-                clearTimeout(timeout);
+            return await new Promise((resolve, reject) => {
+                const proc = spawn(binaryPath, [tmpInputFile], { shell: false });
+                let stdout = '';
+                let stderr = '';
+                let resolved = false;
                 
-                // Parse version from stderr banner
-                const versionMatch = stderr.match(/Program Version (\d+\.\d+\.\d+)/);
-                if (versionMatch) {
-                    resolve(versionMatch[1]);
-                } else {
-                    reject(new Error('Could not parse ORCA version from output'));
-                }
+                const tryResolveVersion = () => {
+                    if (resolved) return;
+                    
+                    const combined = stdout + stderr;
+                    const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
+                    if (versionMatch) {
+                        resolved = true;
+                        proc.kill('SIGTERM');
+                        resolve(versionMatch[1]);
+                    }
+                };
+                
+                proc.stdout.on('data', (data) => {
+                    stdout += data.toString();
+                    tryResolveVersion();
+                });
+                
+                proc.stderr.on('data', (data) => {
+                    stderr += data.toString();
+                });
+                
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        proc.kill('SIGTERM');
+                        reject(new Error('Version check timeout (5 seconds)'));
+                    }
+                }, 5000);
+                
+                proc.on('close', () => {
+                    clearTimeout(timeout);
+                    if (resolved) return;
+                    
+                    const combinedOutput = stdout + stderr;
+                    const versionMatch = combinedOutput.match(/Program Version (\d+\.\d+\.\d+)/);
+                    if (versionMatch) {
+                        resolve(versionMatch[1]);
+                    } else {
+                        reject(new Error('Could not parse ORCA version from output'));
+                    }
+                });
+                
+                proc.on('error', (error) => {
+                    clearTimeout(timeout);
+                    if (!resolved) {
+                        reject(error);
+                    }
+                });
             });
-            
-            process.on('error', (error) => {
-                clearTimeout(timeout);
-                reject(error);
-            });
-        });
+        } finally {
+            // Clean up temporary file
+            try {
+                await fs.promises.unlink(tmpInputFile);
+            } catch {
+                // Ignore cleanup errors
+            }
+        }
     }
     
     /**
@@ -245,7 +286,7 @@ H 0.0 0.0 0.0
                 });
             }, 30000);
             
-            process.on('close', async (code) => {
+            process.on('close', async (_code) => {
                 clearTimeout(timeout);
                 
                 // Clean up test files
@@ -288,7 +329,7 @@ H 0.0 0.0 0.0
     /**
      * Check for optional dependencies
      */
-    private async checkDependencies(binaryPath: string): Promise<{[key: string]: boolean}> {
+    private async checkDependencies(_binaryPath: string): Promise<{[key: string]: boolean}> {
         const dependencies: {[key: string]: boolean} = {};
         
         // Check for common dependencies based on platform

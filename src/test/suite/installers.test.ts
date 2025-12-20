@@ -78,7 +78,7 @@ suite('Installation Strategies Test Suite', () => {
             for (const prereq of prerequisites) {
                 assert.ok(prereq.name, 'Prerequisite should have name');
                 assert.ok(prereq.checkCommand, 'Prerequisite should have check command');
-                assert.ok(prereq.hasOwnProperty('isMet'), 'Prerequisite should have isMet property');
+                assert.ok(Object.prototype.hasOwnProperty.call(prereq, 'isMet'), 'Prerequisite should have isMet property');
             }
         }
     });
