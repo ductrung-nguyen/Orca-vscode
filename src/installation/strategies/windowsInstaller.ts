@@ -4,6 +4,7 @@
 
 import { BaseInstallationStrategy } from './base';
 import { InstallationStep, InstallationMethod, Prerequisite, Platform } from '../types';
+import { spawn } from 'child_process';
 
 export class WindowsInstaller extends BaseInstallationStrategy {
     platform = Platform.Windows;
@@ -58,8 +59,6 @@ export class WindowsInstaller extends BaseInstallationStrategy {
     }
     
     private async checkVCRedistributable(): Promise<boolean> {
-        const { spawn } = require('child_process');
-        
         return new Promise((resolve) => {
             const process = spawn('reg', [
                 'query',

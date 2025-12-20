@@ -16,10 +16,12 @@ Create the webview panel infrastructure for the ORCA installation wizard, includ
 
 ## Dependencies
 
-**Blocked By**: 
+**Blocked By**:
+
 - TASK-001 (Project Structure Setup)
 
-**Blocks**: 
+**Blocks**:
+
 - TASK-018 (Wizard HTML Template)
 - TASK-019 (Wizard Step Navigation)
 - TASK-020 (License Acknowledgment Step)
@@ -47,344 +49,320 @@ Create the webview panel infrastructure for the ORCA installation wizard, includ
 **Location**: `src/installation/wizard/wizardPanel.ts`
 
 ```typescript
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import { OrcaDetector } from '../detector';
-import { OrcaValidator } from '../validator';
-import { WizardState } from '../types';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
+import { OrcaDetector } from "../detector";
+import { OrcaValidator } from "../validator";
+import { WizardState } from "../types";
 
 /**
  * Message types sent from extension to webview
  */
 export enum MessageToWebview {
-    Initialize = 'initialize',
-    DetectionResults = 'detectionResults',
-    ValidationResults = 'validationResults',
-    RestoreState = 'restoreState',
-    Error = 'error'
+  Initialize = "initialize",
+  DetectionResults = "detectionResults",
+  ValidationResults = "validationResults",
+  RestoreState = "restoreState",
+  Error = "error",
 }
 
 /**
  * Message types sent from webview to extension
  */
 export enum MessageFromWebview {
-    Ready = 'ready',
-    StartDetection = 'startDetection',
-    ValidatePath = 'validatePath',
-    SaveState = 'saveState',
-    Complete = 'complete',
-    Cancel = 'cancel',
-    OpenExternal = 'openExternal'
+  Ready = "ready",
+  StartDetection = "startDetection",
+  ValidatePath = "validatePath",
+  SaveState = "saveState",
+  Complete = "complete",
+  Cancel = "cancel",
+  OpenExternal = "openExternal",
 }
 
 /**
  * Message payload interface
  */
 interface Message {
-    type: string;
-    payload?: any;
+  type: string;
+  payload?: any;
 }
 
 /**
  * Manages the ORCA installation wizard webview panel
  */
 export class WizardPanel {
-    /** Singleton instance */
-    private static currentPanel: WizardPanel | undefined;
-    
-    /** VS Code webview panel */
-    private readonly panel: vscode.WebviewPanel;
-    
-    /** Extension context */
-    private readonly context: vscode.ExtensionContext;
-    
-    /** Detector instance */
-    private readonly detector: OrcaDetector;
-    
-    /** Validator instance */
-    private readonly validator: OrcaValidator;
-    
-    /** Disposables for cleanup */
-    private disposables: vscode.Disposable[] = [];
-    
-    /**
-     * Create or show the wizard panel
-     */
-    public static createOrShow(context: vscode.ExtensionContext): void {
-        const column = vscode.window.activeTextEditor
-            ? vscode.window.activeTextEditor.viewColumn
-            : undefined;
-        
-        // If we already have a panel, show it
-        if (WizardPanel.currentPanel) {
-            WizardPanel.currentPanel.panel.reveal(column);
-            return;
+  /** Singleton instance */
+  private static currentPanel: WizardPanel | undefined;
+
+  /** VS Code webview panel */
+  private readonly panel: vscode.WebviewPanel;
+
+  /** Extension context */
+  private readonly context: vscode.ExtensionContext;
+
+  /** Detector instance */
+  private readonly detector: OrcaDetector;
+
+  /** Validator instance */
+  private readonly validator: OrcaValidator;
+
+  /** Disposables for cleanup */
+  private disposables: vscode.Disposable[] = [];
+
+  /**
+   * Create or show the wizard panel
+   */
+  public static createOrShow(context: vscode.ExtensionContext): void {
+    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
+
+    // If we already have a panel, show it
+    if (WizardPanel.currentPanel) {
+      WizardPanel.currentPanel.panel.reveal(column);
+      return;
+    }
+
+    // Otherwise, create a new panel
+    const panel = vscode.window.createWebviewPanel(
+      "orcaInstallationWizard",
+      "ORCA Installation Wizard",
+      column || vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "src", "installation", "wizard"))],
+      }
+    );
+
+    WizardPanel.currentPanel = new WizardPanel(panel, context);
+  }
+
+  /**
+   * Private constructor (use createOrShow)
+   */
+  private constructor(panel: vscode.WebviewPanel, context: vscode.ExtensionContext) {
+    this.panel = panel;
+    this.context = context;
+    this.detector = new OrcaDetector();
+    this.validator = new OrcaValidator(context);
+
+    // Set the webview's initial html content
+    this.panel.webview.html = this.getHtmlContent();
+
+    // Set icon
+    this.panel.iconPath = vscode.Uri.file(path.join(context.extensionPath, "images", "icon.png"));
+
+    // Listen for panel disposal
+    this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
+
+    // Handle messages from the webview
+    this.panel.webview.onDidReceiveMessage((message) => this.handleWebviewMessage(message), null, this.disposables);
+
+    // Update content when view state changes
+    this.panel.onDidChangeViewState(
+      (e) => {
+        if (this.panel.visible) {
+          // Panel became visible
+          this.restoreState();
         }
-        
-        // Otherwise, create a new panel
-        const panel = vscode.window.createWebviewPanel(
-            'orcaInstallationWizard',
-            'ORCA Installation Wizard',
-            column || vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [
-                    vscode.Uri.file(path.join(context.extensionPath, 'src', 'installation', 'wizard'))
-                ]
-            }
-        );
-        
-        WizardPanel.currentPanel = new WizardPanel(panel, context);
+      },
+      null,
+      this.disposables
+    );
+  }
+
+  /**
+   * Handle messages from webview
+   */
+  private async handleWebviewMessage(message: Message): Promise<void> {
+    switch (message.type) {
+      case MessageFromWebview.Ready:
+        // Webview is ready, send initial state
+        await this.restoreState();
+        break;
+
+      case MessageFromWebview.StartDetection:
+        await this.runDetection();
+        break;
+
+      case MessageFromWebview.ValidatePath:
+        await this.validatePath(message.payload.path);
+        break;
+
+      case MessageFromWebview.SaveState:
+        await this.saveState(message.payload);
+        break;
+
+      case MessageFromWebview.Complete:
+        await this.handleComplete(message.payload);
+        break;
+
+      case MessageFromWebview.Cancel:
+        this.panel.dispose();
+        break;
+
+      case MessageFromWebview.OpenExternal:
+        vscode.env.openExternal(vscode.Uri.parse(message.payload.url));
+        break;
+
+      default:
+        console.warn("Unknown message type:", message.type);
     }
-    
-    /**
-     * Private constructor (use createOrShow)
-     */
-    private constructor(
-        panel: vscode.WebviewPanel,
-        context: vscode.ExtensionContext
-    ) {
-        this.panel = panel;
-        this.context = context;
-        this.detector = new OrcaDetector();
-        this.validator = new OrcaValidator(context);
-        
-        // Set the webview's initial html content
-        this.panel.webview.html = this.getHtmlContent();
-        
-        // Set icon
-        this.panel.iconPath = vscode.Uri.file(
-            path.join(context.extensionPath, 'images', 'icon.png')
-        );
-        
-        // Listen for panel disposal
-        this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
-        
-        // Handle messages from the webview
-        this.panel.webview.onDidReceiveMessage(
-            message => this.handleWebviewMessage(message),
-            null,
-            this.disposables
-        );
-        
-        // Update content when view state changes
-        this.panel.onDidChangeViewState(
-            e => {
-                if (this.panel.visible) {
-                    // Panel became visible
-                    this.restoreState();
-                }
-            },
-            null,
-            this.disposables
-        );
+  }
+
+  /**
+   * Run ORCA detection and send results to webview
+   */
+  private async runDetection(): Promise<void> {
+    try {
+      const installations = await this.detector.detectInstallations();
+
+      this.postMessage({
+        type: MessageToWebview.DetectionResults,
+        payload: { installations },
+      });
+    } catch (error) {
+      this.postMessage({
+        type: MessageToWebview.Error,
+        payload: {
+          message: "Detection failed",
+          error: (error as Error).message,
+        },
+      });
     }
-    
-    /**
-     * Handle messages from webview
-     */
-    private async handleWebviewMessage(message: Message): Promise<void> {
-        switch (message.type) {
-            case MessageFromWebview.Ready:
-                // Webview is ready, send initial state
-                await this.restoreState();
-                break;
-                
-            case MessageFromWebview.StartDetection:
-                await this.runDetection();
-                break;
-                
-            case MessageFromWebview.ValidatePath:
-                await this.validatePath(message.payload.path);
-                break;
-                
-            case MessageFromWebview.SaveState:
-                await this.saveState(message.payload);
-                break;
-                
-            case MessageFromWebview.Complete:
-                await this.handleComplete(message.payload);
-                break;
-                
-            case MessageFromWebview.Cancel:
-                this.panel.dispose();
-                break;
-                
-            case MessageFromWebview.OpenExternal:
-                vscode.env.openExternal(vscode.Uri.parse(message.payload.url));
-                break;
-                
-            default:
-                console.warn('Unknown message type:', message.type);
-        }
+  }
+
+  /**
+   * Validate a binary path and send results to webview
+   */
+  private async validatePath(binaryPath: string): Promise<void> {
+    try {
+      const result = await this.validator.validateInstallation(binaryPath);
+
+      this.postMessage({
+        type: MessageToWebview.ValidationResults,
+        payload: result,
+      });
+    } catch (error) {
+      this.postMessage({
+        type: MessageToWebview.Error,
+        payload: {
+          message: "Validation failed",
+          error: (error as Error).message,
+        },
+      });
     }
-    
-    /**
-     * Run ORCA detection and send results to webview
-     */
-    private async runDetection(): Promise<void> {
-        try {
-            const installations = await this.detector.detectInstallations();
-            
-            this.postMessage({
-                type: MessageToWebview.DetectionResults,
-                payload: { installations }
-            });
-        } catch (error) {
-            this.postMessage({
-                type: MessageToWebview.Error,
-                payload: {
-                    message: 'Detection failed',
-                    error: (error as Error).message
-                }
-            });
-        }
-    }
-    
-    /**
-     * Validate a binary path and send results to webview
-     */
-    private async validatePath(binaryPath: string): Promise<void> {
-        try {
-            const result = await this.validator.validateInstallation(binaryPath);
-            
-            this.postMessage({
-                type: MessageToWebview.ValidationResults,
-                payload: result
-            });
-        } catch (error) {
-            this.postMessage({
-                type: MessageToWebview.Error,
-                payload: {
-                    message: 'Validation failed',
-                    error: (error as Error).message
-                }
-            });
-        }
-    }
-    
-    /**
-     * Save wizard state to globalState
-     */
-    private async saveState(state: WizardState): Promise<void> {
-        state.timestamp = Date.now();
-        await this.context.globalState.update('orca.wizardState', state);
-    }
-    
-    /**
-     * Restore wizard state from globalState
-     */
-    private async restoreState(): Promise<void> {
-        const savedState = this.context.globalState.get<WizardState>('orca.wizardState');
-        
-        if (savedState) {
-            // Check if state is expired (7 days)
-            const age = Date.now() - savedState.timestamp;
-            const sevenDays = 7 * 24 * 60 * 60 * 1000;
-            
-            if (age < sevenDays) {
-                this.postMessage({
-                    type: MessageToWebview.RestoreState,
-                    payload: savedState
-                });
-                return;
-            }
-        }
-        
-        // No valid saved state, send fresh initialization
+  }
+
+  /**
+   * Save wizard state to globalState
+   */
+  private async saveState(state: WizardState): Promise<void> {
+    state.timestamp = Date.now();
+    await this.context.globalState.update("orca.wizardState", state);
+  }
+
+  /**
+   * Restore wizard state from globalState
+   */
+  private async restoreState(): Promise<void> {
+    const savedState = this.context.globalState.get<WizardState>("orca.wizardState");
+
+    if (savedState) {
+      // Check if state is expired (7 days)
+      const age = Date.now() - savedState.timestamp;
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+      if (age < sevenDays) {
         this.postMessage({
-            type: MessageToWebview.Initialize,
-            payload: {}
+          type: MessageToWebview.RestoreState,
+          payload: savedState,
         });
+        return;
+      }
     }
-    
-    /**
-     * Handle wizard completion
-     */
-    private async handleComplete(payload: any): Promise<void> {
-        const { selectedPath } = payload;
-        
-        // Update configuration
-        const config = vscode.workspace.getConfiguration('orca');
-        await config.update('binaryPath', selectedPath, true);
-        await config.update('installationWizardCompleted', true, true);
-        await config.update('licenseAcknowledged', true, true);
-        
-        // Clear wizard state
-        await this.context.globalState.update('orca.wizardState', undefined);
-        
-        // Show success message
-        vscode.window.showInformationMessage(
-            '✅ ORCA installation configured successfully!',
-            'Run Test Job'
-        ).then(selection => {
-            if (selection === 'Run Test Job') {
-                vscode.commands.executeCommand('vs-orca.validateOrca');
-            }
-        });
-        
-        // Close wizard
-        this.panel.dispose();
-    }
-    
-    /**
-     * Post message to webview
-     */
-    private postMessage(message: Message): void {
-        this.panel.webview.postMessage(message);
-    }
-    
-    /**
-     * Get HTML content for webview
-     */
-    private getHtmlContent(): string {
-        const htmlPath = path.join(
-            this.context.extensionPath,
-            'src',
-            'installation',
-            'wizard',
-            'wizard.html'
-        );
-        
-        // Read HTML file
-        let html = fs.readFileSync(htmlPath, 'utf-8');
-        
-        // Replace resource URIs with webview URIs
-        const scriptUri = this.panel.webview.asWebviewUri(
-            vscode.Uri.file(path.join(path.dirname(htmlPath), 'wizard.js'))
-        );
-        
-        const styleUri = this.panel.webview.asWebviewUri(
-            vscode.Uri.file(path.join(path.dirname(htmlPath), 'wizard.css'))
-        );
-        
-        html = html
-            .replace('{{scriptUri}}', scriptUri.toString())
-            .replace('{{styleUri}}', styleUri.toString())
-            .replace('{{cspSource}}', this.panel.webview.cspSource);
-        
-        return html;
-    }
-    
-    /**
-     * Dispose of the panel
-     */
-    private dispose(): void {
-        WizardPanel.currentPanel = undefined;
-        
-        // Dispose of the panel
-        this.panel.dispose();
-        
-        // Dispose of all disposables
-        while (this.disposables.length) {
-            const disposable = this.disposables.pop();
-            if (disposable) {
-                disposable.dispose();
-            }
+
+    // No valid saved state, send fresh initialization
+    this.postMessage({
+      type: MessageToWebview.Initialize,
+      payload: {},
+    });
+  }
+
+  /**
+   * Handle wizard completion
+   */
+  private async handleComplete(payload: any): Promise<void> {
+    const { selectedPath } = payload;
+
+    // Update configuration
+    const config = vscode.workspace.getConfiguration("orca");
+    await config.update("binaryPath", selectedPath, true);
+    await config.update("installationWizardCompleted", true, true);
+    await config.update("licenseAcknowledged", true, true);
+
+    // Clear wizard state
+    await this.context.globalState.update("orca.wizardState", undefined);
+
+    // Show success message
+    vscode.window
+      .showInformationMessage("✅ ORCA installation configured successfully!", "Run Test Job")
+      .then((selection) => {
+        if (selection === "Run Test Job") {
+          vscode.commands.executeCommand("vs-orca.validateOrca");
         }
+      });
+
+    // Close wizard
+    this.panel.dispose();
+  }
+
+  /**
+   * Post message to webview
+   */
+  private postMessage(message: Message): void {
+    this.panel.webview.postMessage(message);
+  }
+
+  /**
+   * Get HTML content for webview
+   */
+  private getHtmlContent(): string {
+    const htmlPath = path.join(this.context.extensionPath, "src", "installation", "wizard", "wizard.html");
+
+    // Read HTML file
+    let html = fs.readFileSync(htmlPath, "utf-8");
+
+    // Replace resource URIs with webview URIs
+    const scriptUri = this.panel.webview.asWebviewUri(vscode.Uri.file(path.join(path.dirname(htmlPath), "wizard.js")));
+
+    const styleUri = this.panel.webview.asWebviewUri(vscode.Uri.file(path.join(path.dirname(htmlPath), "wizard.css")));
+
+    html = html
+      .replace("{{scriptUri}}", scriptUri.toString())
+      .replace("{{styleUri}}", styleUri.toString())
+      .replace("{{cspSource}}", this.panel.webview.cspSource);
+
+    return html;
+  }
+
+  /**
+   * Dispose of the panel
+   */
+  private dispose(): void {
+    WizardPanel.currentPanel = undefined;
+
+    // Dispose of the panel
+    this.panel.dispose();
+
+    // Dispose of all disposables
+    while (this.disposables.length) {
+      const disposable = this.disposables.pop();
+      if (disposable) {
+        disposable.dispose();
+      }
     }
+  }
 }
 ```
 
@@ -393,42 +371,49 @@ export class WizardPanel {
 ## Implementation Steps
 
 ### Step 1: Create Basic Panel Structure (45 min)
+
 - Create wizardPanel.ts file
 - Implement static createOrShow method
 - Implement singleton pattern
 - Add basic constructor
 
 ### Step 2: Implement Message Passing (60 min)
+
 - Define message enums and interfaces
 - Implement handleWebviewMessage()
 - Implement postMessage()
 - Add message routing logic
 
 ### Step 3: Integrate Detector and Validator (45 min)
+
 - Create detector and validator instances
 - Implement runDetection()
 - Implement validatePath()
 - Handle errors appropriately
 
 ### Step 4: Implement State Persistence (45 min)
+
 - Implement saveState()
 - Implement restoreState()
 - Add state expiration logic (7 days)
 - Handle state clearing on completion
 
 ### Step 5: Implement Panel Lifecycle (30 min)
+
 - Handle panel disposal
 - Clean up disposables
 - Handle view state changes
 - Add icon
 
 ### Step 6: Implement HTML Loading (45 min)
+
 - Create getHtmlContent()
 - Handle resource URI conversion
 - Set up CSP (Content Security Policy)
 - Handle file reading errors
 
 ### Step 7: Testing and Polish (30 min)
+
 - Test panel open/close
 - Test message passing
 - Test state persistence
@@ -455,34 +440,36 @@ export class WizardPanel {
 
 ### Extension → Webview
 
-| Message Type | Payload | Description |
-|--------------|---------|-------------|
-| `initialize` | `{}` | Fresh wizard start |
-| `restoreState` | `WizardState` | Resume from saved state |
-| `detectionResults` | `{installations}` | Detection completed |
-| `validationResults` | `ValidationResult` | Validation completed |
-| `error` | `{message, error}` | Error occurred |
+| Message Type        | Payload            | Description             |
+| ------------------- | ------------------ | ----------------------- |
+| `initialize`        | `{}`               | Fresh wizard start      |
+| `restoreState`      | `WizardState`      | Resume from saved state |
+| `detectionResults`  | `{installations}`  | Detection completed     |
+| `validationResults` | `ValidationResult` | Validation completed    |
+| `error`             | `{message, error}` | Error occurred          |
 
 ### Webview → Extension
 
-| Message Type | Payload | Description |
-|--------------|---------|-------------|
-| `ready` | - | Webview loaded and ready |
-| `startDetection` | - | Request to run detection |
-| `validatePath` | `{path}` | Request to validate path |
-| `saveState` | `WizardState` | Save wizard state |
-| `complete` | `{selectedPath}` | Wizard completed |
-| `cancel` | - | User cancelled wizard |
-| `openExternal` | `{url}` | Open URL in browser |
+| Message Type     | Payload          | Description              |
+| ---------------- | ---------------- | ------------------------ |
+| `ready`          | -                | Webview loaded and ready |
+| `startDetection` | -                | Request to run detection |
+| `validatePath`   | `{path}`         | Request to validate path |
+| `saveState`      | `WizardState`    | Save wizard state        |
+| `complete`       | `{selectedPath}` | Wizard completed         |
+| `cancel`         | -                | User cancelled wizard    |
+| `openExternal`   | `{url}`          | Open URL in browser      |
 
 ---
 
 ## Testing
 
 ### Unit Tests
+
 Not applicable (webview integration requires manual testing)
 
 ### Manual Testing Checklist
+
 - [ ] Open wizard via command palette
 - [ ] Verify only one wizard opens at a time
 - [ ] Send message from webview to extension
@@ -498,20 +485,25 @@ Not applicable (webview integration requires manual testing)
 ## Security Considerations
 
 ### Content Security Policy
+
 ```html
-<meta http-equiv="Content-Security-Policy" 
-      content="default-src 'none'; 
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'none'; 
                img-src ${cspSource} https:; 
                script-src ${cspSource}; 
-               style-src ${cspSource} 'unsafe-inline';">
+               style-src ${cspSource} 'unsafe-inline';"
+/>
 ```
 
 ### Resource Loading
+
 - Only load resources from `localResourceRoots`
 - Use `webview.asWebviewUri()` for all resources
 - Never load remote content directly
 
 ### Message Validation
+
 - Always validate message types
 - Validate message payloads before processing
 - Never execute arbitrary code from webview
@@ -542,18 +534,20 @@ Not applicable (webview integration requires manual testing)
 ## Integration Points
 
 ### With Extension.ts
+
 ```typescript
 // extension.ts
-import { WizardPanel } from './installation/wizard/wizardPanel';
+import { WizardPanel } from "./installation/wizard/wizardPanel";
 
-const setupCommand = vscode.commands.registerCommand('vs-orca.setupOrca', () => {
-    WizardPanel.createOrShow(context);
+const setupCommand = vscode.commands.registerCommand("vs-orca.setupOrca", () => {
+  WizardPanel.createOrShow(context);
 });
 
 context.subscriptions.push(setupCommand);
 ```
 
 ### With package.json
+
 ```json
 {
   "commands": [

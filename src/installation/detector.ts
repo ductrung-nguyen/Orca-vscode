@@ -44,15 +44,15 @@ export class OrcaDetector {
             }
         }
         
-        // 3. Check PATH
-        const pathInstallations = await this.checkPathVariable();
-        for (const installation of pathInstallations) {
+        // 3. Check Conda environments EARLY (before PATH to avoid system orca conflicts)
+        const condaInstallations = await this.checkCondaEnvironments();
+        for (const installation of condaInstallations) {
             if (!this.isDuplicate(installations, installation)) {
                 installations.push(installation);
             }
         }
         
-        // 4. Check standard directories
+        // 4. Check standard directories (skip known false positives)
         const standardInstallations = await this.checkStandardDirectories();
         for (const installation of standardInstallations) {
             if (!this.isDuplicate(installations, installation)) {
@@ -60,9 +60,9 @@ export class OrcaDetector {
             }
         }
         
-        // 5. Check Conda environments
-        const condaInstallations = await this.checkCondaEnvironments();
-        for (const installation of condaInstallations) {
+        // 5. Check PATH last (may contain GNOME Orca or other false positives)
+        const pathInstallations = await this.checkPathVariable();
+        for (const installation of pathInstallations) {
             if (!this.isDuplicate(installations, installation)) {
                 installations.push(installation);
             }
@@ -113,36 +113,81 @@ export class OrcaDetector {
     }
     
     /**
+     * Check if a file is likely the GNOME Orca screen reader (without executing it)
+     * This prevents triggering the screen reader during detection
+     */
+    private isLikelyScreenReader(binaryPath: string): boolean {
+        // Known screen reader locations
+        if (binaryPath === '/usr/bin/orca' || binaryPath === '/usr/local/bin/orca') {
+            // Check if it's a Python script (GNOME Orca) vs binary (ORCA chemistry)
+            try {
+                const content = fs.readFileSync(binaryPath, 'utf-8').slice(0, 1000);
+                // GNOME Orca starts with #!/usr/bin/python and imports gnome/orca modules
+                if (content.includes('python') && 
+                    (content.includes('import orca') || 
+                     content.includes('from orca') || 
+                     content.includes('screen reader') ||
+                     content.includes('GNOME') ||
+                     content.includes('pyatspi'))) {
+                    return true;
+                }
+            } catch {
+                // If we can't read it as text, it's likely a binary - proceed with caution
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get ORCA version by running bare command
      */
     private async getVersion(binaryPath: string): Promise<string> {
+        // First, check if this is the wrong orca (GNOME screen reader) - don't run it!
+        if (this.isLikelyScreenReader(binaryPath)) {
+            throw new Error('This appears to be GNOME Orca screen reader, not ORCA computational chemistry software');
+        }
+        
         return new Promise((resolve, reject) => {
             const process = spawn(binaryPath, [], { shell: false });
             let stderr = '';
+            let stdout = '';
+            
+            process.stdout.on('data', (data) => {
+                stdout += data.toString();
+            });
             
             process.stderr.on('data', (data) => {
                 stderr += data.toString();
+                // If we see the version banner, kill the process early
+                if (stderr.includes('Program Version') || stderr.includes('ORCA')) {
+                    process.kill('SIGTERM');
+                }
             });
+            
+            // Send EOF to stdin to make programs that wait for input exit
+            process.stdin.end();
             
             const timeout = setTimeout(() => {
                 process.kill('SIGTERM');
-                reject(new Error('Version check timeout (5 seconds)'));
+                reject(new Error('Version check timeout - this may not be ORCA computational chemistry software'));
             }, 5000);
             
             process.on('close', () => {
                 clearTimeout(timeout);
                 
+                const combined = stderr + stdout;
+                
                 // Parse version from stderr banner
-                const versionMatch = stderr.match(/Program Version (\d+\.\d+\.\d+)/);
+                const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
                 if (versionMatch) {
                     resolve(versionMatch[1]);
                 } else {
                     // Try alternative version patterns
-                    const altMatch = stderr.match(/Version\s+(\d+\.\d+\.\d+)/i);
+                    const altMatch = combined.match(/Version\s+(\d+\.\d+\.\d+)/i);
                     if (altMatch) {
                         resolve(altMatch[1]);
                     } else {
-                        reject(new Error('Could not parse ORCA version from output'));
+                        reject(new Error('Not ORCA computational chemistry software (no version banner found)'));
                     }
                 }
             });
@@ -220,6 +265,12 @@ export class OrcaDetector {
                     const installations: OrcaInstallation[] = [];
                     
                     for (const binPath of paths) {
+                        // Skip paths that are likely the GNOME screen reader
+                        if (this.isLikelyScreenReader(binPath)) {
+                            console.log(`Skipping ${binPath} - appears to be GNOME Orca screen reader`);
+                            continue;
+                        }
+                        
                         const installation = await this.validateBinary(binPath);
                         if (installation) {
                             installation.detectionSource = 'PATH';
@@ -271,7 +322,8 @@ export class OrcaDetector {
                 return [
                     '/opt/orca/orca',
                     '/usr/local/orca/orca',
-                    '/usr/bin/orca',
+                    '/usr/local/bin/orca',
+                    // Note: /usr/bin/orca is intentionally excluded as it's usually GNOME Orca screen reader
                     path.join(homeDir, 'orca', 'orca'),
                     path.join(homeDir, '.local', 'bin', 'orca'),
                     path.join(homeDir, 'bin', 'orca')
@@ -303,55 +355,87 @@ export class OrcaDetector {
      * Check Conda environments for ORCA
      */
     private async checkCondaEnvironments(): Promise<OrcaInstallation[]> {
-        return new Promise((resolve) => {
-            // Check if conda is available
-            const process = spawn('conda', ['list', 'orca'], { shell: true });
-            let stdout = '';
-            
-            process.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-            
-            const timeout = setTimeout(() => {
-                process.kill('SIGTERM');
-                resolve([]);
-            }, 5000);
-            
-            process.on('close', async (code) => {
-                clearTimeout(timeout);
-                
-                if (code === 0 && stdout.includes('orca')) {
-                    // ORCA found in conda, try to locate binary
-                    const condaPaths = await this.getCondaBinaryPaths();
-                    const installations: OrcaInstallation[] = [];
-                    
-                    for (const binPath of condaPaths) {
-                        const installation = await this.validateBinary(binPath);
-                        if (installation) {
-                            installation.detectionSource = 'conda';
-                            installations.push(installation);
-                        }
-                    }
-                    
-                    resolve(installations);
-                } else {
-                    resolve([]);
-                }
-            });
-            
-            process.on('error', () => {
-                clearTimeout(timeout);
-                resolve([]);
-            });
-        });
+        const installations: OrcaInstallation[] = [];
+        
+        // First, try to get all conda binary paths
+        const condaPaths = await this.getCondaBinaryPaths();
+        
+        for (const binPath of condaPaths) {
+            const installation = await this.validateBinary(binPath);
+            if (installation) {
+                installation.detectionSource = 'conda';
+                installations.push(installation);
+            }
+        }
+        
+        return installations;
     }
     
     /**
      * Get possible Conda binary paths
      */
     private async getCondaBinaryPaths(): Promise<string[]> {
+        const paths: string[] = [];
+        
+        // 1. Check CONDA_PREFIX (current active environment)
+        const condaPrefix = process.env.CONDA_PREFIX;
+        if (condaPrefix) {
+            const currentEnvOrca = path.join(condaPrefix, 'bin', 'orca');
+            if (fs.existsSync(currentEnvOrca)) {
+                paths.push(currentEnvOrca);
+            }
+        }
+        
+        // 2. Check conda base and all environments
+        try {
+            const condaInfo = await this.getCondaInfo();
+            if (condaInfo.condaBase) {
+                // Check base environment
+                const baseOrca = path.join(condaInfo.condaBase, 'bin', 'orca');
+                if (fs.existsSync(baseOrca) && !paths.includes(baseOrca)) {
+                    paths.push(baseOrca);
+                }
+            }
+            
+            // Check all environments
+            for (const envPath of condaInfo.envPaths) {
+                const envOrca = path.join(envPath, 'bin', 'orca');
+                if (fs.existsSync(envOrca) && !paths.includes(envOrca)) {
+                    paths.push(envOrca);
+                }
+            }
+        } catch {
+            // Conda not available or error getting info
+        }
+        
+        // 3. Check common Conda locations as fallback
+        const homeDir = os.homedir();
+        const commonCondaPaths = [
+            path.join(homeDir, 'miniconda3', 'bin', 'orca'),
+            path.join(homeDir, 'anaconda3', 'bin', 'orca'),
+            path.join(homeDir, 'miniforge3', 'bin', 'orca'),
+            path.join(homeDir, 'mambaforge', 'bin', 'orca'),
+            path.join(homeDir, '.conda', 'bin', 'orca'),
+            '/opt/conda/bin/orca',
+            '/opt/miniconda3/bin/orca',
+            '/opt/anaconda3/bin/orca'
+        ];
+        
+        for (const p of commonCondaPaths) {
+            if (fs.existsSync(p) && !paths.includes(p)) {
+                paths.push(p);
+            }
+        }
+        
+        return paths;
+    }
+    
+    /**
+     * Get Conda info (base path and environment paths)
+     */
+    private async getCondaInfo(): Promise<{ condaBase: string | null; envPaths: string[] }> {
         return new Promise((resolve) => {
-            const process = spawn('conda', ['info', '--base'], { shell: true });
+            const process = spawn('conda', ['info', '--json'], { shell: true });
             let stdout = '';
             
             process.stdout.on('data', (data) => {
@@ -360,27 +444,30 @@ export class OrcaDetector {
             
             const timeout = setTimeout(() => {
                 process.kill('SIGTERM');
-                resolve([]);
-            }, 3000);
+                resolve({ condaBase: null, envPaths: [] });
+            }, 5000);
             
             process.on('close', (code) => {
                 clearTimeout(timeout);
                 
                 if (code === 0 && stdout.trim()) {
-                    const condaBase = stdout.trim();
-                    const paths = [
-                        path.join(condaBase, 'bin', 'orca'),
-                        path.join(condaBase, 'envs', 'base', 'bin', 'orca')
-                    ];
-                    resolve(paths.filter(p => fs.existsSync(p)));
+                    try {
+                        const info = JSON.parse(stdout);
+                        resolve({
+                            condaBase: info.root_prefix || info.conda_prefix || null,
+                            envPaths: info.envs || []
+                        });
+                    } catch {
+                        resolve({ condaBase: null, envPaths: [] });
+                    }
                 } else {
-                    resolve([]);
+                    resolve({ condaBase: null, envPaths: [] });
                 }
             });
             
             process.on('error', () => {
                 clearTimeout(timeout);
-                resolve([]);
+                resolve({ condaBase: null, envPaths: [] });
             });
         });
     }

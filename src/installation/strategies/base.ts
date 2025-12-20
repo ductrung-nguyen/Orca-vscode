@@ -3,6 +3,7 @@
  */
 
 import { InstallationStep, InstallationMethod, Prerequisite, Platform } from '../types';
+import { spawn } from 'child_process';
 
 /**
  * Installation strategy interface
@@ -39,8 +40,6 @@ export abstract class BaseInstallationStrategy implements IInstallationStrategy 
      * Common utility: Check if a command exists
      */
     protected async commandExists(command: string): Promise<boolean> {
-        const { spawn } = require('child_process');
-        
         return new Promise((resolve) => {
             const checkCmd = this.platform === Platform.Windows ? 'where' : 'which';
             const process = spawn(checkCmd, [command], { shell: true });
