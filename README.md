@@ -67,7 +67,31 @@ Computational chemists using ORCA face a **fragmented workflow**:
 
 ### Prerequisites
 - **Visual Studio Code** 1.85.0 or higher
-- **ORCA** (installed on your system)
+- **ORCA** (computational chemistry software)
+
+### Quick Start
+
+1. **Install the Extension:**
+   - Clone repository or install from marketplace (when published)
+   
+2. **Install ORCA:**
+   - **Option 1:** Use the built-in Installation Wizard
+     - Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+     - Run: **"ORCA: Setup ORCA Installation Wizard"**
+     - Follow guided steps
+   
+   - **Option 2:** Automatic Detection
+     - Run: **"ORCA: Detect ORCA Installations"**
+     - Select from detected installations
+   
+   - **Option 3:** Manual Configuration
+     - Open Settings and set `orca.binaryPath`
+     - Example: `/opt/orca/orca` (Linux/macOS) or `C:\orca\orca.exe` (Windows)
+
+3. **Verify Installation:**
+   - Run: **"ORCA: Validate ORCA Installation"**
+
+📖 **Detailed installation instructions:** See [INSTALLATION.md](INSTALLATION.md)
 
 ### Install from Source
 
@@ -175,15 +199,27 @@ The extension recognizes:
 
 ## 📋 Commands
 
+All commands are available via Command Palette (`Ctrl/Cmd + Shift + P`):
+
+### Execution Commands
 | Command | Keybinding | Description |
 |---------|------------|-------------|
 | **Run ORCA Job** | `F5` | Execute the current `.inp` file |
 | **Kill Running ORCA Job** | - | Terminate the active calculation |
 
+### Installation & Configuration Commands
+| Command | Description |
+|---------|-------------|
+| **Setup ORCA Installation Wizard** | Guided installation wizard for ORCA |
+| **Detect ORCA Installations** | Automatically find ORCA on your system |
+| **Validate ORCA Installation** | Run comprehensive validation tests |
+| **Check ORCA Health** | Quick health check of configured ORCA |
+
 **Access via:**
-- Command Palette (`Ctrl/Cmd + Shift + P`) → "ORCA: Run Job"
+- Command Palette (`Ctrl/Cmd + Shift + P`) → "ORCA: ..."
 - Right-click editor → "Run ORCA Job"
-- Editor toolbar icon (▶️)
+- Editor toolbar icon (▶️) for Run
+- Status bar (click to detect installations)
 
 ---
 
