@@ -1,0 +1,44 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+INPUT FILE
+==========
+! B3LYP def2-SVP Opt
+
+* xyz 0 1
+ C     0.000000     0.000000     0.000000
+ H     0.628736     0.628736     0.628736
+ H    -0.628736    -0.628736     0.628736
+ H    -0.628736     0.628736    -0.628736
+ H     0.628736    -0.628736    -0.628736
+*
+
+SCF ITERATIONS - CYCLE 1
+========================
+... (many lines of SCF iterations)
+
+OPTIMIZATION CYCLE    1
+... (detailed output)
+
+OPTIMIZATION CYCLE    2
+... (detailed output)
+
+... (continues for 100+ optimization cycles)
+
+OPTIMIZATION CYCLE   99
+... (detailed output)
+
+OPTIMIZATION CYCLE  100
+... (detailed output)
+
+THE OPTIMIZATION HAS CONVERGED
+
+                    ***       HURRAY      ***
+
+FINAL SINGLE POINT ENERGY       -40.519283746592
+
+                         ****ORCA TERMINATED NORMALLY****

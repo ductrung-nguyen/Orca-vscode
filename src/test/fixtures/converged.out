@@ -1,0 +1,95 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+                  #######################################################
+                  #                        -***-                        #
+                  #          Department of theory and spectroscopy      #
+                  #    Directorship and core code : Frank Neese         #
+                  #        Max Planck Institute fuer Kohlenforschung    #
+                  #                Kaiser Wilhelm Platz 1               #
+                  #                 D-45470 Muelheim/Ruhr               #
+                  #                      Germany                        #
+                  #                                                     #
+                  #                  All rights reserved                #
+                  #                        -***-                        #
+                  #######################################################
+
+
+                         Program Version 5.0.4 -  RELEASE  -
+
+
+ With contributions from (in alphabetic order):
+   Daniel Aravena         : Magnetic Suceptibility
+   Michael Atanasov       : Ab Initio Ligand Field Theory (pilot matlab implementation)
+   Alexander A. Auer      : GIAO ZORA, VPT2
+
+Your calculation uses the libint2 library for the computation of 2-el integrals
+For citations please refer to: http://libint.valeyev.net
+
+Your ORCA version has been built with support for libXC version: 5.1.0
+For citations please refer to: https://tddft.org/programs/libxc/
+
+This ORCA versions uses:
+  CBLAS   interface :  Fast vector & matrix operations
+  LAPACKE interface :  Fast linear algebra routines
+  SCALAPACK package :  Parallel linear algebra routines
+  Shared memory     :  Shared memory parallelization is ON (level 1)
+  BLAS/LAPACK       :  OpenBLAS 0.3.15 (not detected during config)
+
+
+INPUT FILE
+==========
+! B3LYP def2-SVP Opt
+
+* xyz 0 1
+ O     0.000000     0.000000     0.119262
+ H     0.000000     0.763239    -0.477047
+ H     0.000000    -0.763239    -0.477047
+*
+
+SCF ITERATIONS
+==============
+
+ITER       Energy         Delta-E        Max-DP      RMS-DP      [F,P]     Damp
+               ***  Starting incremental Fock matrix formation  ***
+  0   -76.0252189465   0.000000000000 0.05201953  0.00298466  0.1848625 0.7000
+  1   -76.0424681822  -0.017249235737 0.03923874  0.00223142  0.1129438 0.7000
+                               ***Turning on DIIS***
+  2   -76.0518342689  -0.009366086662 0.09045211  0.00516628  0.0629521 0.0000
+  3   -76.0671829449  -0.015348676060 0.02130642  0.00122489  0.0189562 0.0000
+  4   -76.0682458736  -0.001062928668 0.00381525  0.00023114  0.0037421 0.0000
+  5   -76.0683123408  -0.000066467252 0.00062818  0.00003969  0.0004312 0.0000
+                 **** Energy Check signals convergence ****
+
+               *****************************************************
+               *                     SUCCESS                       *
+               *           SCF CONVERGED AFTER   6 CYCLES          *
+               *****************************************************
+
+FINAL SINGLE POINT ENERGY       -76.068312340821
+
+OPTIMIZATION CYCLE    1
+-----------------------
+  ITER       Energy         Delta-E        Grad      Rot      Max-DP    RMS-DP
+               ***  Geometry converged after 15 cycles  ***
+
+THE OPTIMIZATION HAS CONVERGED
+
+                    ***       HURRAY      ***
+                ***  THE OPTIMIZATION HAS CONVERGED  ***
+
+
+CARTESIAN COORDINATES (ANGSTROEM)
+=================================
+  O      0.000000    0.000000    0.117819
+  H      0.000000    0.757531   -0.471277
+  H      0.000000   -0.757531   -0.471277
+
+
+FINAL SINGLE POINT ENERGY       -76.068475629182
+
+                         ****ORCA TERMINATED NORMALLY****

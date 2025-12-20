@@ -1,0 +1,24 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+GEOMETRY OPTIMIZATION
+---------------------
+
+Cycle    Energy         Max Gradient   RMS Gradient   Max Step   RMS Step
+  0   -789.012345678    0.12345678     0.01234567    0.12345    0.01234
+  1   -789.012456789    0.11234567     0.01123456    0.11234    0.01123
+  2   -789.012567890    0.10123456     0.01012345    0.10123    0.01012
+  3   -789.012678901    0.15234567     0.01523456    0.15234    0.01523  INCREASING
+  4   -789.012789012    0.20345678     0.02034567    0.20345    0.02034  INCREASING
+
+ERROR: GEOMETRY OPTIMIZATION DID NOT CONVERGE
+The gradient is increasing instead of decreasing.
+This usually indicates a problem with the initial geometry.
+
+ABORTING THE RUN
+
+                            ****ORCA TERMINATED WITH ERROR****
+TOTAL RUN TIME: 0 days 0 hours 8 minutes 45 seconds 234 msec

@@ -1,0 +1,17 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+Input file parsing started...
+Basis set loaded...
+Starting SCF iterations...
+
+ERROR: Input file contains syntax errors
+Unable to parse calculation type
+
+ABORTING THE RUN
+
+                            ****ORCA TERMINATED WITH ERROR****
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 0 seconds 123 msec
