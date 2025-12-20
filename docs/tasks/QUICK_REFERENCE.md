@@ -18,12 +18,12 @@
 
 ## 📁 Key Files
 
-| File | Purpose |
-|------|---------|
-| [`docs/tasks/orca-installation-capability.md`](./orca-installation-capability.md) | Main task breakdown (42 tasks) |
-| [`docs/tasks-details/TASK-*.md`](../tasks-details/) | Detailed specifications |
-| [`docs/task-generation-summary.md`](../task-generation-summary.md) | Overview & statistics |
-| [`docs/PRD-ORCA-Installation-Capability.md`](../PRD-ORCA-Installation-Capability.md) | Source requirements |
+| File                                                                                 | Purpose                        |
+| ------------------------------------------------------------------------------------ | ------------------------------ |
+| [`docs/tasks/orca-installation-capability.md`](./orca-installation-capability.md)    | Main task breakdown (42 tasks) |
+| [`docs/tasks-details/TASK-*.md`](../tasks-details/)                                  | Detailed specifications        |
+| [`docs/task-generation-summary.md`](../task-generation-summary.md)                   | Overview & statistics          |
+| [`docs/PRD-ORCA-Installation-Capability.md`](../PRD-ORCA-Installation-Capability.md) | Source requirements            |
 
 ---
 
@@ -72,13 +72,16 @@ cat docs/task-generation-summary.md
 ## 📋 Phase Overview
 
 ### Phase 1: Foundation (Week 1) - START HERE
+
 ```
 TASK-001 → TASK-002 → TASK-004 → TASK-005 → TASK-007
          ↘ TASK-003 → TASK-006 ↗
 ```
+
 **Goal**: Working detection and validation
 
 ### Phase 2: Platforms (Week 2)
+
 ```
 TASK-008 → [TASK-009, TASK-010, TASK-011] → TASK-012
                                            ↘ TASK-013
@@ -86,21 +89,26 @@ TASK-008 → [TASK-009, TASK-010, TASK-011] → TASK-012
                                            ↘ TASK-015
                                            ↘ TASK-016
 ```
+
 **Goal**: OS-specific installation strategies
 
 ### Phase 3: UI (Week 3)
+
 ```
 TASK-017 → TASK-018 → TASK-019 → [TASK-020..024] → TASK-025
                                                    ↘ TASK-026
                                                    ↘ TASK-027
                                                    ↘ TASK-028
 ```
+
 **Goal**: Installation wizard webview
 
 ### Phase 4: Integration (Week 4)
+
 ```
 [TASK-029..033] → TASK-034 → [TASK-035, TASK-036] → TASK-037 → TASK-038 → TASK-039
 ```
+
 **Goal**: Commands, docs, and QA
 
 ---
@@ -149,24 +157,28 @@ src/
 ## 🧪 Testing Checklist
 
 ### Phase 1 Tests
+
 - [ ] Detector finds ORCA in standard locations
 - [ ] Validator runs test job successfully
 - [ ] Version parser handles ORCA 4.x-6.x
 - [ ] runJob shows detection prompt
 
 ### Phase 2 Tests
+
 - [ ] Linux instructions correct for Ubuntu/Fedora/Arch
 - [ ] macOS instructions work on Intel and Apple Silicon
 - [ ] Windows instructions include all prerequisites
 - [ ] License acknowledgment enforced
 
 ### Phase 3 Tests
+
 - [ ] Wizard opens and navigates between steps
 - [ ] State persists across VS Code restarts
 - [ ] Copy-to-clipboard works
 - [ ] Validation step runs test job
 
 ### Phase 4 Tests
+
 - [ ] All commands work from Command Palette
 - [ ] Status bar shows active version
 - [ ] Health check runs on startup
@@ -192,6 +204,7 @@ src/
 ## 📊 Acceptance Criteria Summary
 
 Each task must meet:
+
 - ✅ All specified acceptance criteria checked
 - ✅ Code compiles without errors
 - ✅ Tests pass (80%+ coverage for P0 tasks)
@@ -205,6 +218,7 @@ Each task must meet:
 ## 🔐 Security Requirements
 
 All tasks must ensure:
+
 - No arbitrary code execution
 - No shell injection (`shell: false`)
 - Path validation before file operations
@@ -218,6 +232,7 @@ All tasks must ensure:
 ## 📈 Progress Tracking
 
 ### Current Status
+
 - Phase 1: 0/7 tasks (0%)
 - Phase 2: 0/9 tasks (0%)
 - Phase 3: 0/12 tasks (0%)
@@ -227,7 +242,9 @@ All tasks must ensure:
 **Overall**: 0/42 tasks (0%)
 
 ### Next Milestone
+
 **Phase 1 Complete** when:
+
 - Detection works on 2+ platforms
 - Validation runs test job successfully
 - runJob command integrated
@@ -238,16 +255,19 @@ All tasks must ensure:
 ## 🆘 Need Help?
 
 ### Task Questions
+
 - Check [`tasks-details/TASK-*.md`](../tasks-details/) for specifications
 - Review PRD section references in task files
 - Check integration points in task files
 
 ### Technical Questions
+
 - Detector/Validator: See TASK-002, TASK-003
 - Wizard: See TASK-017 through TASK-028
 - Commands: See TASK-029 through TASK-032
 
 ### Process Questions
+
 - Dependencies: See main task file dependency graph
 - Timeline: See task-generation-summary.md
 - Priorities: See task priority field (P0/P1/P2/P3)
@@ -257,6 +277,7 @@ All tasks must ensure:
 ## 🎉 Definition of Done
 
 Feature is complete when:
+
 - ✅ All P0 tasks completed
 - ✅ All P1 tasks completed (or deferred)
 - ✅ Integration tests passing
