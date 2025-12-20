@@ -245,7 +245,7 @@ H 0.0 0.0 0.0
                 });
             }, 30000);
             
-            process.on('close', async (code) => {
+            process.on('close', async (_code) => {
                 clearTimeout(timeout);
                 
                 // Clean up test files
@@ -288,7 +288,7 @@ H 0.0 0.0 0.0
     /**
      * Check for optional dependencies
      */
-    private async checkDependencies(binaryPath: string): Promise<{[key: string]: boolean}> {
+    private async checkDependencies(_binaryPath: string): Promise<{[key: string]: boolean}> {
         const dependencies: {[key: string]: boolean} = {};
         
         // Check for common dependencies based on platform

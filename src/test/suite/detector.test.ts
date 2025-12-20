@@ -3,10 +3,7 @@
  */
 
 import * as assert from 'assert';
-import * as vscode from 'vscode';
-import * as path from 'path';
 import { OrcaDetector } from '../../installation/detector';
-import { OrcaInstallation } from '../../installation/types';
 
 suite('OrcaDetector Test Suite', () => {
     let detector: OrcaDetector;

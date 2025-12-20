@@ -15,13 +15,30 @@ suite('OrcaValidator Test Suite', () => {
         const ext = vscode.extensions.getExtension('ductrung-nguyen.vs-orca');
         if (ext) {
             context = ext.exports?.context || {
+                subscriptions: [],
+                extensionPath: __dirname,
+                extensionUri: vscode.Uri.file(__dirname),
                 globalState: {
+                    get: () => undefined,
+                    update: async () => {},
+                    keys: () => [],
+                    setKeysForSync: () => {}
+                },
+                workspaceState: {
                     get: () => undefined,
                     update: async () => {},
                     keys: () => []
                 },
-                globalStorageUri: vscode.Uri.file('/tmp/orca-test')
-            } as any;
+                secrets: {} as vscode.SecretStorage,
+                extensionMode: vscode.ExtensionMode.Test,
+                globalStorageUri: vscode.Uri.file('/tmp/orca-test'),
+                logUri: vscode.Uri.file('/tmp/orca-test-log'),
+                storageUri: vscode.Uri.file('/tmp/orca-test-storage'),
+                asAbsolutePath: (relativePath: string) => relativePath,
+                environmentVariableCollection: {} as vscode.GlobalEnvironmentVariableCollection,
+                extension: {} as vscode.Extension<unknown>,
+                languageModelAccessInformation: {} as vscode.LanguageModelAccessInformation
+            } as unknown as vscode.ExtensionContext;
             
             validator = new OrcaValidator(context);
         }
@@ -62,8 +79,8 @@ suite('OrcaValidator Test Suite', () => {
         
         const result = await validator.quickValidate('/nonexistent/orca');
         
-        assert.ok(result.hasOwnProperty('success'), 'Should have success property');
-        assert.ok(result.hasOwnProperty('errors'), 'Should have errors property');
-        assert.ok(result.hasOwnProperty('warnings'), 'Should have warnings property');
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'success'), 'Should have success property');
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'errors'), 'Should have errors property');
+        assert.ok(Object.prototype.hasOwnProperty.call(result, 'warnings'), 'Should have warnings property');
     });
 });
