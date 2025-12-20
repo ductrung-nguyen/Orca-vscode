@@ -1,0 +1,27 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+INPUT FILE
+==========
+! B3LYP def2-TZVPP RIJCOSX
+
+* xyz 0 1
+ C     0.000000     0.000000     0.000000
+ ... (large molecule with 500+ atoms)
+*
+
+Trying to allocate 45678.234 MB of memory for integral storage...
+
+ERROR: Not enough memory available!
+Required: 45678 MB
+Available: 8192 MB
+
+SUGGESTION: Reduce maxcore setting or use RI approximations
+
+ABORTING THE RUN
+
+                         ****ORCA TERMINATED ABNORMALLY****

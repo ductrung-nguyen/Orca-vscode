@@ -3,6 +3,98 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
 
+/**
+ * Result of parsing ORCA output file
+ */
+export interface OrcaParseResult {
+    converged: boolean;
+    scfFailed: boolean;
+    finalEnergy: number | null;
+    optimizationConverged: boolean;
+    hasFrequencies: boolean;
+    imaginaryFreqCount: number;
+    hasErrors: boolean;
+}
+
+/**
+ * Parse ORCA output content and extract key results
+ * Pure function for easier testing
+ * @param content Full or partial content of ORCA output file
+ * @returns Structured parse results
+ */
+export function parseOrcaOutput(content: string): OrcaParseResult {
+    const result: OrcaParseResult = {
+        converged: false,
+        scfFailed: false,
+        finalEnergy: null,
+        optimizationConverged: false,
+        hasFrequencies: false,
+        imaginaryFreqCount: 0,
+        hasErrors: false
+    };
+    
+    // Check for successful convergence (HURRAY marker)
+    result.converged = content.includes('HURRAY');
+    
+    // Check for SCF convergence failure
+    result.scfFailed = content.includes('SCF NOT CONVERGED');
+    
+    // Extract final energy
+    const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-\d.]+)/);
+    if (energyMatch) {
+        result.finalEnergy = parseFloat(energyMatch[1]);
+    }
+    
+    // Check for geometry optimization convergence
+    result.optimizationConverged = content.includes('THE OPTIMIZATION HAS CONVERGED');
+    
+    // Check for frequency calculation
+    result.hasFrequencies = content.includes('VIBRATIONAL FREQUENCIES');
+    
+    // Count imaginary frequencies
+    const imagMatch = content.match(/\*\*\*imaginary mode\*\*\*/g);
+    if (imagMatch) {
+        result.imaginaryFreqCount = imagMatch.length;
+    }
+    
+    // Detect various error conditions
+    result.hasErrors = result.scfFailed || 
+                       content.includes('ABORTING THE RUN') ||
+                       content.includes('Not enough memory') ||
+                       content.includes('cannot allocate memory');
+    
+    return result;
+}
+
+/**
+ * Extract final energy from ORCA output
+ * @param content ORCA output content
+ * @returns Energy in Hartree or null if not found
+ */
+export function extractFinalEnergy(content: string): number | null {
+    const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-\d.]+)/);
+    return energyMatch ? parseFloat(energyMatch[1]) : null;
+}
+
+/**
+ * Check if calculation converged successfully
+ * @param content ORCA output content
+ * @returns true if HURRAY marker found
+ */
+export function checkConvergence(content: string): boolean {
+    return content.includes('HURRAY');
+}
+
+/**
+ * Count imaginary frequencies in output
+ * @param content ORCA output content
+ * @returns Number of imaginary frequencies
+ */
+export function countImaginaryFrequencies(content: string): number {
+    const matches = content.match(/\*\*\*imaginary mode\*\*\*/g);
+    return matches ? matches.length : 0;
+}
+
 export class OrcaRunner {
     private outputChannel: vscode.OutputChannel;
     private currentProcess: ChildProcess | null = null;
@@ -106,7 +198,9 @@ export class OrcaRunner {
                 vscode.window.showInformationMessage(`ORCA job completed: ${fileName}`);
                 
                 // Parse the output for key results
-                this.parseResults(this.outputFilePath!);
+                if (this.outputFilePath) {
+                    this.parseResults(this.outputFilePath);
+                }
             } else if (code === null) {
                 this.outputChannel.appendLine('⚠️  ORCA job was terminated');
                 this.updateStatusBar('Terminated', false);
@@ -179,7 +273,7 @@ export class OrcaRunner {
                                     end: currentSize
                                 });
                                 
-                                stream.on('data', (chunk: string | Buffer) => {
+                                stream.on('data', (_chunk: string | Buffer) => {
                                     // This provides real-time output viewing
                                     // The actual content is already captured by stdout
                                 });
@@ -205,45 +299,171 @@ export class OrcaRunner {
         }
     }
 
+    /**
+     * Check if output file size exceeds configured maximum
+     * @param filePath Path to output file
+     * @returns true if file can be fully parsed, false if too large
+     */
+    private checkOutputSize(filePath: string): boolean {
+        try {
+            const stats = fs.statSync(filePath);
+            const sizeMB = stats.size / (1024 * 1024);
+            const config = vscode.workspace.getConfiguration('orca');
+            const maxSize = config.get<number>('maxOutputSize', 50);
+            
+            if (sizeMB > maxSize) {
+                this.outputChannel.appendLine('');
+                this.outputChannel.appendLine(`⚠️  Output file is ${sizeMB.toFixed(1)} MB (limit: ${maxSize} MB)`);
+                this.outputChannel.appendLine('   Parsing final results only. Open .out file for full output.');
+                return false;
+            }
+            return true;
+        } catch (err) {
+            // If we can't stat the file, try to parse anyway
+            return true;
+        }
+    }
+
+    /**
+     * Suggest recovery strategies for common ORCA failures
+     * @param outputContent Full content of the output file
+     */
+    private suggestRecovery(outputContent: string): void {
+        // Detect SCF convergence failure
+        if (outputContent.includes('SCF NOT CONVERGED')) {
+            const suggestions = [
+                '• Try SlowConv or VerySlowConv keywords',
+                '• Increase SCF iterations: %scf MaxIter 250 end',
+                '• Use initial Hessian guess: ! MORead',
+                '• Try different starting geometry or basis set'
+            ];
+            
+            this.outputChannel.appendLine('');
+            this.outputChannel.appendLine('💡 SCF Convergence Recovery Suggestions:');
+            suggestions.forEach(s => this.outputChannel.appendLine(s));
+            
+            vscode.window.showWarningMessage(
+                'SCF did not converge. View recovery suggestions?',
+                'Show Suggestions',
+                'Ignore'
+            ).then(response => {
+                if (response === 'Show Suggestions') {
+                    this.outputChannel.show(true);
+                }
+            });
+        }
+        
+        // Detect memory issues
+        if (outputContent.includes('Not enough memory') || 
+            outputContent.includes('cannot allocate memory')) {
+            const suggestions = [
+                '• Reduce maxcore: %maxcore 2000',
+                '• Use fewer processors',
+                '• Split calculation into smaller steps',
+                '• Use RI approximations to reduce memory'
+            ];
+            
+            this.outputChannel.appendLine('');
+            this.outputChannel.appendLine('💡 Memory Error Recovery Suggestions:');
+            suggestions.forEach(s => this.outputChannel.appendLine(s));
+            
+            vscode.window.showWarningMessage(
+                'ORCA ran out of memory. View recovery suggestions?',
+                'Show Suggestions',
+                'Ignore'
+            ).then(response => {
+                if (response === 'Show Suggestions') {
+                    this.outputChannel.show(true);
+                }
+            });
+        }
+        
+        // Detect geometry optimization failures
+        if (outputContent.includes('ABORTING THE RUN') && 
+            outputContent.includes('GEOMETRY OPTIMIZATION')) {
+            const suggestions = [
+                '• Check initial geometry for unrealistic bonds',
+                '• Use looser convergence: ! LooseOpt',
+                '• Try different optimization algorithm: ! BFGS',
+                '• Constrain problematic coordinates'
+            ];
+            
+            this.outputChannel.appendLine('');
+            this.outputChannel.appendLine('💡 Geometry Optimization Recovery Suggestions:');
+            suggestions.forEach(s => this.outputChannel.appendLine(s));
+            
+            vscode.window.showWarningMessage(
+                'Geometry optimization failed. View recovery suggestions?',
+                'Show Suggestions',
+                'Ignore'
+            ).then(response => {
+                if (response === 'Show Suggestions') {
+                    this.outputChannel.show(true);
+                }
+            });
+        }
+    }
+
     private parseResults(outputFilePath: string): void {
         if (!fs.existsSync(outputFilePath)) {
             return;
         }
 
         try {
-            const content = fs.readFileSync(outputFilePath, 'utf-8');
+            // Check file size before full parsing
+            const canFullyParse = this.checkOutputSize(outputFilePath);
             
-            // Check for successful convergence
-            if (content.includes('HURRAY')) {
+            let content: string;
+            if (canFullyParse) {
+                // Read full file for small outputs
+                content = fs.readFileSync(outputFilePath, 'utf-8');
+            } else {
+                // For large files, read only last 50KB for final results
+                const stats = fs.statSync(outputFilePath);
+                const bytesToRead = Math.min(stats.size, 50 * 1024);
+                const buffer = Buffer.alloc(bytesToRead);
+                const fd = fs.openSync(outputFilePath, 'r');
+                fs.readSync(fd, buffer, 0, bytesToRead, stats.size - bytesToRead);
+                fs.closeSync(fd);
+                content = buffer.toString('utf-8');
+            }
+            
+            // Use extracted parsing functions
+            const parseResult = parseOrcaOutput(content);
+            
+            // Display convergence status
+            if (parseResult.converged) {
                 this.outputChannel.appendLine('🎉 Calculation converged successfully!');
-            } else if (content.includes('SCF NOT CONVERGED')) {
+            } else if (parseResult.scfFailed) {
                 this.outputChannel.appendLine('⚠️  Warning: SCF did not converge');
             }
 
-            // Extract final energy
-            const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-\d.]+)/);
-            if (energyMatch) {
-                const energy = parseFloat(energyMatch[1]);
-                this.outputChannel.appendLine(`📊 Final Energy: ${energy.toFixed(8)} Hartree`);
-                this.statusBarItem.text = `$(check) ORCA: ${energy.toFixed(6)} Eh`;
+            // Display final energy
+            if (parseResult.finalEnergy !== null) {
+                const energyValue = parseResult.finalEnergy;
+                this.outputChannel.appendLine(`📊 Final Energy: ${energyValue.toFixed(8)} Hartree`);
+                this.statusBarItem.text = `$(check) ORCA: ${energyValue.toFixed(6)} Eh`;
             }
 
-            // Check for geometry optimization
-            const optMatch = content.match(/THE OPTIMIZATION HAS CONVERGED/);
-            if (optMatch) {
+            // Display optimization status
+            if (parseResult.optimizationConverged) {
                 this.outputChannel.appendLine('✨ Geometry optimization converged!');
             }
 
-            // Check for frequency calculation
-            const freqMatch = content.match(/VIBRATIONAL FREQUENCIES/);
-            if (freqMatch) {
+            // Display frequency results
+            if (parseResult.hasFrequencies) {
                 this.outputChannel.appendLine('🎵 Frequency calculation completed');
                 
-                // Check for imaginary frequencies
-                const imagMatch = content.match(/\*\*\*imaginary mode\*\*\*/g);
-                if (imagMatch) {
-                    this.outputChannel.appendLine(`⚠️  Found ${imagMatch.length} imaginary frequency/frequencies`);
+                if (parseResult.imaginaryFreqCount > 0) {
+                    this.outputChannel.appendLine(`⚠️  Found ${parseResult.imaginaryFreqCount} imaginary frequency/frequencies`);
                 }
+            }
+            
+            // Check for errors and suggest recovery
+            if (parseResult.scfFailed || parseResult.hasErrors) {
+                // Read more content if we only parsed tail for error detection
+                const fullContent = canFullyParse ? content : fs.readFileSync(outputFilePath, 'utf-8');
+                this.suggestRecovery(fullContent);
             }
 
         } catch (err) {
