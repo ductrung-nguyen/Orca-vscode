@@ -1,0 +1,21 @@
+# Sample ORCA Input File - Water Molecule Optimization
+# This demonstrates syntax highlighting and snippets
+
+! B3LYP def2-TZVP Opt TightSCF D3BJ
+
+%pal
+  nprocs 4
+end
+
+%maxcore 2000
+
+%geom
+  MaxIter 100
+  TolE 1e-6
+end
+
+* xyz 0 1
+  O  0.000000  0.000000  0.118351
+  H  0.000000  0.755453 -0.471405
+  H  0.000000 -0.755453 -0.471405
+* 

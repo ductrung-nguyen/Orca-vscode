@@ -1,0 +1,215 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "ORCA Input",
+  "scopeName": "source.orca",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#blocks"
+    },
+    {
+      "include": "#coordinates"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#operators"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.orca",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.orca",
+          "match": "\\b(?i)(end)\\b"
+        },
+        {
+          "name": "keyword.other.simple-input.orca",
+          "match": "!\\s*[A-Za-z0-9_\\-/+]+",
+          "captures": {
+            "0": {
+              "patterns": [
+                {
+                  "name": "punctuation.definition.keyword.orca",
+                  "match": "!"
+                },
+                {
+                  "name": "entity.name.function.method.orca",
+                  "match": "(?i)\\b(HF|MP2|CCSD\\(?T\\)?|DFT|B3LYP|PBE|PBE0|M06|M06-2X|wB97X-D3|TPSS|BP86|BLYP|CAM-B3LYP)\\b"
+                },
+                {
+                  "name": "entity.name.tag.basis.orca",
+                  "match": "(?i)\\b(STO-3G|3-21G|6-31G\\*?\\*?|6-311G\\*?\\*?|def2-[A-Z]+|cc-pV[DTQ5]Z|aug-cc-pV[DTQ5]Z|ma-def2-[A-Z]+)\\b"
+                },
+                {
+                  "name": "support.function.job-type.orca",
+                  "match": "(?i)\\b(Opt|OptTS|Freq|NumFreq|SP|IRC|NEB|MD|CPCM|SMD|COSMO)\\b"
+                },
+                {
+                  "name": "support.type.auxiliary.orca",
+                  "match": "(?i)\\b(TightSCF|SlowConv|VeryTightSCF|RIJCOSX|RI|NORI|Grid[0-9]|FinalGrid[0-9]|NoFinalGrid|defgrid[1-3]|PAL[0-9]+|D3BJ|D3|D4|ZORA|DKH2?|X2C)\\b"
+                },
+                {
+                  "name": "variable.language.orca",
+                  "match": "[A-Za-z0-9_\\-/+]+"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "blocks": {
+      "patterns": [
+        {
+          "name": "meta.block.orca",
+          "begin": "^\\s*%([a-zA-Z]+)",
+          "end": "^\\s*end",
+          "beginCaptures": {
+            "0": {
+              "name": "entity.name.section.orca"
+            },
+            "1": {
+              "name": "support.class.block-name.orca"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.orca"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#block-content"
+            }
+          ]
+        }
+      ]
+    },
+    "block-content": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.orca",
+          "match": "#.*$"
+        },
+        {
+          "name": "variable.parameter.orca",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b(?=\\s+)"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "name": "keyword.operator.logical.orca",
+          "match": "\\b(?i)(true|false|yes|no|on|off)\\b"
+        }
+      ]
+    },
+    "coordinates": {
+      "patterns": [
+        {
+          "name": "meta.coordinates.orca",
+          "begin": "^\\s*\\*\\s*(?i)(xyz|int|gzmt)\\s+(-?[0-9]+)\\s+(-?[0-9]+)",
+          "end": "^\\s*\\*",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.other.coordinate-start.orca"
+            },
+            "1": {
+              "name": "support.type.coordinate-type.orca"
+            },
+            "2": {
+              "name": "constant.numeric.charge.orca"
+            },
+            "3": {
+              "name": "constant.numeric.multiplicity.orca"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "keyword.other.coordinate-end.orca"
+            }
+          },
+          "patterns": [
+            {
+              "name": "meta.coordinate-line.orca",
+              "match": "^\\s*([A-Z][a-z]?)\\s+([-+]?[0-9]*\\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\\s+([-+]?[0-9]*\\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\\s+([-+]?[0-9]*\\.?[0-9]+(?:[eE][-+]?[0-9]+)?)",
+              "captures": {
+                "1": {
+                  "name": "entity.name.type.element.orca"
+                },
+                "2": {
+                  "name": "constant.numeric.coordinate.x.orca"
+                },
+                "3": {
+                  "name": "constant.numeric.coordinate.y.orca"
+                },
+                "4": {
+                  "name": "constant.numeric.coordinate.z.orca"
+                }
+              }
+            },
+            {
+              "include": "#comments"
+            }
+          ]
+        },
+        {
+          "name": "keyword.other.coordinate-marker.orca",
+          "match": "^\\s*\\*"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.orca",
+          "match": "[-+]?[0-9]*\\.[0-9]+(?:[eE][-+]?[0-9]+)?"
+        },
+        {
+          "name": "constant.numeric.integer.orca",
+          "match": "[-+]?[0-9]+"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.orca",
+          "begin": "\"",
+          "end": "\""
+        },
+        {
+          "name": "string.quoted.single.orca",
+          "begin": "'",
+          "end": "'"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.orca",
+          "match": "[=,;]"
+        }
+      ]
+    }
+  }
+}
