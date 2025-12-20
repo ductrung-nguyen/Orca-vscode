@@ -1,0 +1,156 @@
+{
+  "name": "vs-orca",
+  "displayName": "VS-ORCA (Virtual Studio for ORCA Chemistry)",
+  "description": "Unified IDE for ORCA computational chemistry: syntax highlighting, execution, and automated output parsing",
+  "version": "0.1.0",
+  "publisher": "ductrung-nguyen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ductrung-nguyen/Orca-vscode.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "orca",
+    "computational chemistry",
+    "quantum chemistry",
+    "dft",
+    "chemistry"
+  ],
+  "icon": "images/icon.png",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "orca",
+        "aliases": [
+          "ORCA",
+          "orca"
+        ],
+        "extensions": [
+          ".inp",
+          ".orca"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "orca",
+        "scopeName": "source.orca",
+        "path": "./syntaxes/orca.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "orca",
+        "path": "./snippets/orca.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "vs-orca.runJob",
+        "title": "Run ORCA Job",
+        "category": "ORCA",
+        "icon": "$(play)"
+      },
+      {
+        "command": "vs-orca.killJob",
+        "title": "Kill Running ORCA Job",
+        "category": "ORCA",
+        "icon": "$(stop)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vs-orca.runJob",
+        "key": "f5",
+        "when": "editorLangId == orca"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "vs-orca.runJob",
+          "when": "resourceExtname == .inp",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "vs-orca.runJob",
+          "when": "editorLangId == orca"
+        },
+        {
+          "command": "vs-orca.killJob"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ORCA",
+      "properties": {
+        "orca.binaryPath": {
+          "type": "string",
+          "default": "/opt/orca/orca",
+          "description": "Full path to the ORCA executable (e.g., /opt/orca/orca or C:\\orca\\orca.exe)",
+          "order": 1
+        },
+        "orca.mpiProcs": {
+          "type": "number",
+          "default": 4,
+          "minimum": 1,
+          "maximum": 128,
+          "description": "Default number of MPI processes (cores) for parallel calculations",
+          "order": 2
+        },
+        "orca.autoSaveBeforeRun": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically save the input file before running ORCA",
+          "order": 3
+        },
+        "orca.clearOutputBeforeRun": {
+          "type": "boolean",
+          "default": true,
+          "description": "Clear the output panel before starting a new job",
+          "order": 4
+        },
+        "orca.maxOutputSize": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 500,
+          "description": "Maximum output file size (in MB) to display in real-time",
+          "order": 5
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {}
+}

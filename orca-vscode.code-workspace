@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "orca.binaryPath": "/opt/orca/orca",
+    "orca.mpiProcs": 4,
+    "files.associations": {
+      "*.inp": "orca"
+    }
+  },
+  "extensions": {
+    "recommendations": []
+  }
+}
