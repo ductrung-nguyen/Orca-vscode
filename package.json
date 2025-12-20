@@ -66,6 +66,30 @@
         "title": "Kill Running ORCA Job",
         "category": "ORCA",
         "icon": "$(stop)"
+      },
+      {
+        "command": "vs-orca.setupOrca",
+        "title": "Setup ORCA Installation Wizard",
+        "category": "ORCA",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "vs-orca.detectOrca",
+        "title": "Detect ORCA Installations",
+        "category": "ORCA",
+        "icon": "$(search)"
+      },
+      {
+        "command": "vs-orca.validateOrca",
+        "title": "Validate ORCA Installation",
+        "category": "ORCA",
+        "icon": "$(check)"
+      },
+      {
+        "command": "vs-orca.checkOrcaHealth",
+        "title": "Check ORCA Health",
+        "category": "ORCA",
+        "icon": "$(heart)"
       }
     ],
     "keybindings": [
@@ -129,6 +153,24 @@
           "maximum": 500,
           "description": "Maximum output file size (in MB) to display in real-time",
           "order": 5
+        },
+        "orca.autoDetectOnStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically detect and validate ORCA installation on startup",
+          "order": 6
+        },
+        "orca.installationWizardCompleted": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the installation wizard has been completed (internal use)",
+          "order": 7
+        },
+        "orca.licenseAcknowledged": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the user has acknowledged ORCA academic license terms (internal use)",
+          "order": 8
         }
       }
     }

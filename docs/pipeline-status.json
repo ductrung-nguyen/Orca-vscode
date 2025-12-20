@@ -1,0 +1,41 @@
+{
+  "started": "2025-12-20T00:00:00Z",
+  "mode": "feature",
+  "currentStage": 5,
+  "prdFile": "docs/PRD-ORCA-Installation-Capability.md",
+  "taskFile": "docs/tasks/orca-installation-capability.md",
+  "stages": {
+    "1": { "status": "skipped", "output": null, "note": "Discovery skipped in feature mode" },
+    "2": { "status": "completed", "output": "docs/PRD-ORCA-Installation-Capability.md" },
+    "3": { "status": "completed", "output": "validation-passed-with-revisions" },
+    "4": { 
+      "status": "completed", 
+      "output": "docs/tasks/orca-installation-capability.md",
+      "note": "Generated 42 tasks across 4 phases (94-113 hours estimated)",
+      "artifacts": [
+        "docs/tasks/orca-installation-capability.md",
+        "docs/tasks-details/TASK-001.md",
+        "docs/tasks-details/TASK-002.md",
+        "docs/tasks-details/TASK-003.md",
+        "docs/tasks-details/TASK-017.md",
+        "docs/task-generation-summary.md"
+      ]
+    },
+    "5": { "status": "pending", "output": null },
+    "6": { "status": "pending", "output": null },
+    "7": { "status": "pending", "output": null }
+  },
+  "taskBreakdown": {
+    "totalTasks": 42,
+    "phases": 4,
+    "estimatedHours": "94-113",
+    "priorityDistribution": {
+      "P0": 34,
+      "P1": 5,
+      "P2": 2,
+      "P3": 1
+    }
+  },
+  "errors": [],
+  "lastUpdated": "2025-12-20T12:00:00Z"
+}
