@@ -17,11 +17,13 @@ Update TypeScript compiler from 5.3.3 to 5.7.2 (latest stable). TypeScript is fo
 ## Dependencies
 
 **Blocked By**:
+
 - TASK-DEP-001 (Baseline Measurement)
 - TASK-DEP-002 (Compatibility Research)
 - TASK-DEP-003 (Branch Setup)
 
 **Blocks**:
+
 - TASK-DEP-005 (Type Definitions Update)
 - TASK-DEP-006 (Fix TypeScript Errors)
 
@@ -55,6 +57,7 @@ cat tsconfig.json | grep -E "(target|module|lib)"
 ```
 
 **Expected tsconfig.json**:
+
 ```json
 {
   "compilerOptions": {
@@ -67,6 +70,7 @@ cat tsconfig.json | grep -E "(target|module|lib)"
 ```
 
 **Validation**:
+
 - [ ] TypeScript 5.3.3 confirmed
 - [ ] Clean compilation baseline established
 - [ ] tsconfig.json reviewed
@@ -91,10 +95,12 @@ cat package.json | grep typescript
 ```
 
 **Version Strategy**:
+
 - Use `^5.7.2` (caret) to allow 5.7.x patches
 - Or use `~5.7.2` (tilde) for stricter control
 
 **Validation**:
+
 - [ ] TypeScript updated to 5.7.2
 - [ ] package.json reflects new version
 - [ ] package-lock.json updated
@@ -114,24 +120,30 @@ npm run compile 2>&1 | tee ts-5.7-compile.log
 **Expected Outcomes**:
 
 **Scenario A: Clean Success**
+
 ```
 > vs-orca@0.2.0 compile
 > tsc -p ./
 
 (No output = success)
 ```
+
 ✅ Proceed to Step 3
 
 **Scenario B: New Type Errors**
+
 ```
 src/extension.ts:45:12 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
 ```
+
 🔧 Proceed to Step 4 (Fix Errors)
 
 **Scenario C: Configuration Errors**
+
 ```
 error TS5023: Unknown compiler option 'someOldOption'
 ```
+
 🔧 Update tsconfig.json (see below)
 
 ---
@@ -151,6 +163,7 @@ ls -lh out/
 ```
 
 **Validation**:
+
 - [ ] No errors in compilation
 - [ ] All source files compiled
 - [ ] Output directory contains .js and .js.map files
@@ -165,17 +178,19 @@ ls -lh out/
 **Problem**: TypeScript 5.7 has improved inference that may catch previously untyped issues.
 
 **Example Error**:
+
 ```typescript
 // src/extension.ts
-const config = vscode.workspace.getConfiguration('orca');
-const path = config.get('binaryPath');  // Error: string | undefined
+const config = vscode.workspace.getConfiguration("orca");
+const path = config.get("binaryPath"); // Error: string | undefined
 ```
 
 **Fix**:
+
 ```typescript
-const path = config.get<string>('binaryPath', '/opt/orca/orca');
+const path = config.get<string>("binaryPath", "/opt/orca/orca");
 // OR
-const path = config.get('binaryPath') || '/opt/orca/orca';
+const path = config.get("binaryPath") || "/opt/orca/orca";
 ```
 
 #### Issue 2: Null/Undefined Checks
@@ -183,18 +198,20 @@ const path = config.get('binaryPath') || '/opt/orca/orca';
 **Problem**: Stricter null checks with `strict: true`
 
 **Example Error**:
+
 ```typescript
 const doc = vscode.window.activeTextEditor?.document;
-const text = doc.getText();  // Error: doc may be undefined
+const text = doc.getText(); // Error: doc may be undefined
 ```
 
 **Fix**:
+
 ```typescript
 if (doc) {
   const text = doc.getText();
 }
 // OR
-const text = doc?.getText() ?? '';
+const text = doc?.getText() ?? "";
 ```
 
 #### Issue 3: Type Assertion Updates
@@ -202,11 +219,13 @@ const text = doc?.getText() ?? '';
 **Problem**: Some type assertions may need updating
 
 **Example Warning**:
+
 ```typescript
-const value = someValue as any;  // Discouraged
+const value = someValue as any; // Discouraged
 ```
 
 **Fix**:
+
 ```typescript
 const value = someValue as unknown as TargetType;
 // OR add proper types
@@ -225,11 +244,13 @@ npm test 2>&1 | tee ts-5.7-test.log
 ```
 
 **Expected Outcome**:
+
 - Same pass/fail rate as baseline (24/39 passing)
 - No new test failures introduced by TypeScript update
 - If new failures, investigate if TypeScript-related
 
 **Validation**:
+
 - [ ] Tests run successfully
 - [ ] No regression in pass rate
 - [ ] Test failures match baseline
@@ -248,11 +269,13 @@ done
 ```
 
 **Comparison**:
+
 - Baseline (TS 5.3.3): 1.86 seconds
 - Target: ≤ 2.05 seconds (+10% tolerance)
 - Expected: Similar or improved (TS 5.7 has optimizations)
 
 **Validation**:
+
 - [ ] Build time measured
 - [ ] Within acceptable range
 - [ ] Performance documented
@@ -277,6 +300,7 @@ git checkout src/extension.ts
 ```
 
 **Validation**:
+
 - [ ] Watch mode starts successfully
 - [ ] Incremental compilation works
 - [ ] No errors in watch mode
@@ -343,6 +367,7 @@ npm test
 ### Issue: Compilation Fails with New Errors
 
 **Solution**:
+
 1. Review error messages carefully
 2. Check if errors are legitimate type issues (good!)
 3. Fix type issues in TASK-DEP-006
@@ -351,6 +376,7 @@ npm test
 ### Issue: Build Time Significantly Increased
 
 **Solution**:
+
 1. Check if incremental builds are working
 2. Verify `outDir` in tsconfig.json
 3. Check for TypeScript configuration issues
@@ -359,6 +385,7 @@ npm test
 ### Issue: Watch Mode Not Working
 
 **Solution**:
+
 1. Check tsconfig.json for `incremental: true`
 2. Verify `.tsbuildinfo` file is being created
 3. Check Node.js version (should be 18+)
@@ -367,7 +394,7 @@ npm test
 
 ## Related Tasks
 
-- TASK-DEP-005: Update @types/* packages (next)
+- TASK-DEP-005: Update @types/\* packages (next)
 - TASK-DEP-006: Fix TypeScript compilation errors
 - TASK-DEP-002: Compatibility research findings
 

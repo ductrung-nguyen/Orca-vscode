@@ -4,6 +4,8 @@ All notable changes to the "VS-ORCA" extension will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-12-21
+
 ### 🔧 Maintenance: Development Dependencies Update
 
 This maintenance release updates all development dependencies to their latest stable versions, ensuring security, compatibility, and improved tooling.
@@ -11,12 +13,14 @@ This maintenance release updates all development dependencies to their latest st
 #### Updated Dependencies
 
 **TypeScript & Type Definitions**
+
 - TypeScript: `5.3.3` → `5.7.2` (latest 5.x)
 - `@types/node`: Maintained at `20.x` for Node.js compatibility
 - `@types/mocha`: Updated to `^10.0.10`
 - `@types/vscode`: Pinned to `1.85.0` (matches engine requirement)
 
 **ESLint & Code Quality**
+
 - ESLint: `8.57.1` → `9.16.0` (major version update)
 - `@typescript-eslint/eslint-plugin`: `6.21.0` → `8.17.0`
 - `@typescript-eslint/parser`: `6.21.0` → `8.17.0`
@@ -24,10 +28,12 @@ This maintenance release updates all development dependencies to their latest st
 - Enhanced `.eslintrc.json` to ignore caught errors with `_` prefix
 
 **Testing Framework**
+
 - Mocha: Maintained at `10.8.2` (latest 10.x for stability)
 - `@vscode/test-electron`: `2.3.8` → `2.5.2`
 
 **Build Tools**
+
 - `glob`: `10.5.0` → `11.0.0` (major version update)
 - `@vscode/vsce`: `2.32.0` → `3.2.1` (major version update)
 

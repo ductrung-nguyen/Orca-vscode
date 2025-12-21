@@ -13,6 +13,7 @@
 This document provides a comprehensive task breakdown for updating all development dependencies in the VS-ORCA extension to their latest stable versions. The update follows an incremental, risk-mitigated approach organized into seven phases.
 
 **Key Objectives**:
+
 - Update TypeScript from 5.3.3 to 5.7.x
 - Update ESLint from 8.x to 9.x
 - Update testing frameworks (Mocha, @vscode/test-electron)
@@ -25,32 +26,32 @@ This document provides a comprehensive task breakdown for updating all developme
 
 ## Task Summary
 
-| Task ID | Phase | Title | Priority | Est. Effort | Status |
-|---------|-------|-------|----------|-------------|--------|
-| TASK-DEP-001 | Phase 1 | Baseline Measurement & Documentation | P0 | 2 hours | Not Started |
-| TASK-DEP-002 | Phase 1 | Compatibility Research & Risk Assessment | P0 | 2 hours | Not Started |
-| TASK-DEP-003 | Phase 1 | Create Feature Branch & Backup | P0 | 0.5 hours | Not Started |
-| TASK-DEP-004 | Phase 2 | Update TypeScript to 5.7.x | P0 | 2 hours | Not Started |
-| TASK-DEP-005 | Phase 2 | Update @types/* Packages | P0 | 1 hour | Not Started |
-| TASK-DEP-006 | Phase 2 | Fix TypeScript Compilation Errors | P0 | 2 hours | Not Started |
-| TASK-DEP-007 | Phase 3 | Update ESLint Core to 9.x | P0 | 2 hours | Not Started |
-| TASK-DEP-008 | Phase 3 | Update @typescript-eslint/* to 8.x | P0 | 1.5 hours | Not Started |
-| TASK-DEP-009 | Phase 3 | Configure ESLint Compatibility Mode | P0 | 1.5 hours | Not Started |
-| TASK-DEP-010 | Phase 4 | Update Mocha to Latest 10.x | P0 | 1 hour | Not Started |
-| TASK-DEP-011 | Phase 4 | Update @vscode/test-electron to 2.4.x | P0 | 1.5 hours | Not Started |
-| TASK-DEP-012 | Phase 4 | Fix Test Infrastructure Issues | P0 | 2 hours | Not Started |
-| TASK-DEP-013 | Phase 5 | Update glob to 11.x | P1 | 1 hour | Not Started |
-| TASK-DEP-014 | Phase 5 | Update @vscode/vsce to 3.x | P1 | 1 hour | Not Started |
-| TASK-DEP-015 | Phase 5 | Validate Extension Packaging | P0 | 1 hour | Not Started |
-| TASK-DEP-016 | Phase 6 | Comprehensive Test Suite Execution | P0 | 2 hours | Not Started |
-| TASK-DEP-017 | Phase 6 | Manual Feature Testing | P0 | 2 hours | Not Started |
-| TASK-DEP-018 | Phase 6 | Cross-Version VS Code Testing | P0 | 1.5 hours | Not Started |
-| TASK-DEP-019 | Phase 6 | Security Audit & Remediation | P0 | 1.5 hours | Not Started |
-| TASK-DEP-020 | Phase 6 | Performance Benchmarking | P0 | 1 hour | Not Started |
-| TASK-DEP-021 | Phase 7 | Update CHANGELOG.md | P0 | 1 hour | Not Started |
-| TASK-DEP-022 | Phase 7 | Update Developer Documentation | P1 | 1 hour | Not Started |
-| TASK-DEP-023 | Phase 7 | Create Detailed Commit Message | P0 | 0.5 hours | Not Started |
-| TASK-DEP-024 | Phase 7 | Final Review & Merge Preparation | P0 | 1 hour | Not Started |
+| Task ID      | Phase   | Title                                    | Priority | Est. Effort | Status      |
+| ------------ | ------- | ---------------------------------------- | -------- | ----------- | ----------- |
+| TASK-DEP-001 | Phase 1 | Baseline Measurement & Documentation     | P0       | 2 hours     | Not Started |
+| TASK-DEP-002 | Phase 1 | Compatibility Research & Risk Assessment | P0       | 2 hours     | Not Started |
+| TASK-DEP-003 | Phase 1 | Create Feature Branch & Backup           | P0       | 0.5 hours   | Not Started |
+| TASK-DEP-004 | Phase 2 | Update TypeScript to 5.7.x               | P0       | 2 hours     | Not Started |
+| TASK-DEP-005 | Phase 2 | Update @types/\* Packages                | P0       | 1 hour      | Not Started |
+| TASK-DEP-006 | Phase 2 | Fix TypeScript Compilation Errors        | P0       | 2 hours     | Not Started |
+| TASK-DEP-007 | Phase 3 | Update ESLint Core to 9.x                | P0       | 2 hours     | Not Started |
+| TASK-DEP-008 | Phase 3 | Update @typescript-eslint/\* to 8.x      | P0       | 1.5 hours   | Not Started |
+| TASK-DEP-009 | Phase 3 | Configure ESLint Compatibility Mode      | P0       | 1.5 hours   | Not Started |
+| TASK-DEP-010 | Phase 4 | Update Mocha to Latest 10.x              | P0       | 1 hour      | Not Started |
+| TASK-DEP-011 | Phase 4 | Update @vscode/test-electron to 2.4.x    | P0       | 1.5 hours   | Not Started |
+| TASK-DEP-012 | Phase 4 | Fix Test Infrastructure Issues           | P0       | 2 hours     | Not Started |
+| TASK-DEP-013 | Phase 5 | Update glob to 11.x                      | P1       | 1 hour      | Not Started |
+| TASK-DEP-014 | Phase 5 | Update @vscode/vsce to 3.x               | P1       | 1 hour      | Not Started |
+| TASK-DEP-015 | Phase 5 | Validate Extension Packaging             | P0       | 1 hour      | Not Started |
+| TASK-DEP-016 | Phase 6 | Comprehensive Test Suite Execution       | P0       | 2 hours     | Not Started |
+| TASK-DEP-017 | Phase 6 | Manual Feature Testing                   | P0       | 2 hours     | Not Started |
+| TASK-DEP-018 | Phase 6 | Cross-Version VS Code Testing            | P0       | 1.5 hours   | Not Started |
+| TASK-DEP-019 | Phase 6 | Security Audit & Remediation             | P0       | 1.5 hours   | Not Started |
+| TASK-DEP-020 | Phase 6 | Performance Benchmarking                 | P0       | 1 hour      | Not Started |
+| TASK-DEP-021 | Phase 7 | Update CHANGELOG.md                      | P0       | 1 hour      | Not Started |
+| TASK-DEP-022 | Phase 7 | Update Developer Documentation           | P1       | 1 hour      | Not Started |
+| TASK-DEP-023 | Phase 7 | Create Detailed Commit Message           | P0       | 0.5 hours   | Not Started |
+| TASK-DEP-024 | Phase 7 | Final Review & Merge Preparation         | P0       | 1 hour      | Not Started |
 
 **Total Estimated Effort**: 32 hours (~6 working days with buffer)
 
@@ -157,6 +158,7 @@ This document provides a comprehensive task breakdown for updating all developme
 If critical issues arise during any phase:
 
 1. **Immediate Rollback**:
+
    ```bash
    git checkout package.json package-lock.json
    npm install
@@ -171,12 +173,14 @@ If critical issues arise during any phase:
 ## Success Metrics
 
 **Baseline (Current)**:
+
 - Build Time: 1.86 seconds
 - Test Time: ~12 seconds
 - Test Pass Rate: 61.5% (24/39 tests)
 - Security Issues: TBD
 
 **Target (Post-Update)**:
+
 - Build Time: ≤ 2.05 seconds (+10% tolerance)
 - Test Time: ≤ 13.2 seconds (+10% tolerance)
 - Test Pass Rate: 100% (all 39 tests passing)

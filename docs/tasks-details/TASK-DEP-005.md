@@ -1,4 +1,4 @@
-# TASK-DEP-005: Update @types/* Packages
+# TASK-DEP-005: Update @types/\* Packages
 
 **Phase**: Phase 2 - TypeScript Dependencies  
 **Priority**: P0 (Must Have)  
@@ -17,9 +17,11 @@ Update TypeScript type definition packages (`@types/*`) to latest versions, ensu
 ## Dependencies
 
 **Blocked By**:
+
 - TASK-DEP-004 (TypeScript 5.7.2 Update)
 
 **Blocks**:
+
 - TASK-DEP-006 (Fix TypeScript Errors)
 
 ---
@@ -41,16 +43,19 @@ Update TypeScript type definition packages (`@types/*`) to latest versions, ensu
 **Target**: `^22.x` (Node.js 22 LTS types)
 
 **Rationale**:
+
 - Node.js 22 is latest LTS (as of Dec 2024)
 - Better type coverage for modern Node.js APIs
 - VS Code 1.85.0 uses Node.js 18.17, but newer types are backward compatible
 
 **Command**:
+
 ```bash
 npm install --save-dev @types/node@^22
 ```
 
 **Validation**:
+
 - [ ] Package updated successfully
 - [ ] No breaking type changes in our code
 - [ ] Compatible with Node.js 18.x runtime
@@ -63,16 +68,19 @@ npm install --save-dev @types/node@^22
 **Target**: `^10.0.10` (latest 10.0.x)
 
 **Rationale**:
+
 - Patch updates for Mocha 10.x API
 - Better type definitions for test suite
 - No breaking changes within 10.0.x series
 
 **Command**:
+
 ```bash
 npm install --save-dev @types/mocha@^10.0.10
 ```
 
 **Validation**:
+
 - [ ] Package updated successfully
 - [ ] Test files compile without new errors
 - [ ] Test suite types remain compatible
@@ -85,11 +93,13 @@ npm install --save-dev @types/mocha@^10.0.10
 **Target**: `^1.85.0` (**NO CHANGE - LOCKED**)
 
 **Rationale**:
+
 - MUST match `engines.vscode` version in package.json
 - VS Code API compatibility requirement
 - Updating would require updating minimum VS Code version
 
 **Command**:
+
 ```bash
 # Verify current version is locked
 npm list @types/vscode
@@ -99,6 +109,7 @@ npm list @types/vscode
 ```
 
 **Validation**:
+
 - [ ] Version confirmed at 1.85.0
 - [ ] Matches engines.vscode in package.json
 - [ ] Documented as intentionally not updated
@@ -133,6 +144,7 @@ npm list @types/node
 ```
 
 **Expected Changes in package.json**:
+
 ```json
 {
   "devDependencies": {
@@ -155,6 +167,7 @@ npm list @types/mocha
 ```
 
 **Expected Changes in package.json**:
+
 ```json
 {
   "devDependencies": {
@@ -194,21 +207,26 @@ npm run compile 2>&1 | tee types-update-compile.log
 **Expected Outcomes**:
 
 **Scenario A: Success (Ideal)**
+
 ```
 > tsc -p ./
 (No output = success)
 ```
 
 **Scenario B: New Type Errors**
+
 ```
 src/orcaRunner.ts:67:22 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
 ```
+
 Document errors for TASK-DEP-006
 
 **Scenario C: Type Definition Conflicts**
+
 ```
 node_modules/@types/node/index.d.ts:1234:12 - error TS2300: Duplicate identifier 'fetch'.
 ```
+
 Investigate package conflicts
 
 ---
@@ -221,16 +239,19 @@ npx tsc --noEmit src/test/**/*.ts 2>&1 | tee test-types-check.log
 ```
 
 **Focus Areas**:
+
 - `src/test/suite/*.test.ts` - Mocha type usage
 - `src/test/runTest.ts` - Node.js type usage
 
 **Common Mocha Type Issues**:
+
 ```typescript
 // May need updates if types changed
-import { describe, it } from 'mocha';  // Ensure imports work
+import { describe, it } from "mocha"; // Ensure imports work
 
-describe('Test Suite', () => {
-  it('should pass', function() {  // 'this' context typing
+describe("Test Suite", () => {
+  it("should pass", function () {
+    // 'this' context typing
     this.timeout(5000);
   });
 });
@@ -246,6 +267,7 @@ npm test 2>&1 | tee types-update-test.log
 ```
 
 **Validation**:
+
 - [ ] Tests compile successfully
 - [ ] Test execution completes
 - [ ] No new test failures (baseline: 24/39 passing)
@@ -298,6 +320,7 @@ git push origin feature/dependency-update
 **Symptoms**: Compilation errors in Node.js API usage
 
 **Solution**:
+
 ```typescript
 // Old (Node.js 18 types)
 const buffer = Buffer.from(data);
@@ -311,12 +334,13 @@ const buffer: Buffer = Buffer.from(data);
 **Symptoms**: Test context typing errors
 
 **Solution**:
+
 ```typescript
 // Ensure proper Mocha imports
-import type { Context } from 'mocha';
+import type { Context } from "mocha";
 
 // Or use function syntax for 'this' context
-it('test', function(this: Context) {
+it("test", function (this: Context) {
   this.timeout(5000);
 });
 ```
@@ -326,6 +350,7 @@ it('test', function(this: Context) {
 **Symptoms**: "Duplicate identifier" errors
 
 **Solution**:
+
 1. Check for conflicting type definitions
 2. Use `skipLibCheck: true` in tsconfig.json (temporary)
 3. Report issue to DefinitelyTyped if persistent

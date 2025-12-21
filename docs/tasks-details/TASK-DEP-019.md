@@ -17,10 +17,12 @@ Perform comprehensive security audit using npm audit and remediate all high/crit
 ## Dependencies
 
 **Blocked By**:
+
 - All update tasks (TASK-DEP-004 through TASK-DEP-015)
 - TASK-DEP-016 (Test suite must pass)
 
 **Blocks**:
+
 - TASK-DEP-024 (Final review and merge)
 
 ---
@@ -51,6 +53,7 @@ npm audit --fix --dry-run > security-audit-fixes.txt
 ```
 
 **Metrics to Capture**:
+
 - Total vulnerabilities by severity
 - Direct vs transitive vulnerabilities
 - Packages with known CVEs
@@ -72,6 +75,7 @@ diff .baseline/audit.txt security-audit-post-update.txt
 ```
 
 **Expected Outcome**:
+
 - Significant reduction from baseline
 - Most vulnerabilities resolved by updates
 - Zero high/critical findings (success criteria)
@@ -94,6 +98,7 @@ npm install
 ```
 
 **Validation**:
+
 - [ ] Automatic fixes applied
 - [ ] Project still compiles
 - [ ] Tests still pass
@@ -105,11 +110,13 @@ npm install
 If high/critical vulnerabilities remain:
 
 **Step 4.1**: Identify affected packages
+
 ```bash
 npm audit | grep -B 5 "high\|critical" | grep "Package"
 ```
 
 **Step 4.2**: Update specific packages
+
 ```bash
 # Example: Update specific vulnerable package
 npm update <package-name>
@@ -119,6 +126,7 @@ npm install <package-name>@<safe-version> --save-dev
 ```
 
 **Step 4.3**: Verify fix
+
 ```bash
 npm audit
 npm run compile
@@ -132,6 +140,7 @@ npm test
 For any moderate/low vulnerabilities that remain:
 
 Create `SECURITY-AUDIT.md`:
+
 ```markdown
 # Security Audit Report
 
@@ -186,6 +195,7 @@ cat licenses-post-update.txt | grep -E "GPL|AGPL|SSPL"
 ```
 
 **Acceptable Licenses**:
+
 - MIT
 - Apache-2.0
 - BSD-2-Clause / BSD-3-Clause
@@ -193,6 +203,7 @@ cat licenses-post-update.txt | grep -E "GPL|AGPL|SSPL"
 - CC0-1.0
 
 **Validation**:
+
 - [ ] All licenses OSI-approved
 - [ ] No GPL/AGPL/SSPL dependencies
 - [ ] License compliance documented
@@ -223,12 +234,14 @@ cat licenses-post-update.txt | grep -E "GPL|AGPL|SSPL"
 ## Vulnerability Counts
 
 ### Before Dependency Update (Baseline)
+
 - Critical: [X]
 - High: [Y]
 - Moderate: [Z]
 - Low: [W]
 
 ### After Dependency Update
+
 - Critical: 0 ✅ (Reduced by X)
 - High: 0 ✅ (Reduced by Y)
 - Moderate: [Z'] (Reduced by N)
@@ -294,6 +307,7 @@ git push origin feature/dependency-update
 ### Issue: Audit Fix Breaks Tests
 
 **Solution**:
+
 1. Revert the fix: `git checkout package.json package-lock.json && npm install`
 2. Identify conflicting package
 3. Pin that package to last working version
@@ -302,6 +316,7 @@ git push origin feature/dependency-update
 ### Issue: Transitive Vulnerability with No Fix
 
 **Solution**:
+
 1. Check if direct dependency has newer version
 2. Use `npm update` to pull latest compatible versions
 3. If no fix available, document risk acceptance
@@ -310,6 +325,7 @@ git push origin feature/dependency-update
 ### Issue: False Positive in Audit
 
 **Solution**:
+
 1. Verify vulnerability applies to our usage
 2. If false positive, document in SECURITY-AUDIT.md
 3. Consider reporting to npm/GitHub

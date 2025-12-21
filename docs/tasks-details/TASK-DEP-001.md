@@ -18,6 +18,7 @@ Establish comprehensive baseline metrics for the current state of the extension 
 
 **Blocked By**: None  
 **Blocks**:
+
 - TASK-DEP-002 (Compatibility Research)
 - TASK-DEP-020 (Performance Benchmarking)
 
@@ -40,12 +41,14 @@ Establish comprehensive baseline metrics for the current state of the extension 
 **Command**: `time npm run compile`
 
 **Metrics to Capture**:
+
 - Total compilation time (real, user, sys)
 - Number of TypeScript files compiled
 - Output directory size (`du -sh out/`)
 - Any compilation warnings or notes
 
 **Example Output to Record**:
+
 ```bash
 $ time npm run compile
 
@@ -58,6 +61,7 @@ sys     0m0.234s
 ```
 
 **Action Items**:
+
 - Run compilation 3 times, record all results
 - Calculate average compilation time
 - Note any TypeScript warnings in output
@@ -69,6 +73,7 @@ sys     0m0.234s
 **Command**: `npm test`
 
 **Metrics to Capture**:
+
 - Total test execution time
 - Tests passing/failing/skipped by suite
 - Individual test suite timings
@@ -76,12 +81,14 @@ sys     0m0.234s
 - Any test warnings or deprecation notices
 
 **Expected Current State** (from PRD):
+
 - Total Tests: 39
 - Passing: 24 (61.5%)
 - Failing: 15 (due to missing fixtures)
 - Execution Time: ~12 seconds
 
 **Test Suite Breakdown**:
+
 1. `detector.test.ts` - ORCA installation detection tests
 2. `installers.test.ts` - OS-specific installer tests
 3. `parser.test.ts` - Output parsing tests
@@ -89,6 +96,7 @@ sys     0m0.234s
 5. `wizard.test.ts` - Installation wizard UI tests
 
 **Action Items**:
+
 - Run `npm test` 3 times, record all results
 - Document which specific tests are failing
 - Capture full test output to file: `npm test 2>&1 | tee baseline-tests.log`
@@ -101,12 +109,14 @@ sys     0m0.234s
 **Command**: `npm audit`
 
 **Metrics to Capture**:
+
 - Total vulnerabilities by severity (critical, high, moderate, low)
 - Direct vs transitive vulnerabilities
 - Packages requiring updates
 - Available automatic fixes
 
 **Action Items**:
+
 ```bash
 # Run audit and save report
 npm audit --json > baseline-audit.json
@@ -117,6 +127,7 @@ npm outdated > baseline-outdated.txt
 ```
 
 **Document**:
+
 - List of all vulnerable packages
 - Severity levels and CVE numbers (if available)
 - Whether vulnerabilities are in dev or runtime dependencies
@@ -128,6 +139,7 @@ npm outdated > baseline-outdated.txt
 **Command**: `npm ls`
 
 **Action Items**:
+
 ```bash
 # Full dependency tree
 npm ls --all > baseline-dependencies-full.txt
@@ -140,6 +152,7 @@ npm ls --parseable | awk '{print $1}' | sed 's|/[^/]*$||' | sort | uniq -c | sor
 ```
 
 **Metrics to Capture**:
+
 - Total number of installed packages (direct + transitive)
 - Any duplicate dependencies
 - Deprecated packages
@@ -152,12 +165,14 @@ npm ls --parseable | awk '{print $1}' | sed 's|/[^/]*$||' | sort | uniq -c | sor
 **Command**: `npm run package`
 
 **Metrics to Capture**:
+
 - Successful .vsix creation (yes/no)
 - .vsix file size in bytes
 - Packaging warnings or errors
 - Time to create package
 
 **Action Items**:
+
 ```bash
 # Package extension
 time npm run package
@@ -176,6 +191,7 @@ unzip -l vs-orca-*.vsix > baseline-vsix-contents.txt
 Test all core features and document behavior:
 
 #### Test Case 1: Syntax Highlighting
+
 - [ ] Open `examples/water_opt.inp`
 - [ ] Verify ORCA keywords highlighted correctly
 - [ ] Verify comments highlighted in green
@@ -183,6 +199,7 @@ Test all core features and document behavior:
 - [ ] Take screenshot for comparison
 
 #### Test Case 2: Snippet Expansion
+
 - [ ] Create new `.inp` file
 - [ ] Type `opt` + Tab
 - [ ] Verify dropdown with method choices appears
@@ -190,6 +207,7 @@ Test all core features and document behavior:
 - [ ] Document behavior
 
 #### Test Case 3: ORCA Job Execution
+
 - [ ] Open `examples/methane_freq.inp`
 - [ ] Press F5 or run `vs-orca.runJob`
 - [ ] Verify output panel opens
@@ -197,6 +215,7 @@ Test all core features and document behavior:
 - [ ] Verify behavior matches expectation
 
 #### Test Case 4: Installation Wizard
+
 - [ ] Run command `vs-orca.setupOrca`
 - [ ] Verify wizard webview opens
 - [ ] Navigate through wizard steps
@@ -204,6 +223,7 @@ Test all core features and document behavior:
 - [ ] Close wizard
 
 #### Test Case 5: Configuration
+
 - [ ] Open VS Code settings
 - [ ] Navigate to ORCA settings
 - [ ] Modify `orca.binaryPath`
@@ -217,6 +237,7 @@ Test all core features and document behavior:
 Document exact versions from `package.json` and `package-lock.json`:
 
 **Direct DevDependencies** (from package.json):
+
 ```json
 {
   "@types/mocha": "^10.0.6",
@@ -234,6 +255,7 @@ Document exact versions from `package.json` and `package-lock.json`:
 ```
 
 **Action Items**:
+
 - Run `npm list --depth=0 --json > baseline-versions.json`
 - Extract resolved versions from package-lock.json
 - Create comparison table for PRD reference
@@ -257,11 +279,13 @@ Document exact versions from `package.json` and `package-lock.json`:
 ## Deliverables
 
 1. **Baseline Report** (`docs/baseline-report.md`):
+
    - Summary of all metrics
    - Known issues and limitations
    - Performance baseline for comparison
 
 2. **Baseline Data Directory** (`.baseline/`):
+
    - `build-times.txt` - 3 compilation time measurements
    - `test-results.txt` - 3 test execution logs
    - `audit.json` and `audit.txt` - Security audit reports

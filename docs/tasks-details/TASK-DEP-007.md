@@ -17,9 +17,11 @@ Update ESLint from 8.56.0 to 9.16.0, introducing flat config support. Use compat
 ## Dependencies
 
 **Blocked By**:
+
 - TASK-DEP-006 (TypeScript compilation must be clean)
 
 **Blocks**:
+
 - TASK-DEP-008 (@typescript-eslint update)
 - TASK-DEP-009 (ESLint configuration)
 
@@ -39,6 +41,7 @@ Update ESLint from 8.56.0 to 9.16.0, introducing flat config support. Use compat
 ### ESLint 9 Breaking Changes
 
 **Major Changes**:
+
 - Flat config is now default format
 - Legacy `.eslintrc.*` requires compatibility mode
 - Some rule defaults changed
@@ -84,6 +87,7 @@ npm list eslint
 **Option A: Environment Variable (Recommended)**
 
 Add to lint script in package.json:
+
 ```json
 {
   "scripts": {
@@ -95,6 +99,7 @@ Add to lint script in package.json:
 **Option B: Create eslint.config.js Stub**
 
 Create minimal flat config that preserves legacy behavior:
+
 ```javascript
 // eslint.config.js
 const { FlatCompat } = require("@eslint/eslintrc");
@@ -106,7 +111,7 @@ module.exports = [
       // Existing extends from .eslintrc
     ],
     // Existing rules from .eslintrc
-  })
+  }),
 ];
 ```
 
@@ -122,22 +127,27 @@ npm run lint 2>&1 | tee eslint9-test.log
 **Expected Outcomes**:
 
 **Scenario A: Success**
+
 ```
 > eslint src --ext ts
 (No output or existing known issues)
 ```
 
 **Scenario B: Configuration Errors**
+
 ```
 Error: Could not find config file
 ```
+
 Fix: Verify compatibility mode is active
 
 **Scenario C: New Linting Errors**
+
 ```
 src/extension.ts
   45:12  error  Unexpected usage...
 ```
+
 Document for resolution in TASK-DEP-009
 
 ---
@@ -153,6 +163,7 @@ npm test
 ```
 
 **Validation**:
+
 - [ ] Compilation succeeds
 - [ ] Linting completes (may have errors to fix later)
 - [ ] Tests run successfully
