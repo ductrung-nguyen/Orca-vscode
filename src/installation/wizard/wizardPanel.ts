@@ -549,6 +549,7 @@ export class WizardPanel {
                 </p>
                 <div id="detection-results">
                     <button id="start-detection-btn">Start Detection</button>
+                    <button id="skip-detection-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Skip Detection (I know the path)</button>
                     <div id="detection-output" style="margin-top: 20px;"></div>
                 </div>
             </div>
@@ -661,6 +662,11 @@ export class WizardPanel {
                 
                 if (startDetectionBtn) {
                     startDetectionBtn.addEventListener('click', startDetection);
+                }
+                
+                const skipDetectionBtn = document.getElementById('skip-detection-btn');
+                if (skipDetectionBtn) {
+                    skipDetectionBtn.addEventListener('click', skipDetection);
                 }
                 
                 if (browseBtn) {
@@ -800,6 +806,14 @@ export class WizardPanel {
                 vscode.postMessage({ type: 'startDetection' });
             }
             
+            function skipDetection() {
+                console.log('[ORCA Wizard] Skipping detection, going directly to path configuration');
+                // Jump directly to path configuration step (step 5)
+                currentStep = 5;
+                updateStep();
+                vscode.postMessage({ type: 'saveState', payload: { currentStep } });
+            }
+            
             function loadInstallationInstructions() {
                 const methodRadio = document.querySelector('input[name="install-method"]:checked');
                 const method = methodRadio ? methodRadio.value : 'conda';
@@ -885,17 +899,74 @@ export class WizardPanel {
                 
                 if (!output) return;
                 
+                // Find valid installations
+                const validInstallations = installations.filter(function(inst) { return inst.isValid; });
+                
                 if (installations.length === 0) {
-                    output.innerHTML = '<div class="warning"><p>No ORCA installations found.</p><p>Proceed to installation instructions.</p></div>';
-                } else {
-                    let html = '<p>Found ' + installations.length + ' installation(s):</p><ul>';
+                    output.innerHTML = '<div class="warning"><p>No ORCA installations found.</p></div>' +
+                        '<div style="margin-top: 15px;">' +
+                        '<button id="specify-path-btn">Specify Path Manually</button>' +
+                        '<button id="show-install-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Show Installation Instructions</button>' +
+                        '</div>';
+                    
+                    // Add event listeners
+                    const specifyPathBtn = document.getElementById('specify-path-btn');
+                    if (specifyPathBtn) {
+                        specifyPathBtn.addEventListener('click', function() {
+                            currentStep = 5;
+                            updateStep();
+                        });
+                    }
+                    const showInstallBtn = document.getElementById('show-install-btn');
+                    if (showInstallBtn) {
+                        showInstallBtn.addEventListener('click', function() {
+                            currentStep = 3;
+                            updateStep();
+                        });
+                    }
+                } else if (validInstallations.length === 0) {
+                    // Found installations but none are valid
+                    let html = '<div class="warning"><p>Found ' + installations.length + ' installation(s), but none are valid ORCA computational chemistry installations:</p></div>';
+                    html += '<ul>';
                     installations.forEach(function(inst) {
-                        html += '<li><strong>' + inst.version + '</strong> at ' + inst.path;
-                        html += inst.isValid ? ' ✓' : ' ✗';
+                        html += '<li><code>' + inst.path + '</code>';
+                        if (inst.validationError) {
+                            html += '<br><span style="font-size: 0.9em; color: var(--vscode-errorForeground);">' + inst.validationError + '</span>';
+                        }
                         html += '</li>';
                     });
                     html += '</ul>';
-                    html += '<button id="use-detected-btn">Use First Valid Installation</button>';
+                    html += '<div style="margin-top: 15px;">' +
+                        '<button id="specify-path-btn">Specify Path Manually</button>' +
+                        '<button id="show-install-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Show Installation Instructions</button>' +
+                        '</div>';
+                    output.innerHTML = html;
+                    
+                    // Add event listeners
+                    const specifyPathBtn = document.getElementById('specify-path-btn');
+                    if (specifyPathBtn) {
+                        specifyPathBtn.addEventListener('click', function() {
+                            currentStep = 5;
+                            updateStep();
+                        });
+                    }
+                    const showInstallBtn = document.getElementById('show-install-btn');
+                    if (showInstallBtn) {
+                        showInstallBtn.addEventListener('click', function() {
+                            currentStep = 3;
+                            updateStep();
+                        });
+                    }
+                } else {
+                    let html = '<div class="success"><p>Found ' + validInstallations.length + ' valid ORCA installation(s):</p></div><ul>';
+                    validInstallations.forEach(function(inst) {
+                        html += '<li><strong>Version ' + inst.version + '</strong> at <code>' + inst.path + '</code> ✓</li>';
+                    });
+                    html += '</ul>';
+                    html += '<div style="margin-top: 15px;">' +
+                        '<button id="use-detected-btn">Use First Valid Installation</button>' +
+                        '<button id="specify-other-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Specify Different Path</button>' +
+                        '</div>';
                     output.innerHTML = html;
                     
                     // Add event listener to the new button
@@ -905,6 +976,14 @@ export class WizardPanel {
                         useDetectedBtn.addEventListener('click', function() {
                             console.log('[ORCA Wizard] Use First Valid Installation clicked!');
                             useDetectedInstallation();
+                        });
+                    }
+                    
+                    const specifyOtherBtn = document.getElementById('specify-other-btn');
+                    if (specifyOtherBtn) {
+                        specifyOtherBtn.addEventListener('click', function() {
+                            currentStep = 5;
+                            updateStep();
                         });
                     }
                 }

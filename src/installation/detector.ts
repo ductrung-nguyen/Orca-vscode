@@ -353,7 +353,9 @@ export class OrcaDetector {
                     // Note: /usr/bin/orca is intentionally excluded as it's usually GNOME Orca screen reader
                     path.join(homeDir, 'orca', 'orca'),
                     path.join(homeDir, '.local', 'bin', 'orca'),
-                    path.join(homeDir, 'bin', 'orca')
+                    path.join(homeDir, 'bin', 'orca'),
+                    // Scan for versioned directories (e.g., orca_6_1_1)
+                    ...this.findVersionedOrcaDirectories(homeDir)
                 ];
                 
             case Platform.MacOS:
@@ -362,7 +364,11 @@ export class OrcaDetector {
                     '/opt/homebrew/bin/orca',
                     path.join(homeDir, 'Applications', 'orca', 'orca'),
                     path.join(homeDir, 'orca', 'orca'),
-                    '/Applications/orca/orca'
+                    '/Applications/orca/orca',
+                    // Common manual installation locations
+                    path.join(homeDir, 'Library', 'orca', 'orca'),
+                    // Scan for versioned directories (e.g., orca_6_1_1)
+                    ...this.findVersionedOrcaDirectories(homeDir)
                 ];
                 
             case Platform.Windows:
@@ -376,6 +382,44 @@ export class OrcaDetector {
             default:
                 return [];
         }
+    }
+    
+    /**
+     * Find versioned ORCA directories (e.g., orca_6_1_1, orca_5_0_4)
+     * Common pattern for manual ORCA installations
+     */
+    private findVersionedOrcaDirectories(homeDir: string): string[] {
+        const paths: string[] = [];
+        
+        // Common parent directories where ORCA might be installed
+        const parentDirs = [
+            path.join(homeDir, 'Library'),           // macOS: ~/Library/orca_*
+            path.join(homeDir, 'Applications'),      // macOS: ~/Applications/orca_*
+            homeDir,                                 // ~/orca_*
+            '/opt',                                  // /opt/orca_*
+            '/usr/local',                            // /usr/local/orca_*
+        ];
+        
+        for (const parentDir of parentDirs) {
+            try {
+                if (!fs.existsSync(parentDir)) continue;
+                
+                const entries = fs.readdirSync(parentDir, { withFileTypes: true });
+                for (const entry of entries) {
+                    // Look for directories matching orca_* pattern (case-insensitive)
+                    if (entry.isDirectory() && /^orca[_-]?\d/i.test(entry.name)) {
+                        const orcaBinary = path.join(parentDir, entry.name, 'orca');
+                        if (fs.existsSync(orcaBinary)) {
+                            paths.push(orcaBinary);
+                        }
+                    }
+                }
+            } catch {
+                // Skip directories we can't read
+            }
+        }
+        
+        return paths;
     }
     
     /**
