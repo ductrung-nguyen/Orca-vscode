@@ -1,71 +1,19 @@
 {
-  "started": "2025-12-20T00:00:00Z",
+  "started": "2025-12-21T00:00:00Z",
   "mode": "feature",
-  "currentStage": 7,
-  "prdFile": "docs/PRD-ORCA-Installation-Capability.md",
+  "currentStage": 5,
+  "prdFile": "docs/PRD-Dependency-Update.md",
   "taskFile": "docs/tasks/orca-installation-capability.md",
+  "feature": "dependency-update",
   "stages": {
     "1": { "status": "skipped", "output": null, "note": "Discovery skipped in feature mode" },
-    "2": { "status": "completed", "output": "docs/PRD-ORCA-Installation-Capability.md" },
-    "3": { "status": "completed", "output": "validation-passed-with-revisions" },
-    "4": {
-      "status": "completed",
-      "output": "docs/tasks/orca-installation-capability.md",
-      "note": "Generated 42 tasks across 4 phases (94-113 hours estimated)",
-      "artifacts": [
-        "docs/tasks/orca-installation-capability.md",
-        "docs/tasks-details/TASK-001.md",
-        "docs/tasks-details/TASK-002.md",
-        "docs/tasks-details/TASK-003.md",
-        "docs/tasks-details/TASK-017.md",
-        "docs/task-generation-summary.md"
-      ]
-    },
-    "5": {
-      "status": "completed",
-      "output": "implementation-complete",
-      "note": "39 P0/P1 tasks completed. 2,258+ lines of code. 6 commits. Zero errors.",
-      "commits": [
-        "26656ca - Phase 1: Detection & Validation",
-        "bc849b1 - Phase 2: OS-Specific Strategies",
-        "0400041 - Phase 3: Installation Wizard",
-        "02beaaf - Phase 4: Commands & Integration",
-        "97b51c0 - Test Suite",
-        "3b21ac8 - Documentation"
-      ]
-    },
-    "6": {
-      "status": "completed",
-      "output": "validation-passed-after-remediation",
-      "note": "P0 issues fixed: ESLint errors, wizard HTML, clipboard, tests. Zero compilation errors."
-    },
-    "7": {
-      "status": "completed",
-      "output": "release-artifacts-complete",
-      "note": "CHANGELOG, release notes, documentation, git commands ready. v0.2.0 production-ready.",
-      "artifacts": [
-        "CHANGELOG.md",
-        "docs/release-notes-v0.2.0.md",
-        "docs/RELEASE_CHECKLIST_v0.2.0.md",
-        "docs/RELEASE_SUMMARY_v0.2.0.md",
-        "docs/RELEASE_QUICK_GUIDE_v0.2.0.md",
-        "docs/FINALIZE_RELEASE_COMPLETE.md"
-      ]
-    }
-  },
-  "completed": "2025-12-20T00:00:00Z",
-  "status": "success",
-  "taskBreakdown": {
-    "totalTasks": 42,
-    "phases": 4,
-    "estimatedHours": "94-113",
-    "priorityDistribution": {
-      "P0": 34,
-      "P1": 5,
-      "P2": 2,
-      "P3": 1
-    }
+    "2": { "status": "completed", "output": "docs/PRD-Dependency-Update.md" },
+    "3": { "status": "completed", "output": "validation-passed" },
+    "4": { "status": "completed", "output": "docs/tasks/orca-installation-capability.md" },
+    "5": { "status": "in-progress", "output": null },
+    "6": { "status": "pending", "output": null },
+    "7": { "status": "pending", "output": null }
   },
   "errors": [],
-  "lastUpdated": "2025-12-20T12:00:00Z"
+  "lastUpdated": "2025-12-21T00:25:00Z"
 }

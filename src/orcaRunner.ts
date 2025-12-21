@@ -280,7 +280,7 @@ export class OrcaRunner {
                                 
                                 lastSize = currentSize;
                             }
-                        } catch (err) {
+                        } catch (_err) {
                             // File might be temporarily locked
                         }
                     }
@@ -318,7 +318,7 @@ export class OrcaRunner {
                 return false;
             }
             return true;
-        } catch (err) {
+        } catch (_err) {
             // If we can't stat the file, try to parse anyway
             return true;
         }
