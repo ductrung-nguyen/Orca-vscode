@@ -72,12 +72,12 @@ Perform a comprehensive dependency update to latest stable versions while mainta
 
 ### 2.2 Stakeholder Interests
 
-| Stakeholder     | Primary Interest                              | Success Criteria                         |
-| --------------- | --------------------------------------------- | ---------------------------------------- |
-| Project Owner   | Long-term maintainability and security        | Zero critical vulnerabilities            |
-| Technical Lead  | Development efficiency and tooling stability  | No build/test regressions                |
-| Contributors    | Modern development experience                 | Easy onboarding, clear documentation     |
-| End Users       | Stable extension functionality                | No breaking changes, improved stability  |
+| Stakeholder    | Primary Interest                             | Success Criteria                        |
+| -------------- | -------------------------------------------- | --------------------------------------- |
+| Project Owner  | Long-term maintainability and security       | Zero critical vulnerabilities           |
+| Technical Lead | Development efficiency and tooling stability | No build/test regressions               |
+| Contributors   | Modern development experience                | Easy onboarding, clear documentation    |
+| End Users      | Stable extension functionality               | No breaking changes, improved stability |
 
 ---
 
@@ -86,6 +86,7 @@ Perform a comprehensive dependency update to latest stable versions while mainta
 ### 3.1 Direct Beneficiaries
 
 **Developers and Contributors**:
+
 - Modern TypeScript features (5.7.x) for improved code quality
 - Faster development cycle with optimized build tools
 - Better IDE support with updated ESLint and TypeScript-ESLint
@@ -93,6 +94,7 @@ Perform a comprehensive dependency update to latest stable versions while mainta
 - Improved security posture reduces audit findings
 
 **Project Maintainers**:
+
 - Reduced technical debt from outdated dependencies
 - Better long-term maintainability
 - Easier to attract and onboard contributors
@@ -101,6 +103,7 @@ Perform a comprehensive dependency update to latest stable versions while mainta
 ### 3.2 Indirect Beneficiaries
 
 **End Users (ORCA Extension Users)**:
+
 - More stable extension through improved testing infrastructure
 - Faster bug fixes enabled by modern development tools
 - Reduced risk of security vulnerabilities
@@ -733,19 +736,23 @@ Before merging to main branch:
 All key decisions have been finalized and incorporated into the main document:
 
 1. **ESLint Configuration**: Use compatibility mode (`ESLINT_USE_FLAT_CONFIG=false`) initially, plan flat config migration for v0.3.0
+
    - **Rationale**: Minimizes risk during dependency update; flat config migration is a separate, lower-priority task
    - **Location**: Section 5.3 (Configuration Changes Required)
 
 2. **TypeScript Target**: Keep ES2020 compilation target
+
    - **Rationale**: Ensures Node.js 18 compatibility (required by VS Code 1.85.0)
    - **Location**: Section 4.2 (NFR-1.2)
 
 3. **Dependency Versioning**: Use caret ranges (^) for all dependencies
+
    - **Rationale**: Follows npm best practices; allows automatic patch updates
    - **Fallback**: Pin exact versions only if stability issues arise
    - **Location**: Section 5.2 (Updated Dependency Manifest)
 
 4. **Testing Scope**: Focus on regression testing only
+
    - **Rationale**: Dependency updates should not change behavior; new tests only if behavior changes detected
    - **Location**: Section 7.1 (Automated Testing)
 

@@ -11,6 +11,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 2 hours
 
 **Key Actions**:
+
 - Fix any new type errors from TypeScript 5.7
 - Update type assertions as needed
 - Resolve strict mode issues
@@ -20,13 +21,14 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 
 ---
 
-## TASK-DEP-008: Update @typescript-eslint/* to 8.x
+## TASK-DEP-008: Update @typescript-eslint/\* to 8.x
 
 **Phase**: Phase 3 - ESLint & Code Quality  
 **Priority**: P0  
 **Effort**: 1.5 hours
 
 **Key Actions**:
+
 - Update @typescript-eslint/eslint-plugin to 8.17.0
 - Update @typescript-eslint/parser to 8.17.0
 - Map old rule names to new rule names
@@ -43,6 +45,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1.5 hours
 
 **Key Actions**:
+
 - Set ESLINT_USE_FLAT_CONFIG=false in npm scripts
 - Update package.json lint script
 - Resolve any new lint errors
@@ -59,6 +62,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Update mocha from 10.2.0 to 10.8.2
 - Verify test runner compatibility
 - Run full test suite
@@ -75,6 +79,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1.5 hours
 
 **Key Actions**:
+
 - Update @vscode/test-electron from 2.3.8 to 2.4.1
 - Verify VS Code test infrastructure
 - Test all 5 test suites
@@ -91,6 +96,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 2 hours
 
 **Key Actions**:
+
 - Resolve any test failures from updates
 - Fix missing fixtures (address 15 failing tests from baseline)
 - Update test configurations
@@ -107,6 +113,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Update glob from 10.3.10 to 11.0.0
 - Review breaking changes in v11
 - Verify pattern matching in test file discovery
@@ -123,6 +130,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Update @vscode/vsce from 2.22.0 to 3.2.1
 - Review v3 breaking changes
 - Test package command
@@ -139,6 +147,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Run npm run package
 - Create .vsix file successfully
 - Verify .vsix contents
@@ -156,6 +165,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 2 hours
 
 **Key Actions**:
+
 - Run npm test 3 times
 - Check for flaky tests
 - Verify 100% pass rate (39/39 tests)
@@ -173,6 +183,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 2 hours
 
 **Key Actions**:
+
 - Test syntax highlighting (water_opt.inp)
 - Test snippet expansion
 - Test ORCA job execution (F5)
@@ -191,6 +202,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1.5 hours
 
 **Key Actions**:
+
 - Test on VS Code 1.85.0 (minimum version)
 - Test on latest stable VS Code
 - Verify activation
@@ -208,6 +220,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Measure build time (3 runs, average)
 - Measure test execution time (3 runs, average)
 - Measure .vsix file size
@@ -216,6 +229,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 - Verify within tolerance (±10%)
 
 **Acceptance Criteria**:
+
 - Build time: ≤ 2.05s (baseline 1.86s)
 - Test time: ≤ 13.2s (baseline 12s)
 - Metrics documented
@@ -229,6 +243,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Update CONTRIBUTING.md (if version-specific)
 - Update README.md (if needed)
 - Document new dependency versions
@@ -246,6 +261,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 **Effort**: 0.5 hours
 
 **Key Actions**:
+
 - Write comprehensive commit message
 - Include all dependency changes
 - Add performance metrics
@@ -253,6 +269,7 @@ This document provides templates for the remaining detailed task files (TASK-DEP
 - Follow conventional commits format
 
 **Template**:
+
 ```
 chore(deps): update all development dependencies to latest
 
@@ -299,6 +316,7 @@ Tasks: TASK-DEP-001 through TASK-DEP-024
 **Effort**: 1 hour
 
 **Key Actions**:
+
 - Review all acceptance criteria met
 - Run final validation sequence:
   - npm install (clean)
@@ -312,6 +330,7 @@ Tasks: TASK-DEP-001 through TASK-DEP-024
 - Complete final checklist
 
 **Final Checklist**:
+
 - [ ] All dependencies updated
 - [ ] Build succeeds
 - [ ] Tests pass (100%)
@@ -334,6 +353,7 @@ Tasks: TASK-DEP-001 through TASK-DEP-024
 
 1. **Follow established pattern** from TASK-DEP-001 through TASK-DEP-005
 2. **Include sections**:
+
    - Overview
    - Dependencies (Blocked By / Blocks)
    - Objectives
@@ -344,6 +364,7 @@ Tasks: TASK-DEP-001 through TASK-DEP-024
    - Related Tasks/Files
 
 3. **Be specific**:
+
    - Exact commands to run
    - Expected outputs
    - Version numbers

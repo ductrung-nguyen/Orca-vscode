@@ -2,7 +2,7 @@
   "name": "vs-orca",
   "displayName": "VS-ORCA (Virtual Studio for ORCA Chemistry)",
   "description": "Unified IDE for ORCA computational chemistry: syntax highlighting, execution, and automated output parsing",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "ductrung-nguyen",
   "repository": {
     "type": "git",

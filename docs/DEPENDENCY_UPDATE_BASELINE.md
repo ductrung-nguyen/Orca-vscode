@@ -17,17 +17,17 @@
 
 ## Current Package Versions
 
-| Package | Current | Latest Available | Update Path |
-|---------|---------|------------------|-------------|
-| typescript | 5.3.3 | 5.7.x | Phase 2 |
-| @types/node | 20.19.27 | 25.0.3 | Phase 2 (keep 20.x for compat) |
-| @typescript-eslint/eslint-plugin | 6.21.0 | 8.50.0 | Phase 3 |
-| @typescript-eslint/parser | 6.21.0 | 8.50.0 | Phase 3 |
-| eslint | 8.57.1 | 9.39.2 | Phase 3 |
-| mocha | 10.8.2 | 11.7.5 | Phase 4 (keep 10.x) |
-| @vscode/test-electron | 2.3.8 | 2.4.1 | Phase 4 |
-| glob | 10.5.0 | 13.0.0 | Phase 5 (target 11.x) |
-| @vscode/vsce | 2.32.0 | 3.7.1 | Phase 5 |
+| Package                          | Current  | Latest Available | Update Path                    |
+| -------------------------------- | -------- | ---------------- | ------------------------------ |
+| typescript                       | 5.3.3    | 5.7.x            | Phase 2                        |
+| @types/node                      | 20.19.27 | 25.0.3           | Phase 2 (keep 20.x for compat) |
+| @typescript-eslint/eslint-plugin | 6.21.0   | 8.50.0           | Phase 3                        |
+| @typescript-eslint/parser        | 6.21.0   | 8.50.0           | Phase 3                        |
+| eslint                           | 8.57.1   | 9.39.2           | Phase 3                        |
+| mocha                            | 10.8.2   | 11.7.5           | Phase 4 (keep 10.x)            |
+| @vscode/test-electron            | 2.3.8    | 2.4.1            | Phase 4                        |
+| glob                             | 10.5.0   | 13.0.0           | Phase 5 (target 11.x)          |
+| @vscode/vsce                     | 2.32.0   | 3.7.1            | Phase 5                        |
 
 ## Compatibility Targets
 

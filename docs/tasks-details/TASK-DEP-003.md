@@ -16,10 +16,12 @@ Create an isolated feature branch for dependency updates and backup critical fil
 
 ## Dependencies
 
-**Blocked By**: 
+**Blocked By**:
+
 - TASK-DEP-001 (Baseline Measurement)
 
 **Blocks**:
+
 - All implementation tasks (TASK-DEP-004 through TASK-DEP-024)
 
 ---
@@ -50,6 +52,7 @@ git pull origin main
 ```
 
 **Validation**:
+
 - [ ] Working directory is clean
 - [ ] On latest main branch
 - [ ] No merge conflicts
@@ -69,6 +72,7 @@ git push -u origin feature/dependency-update
 **Branch Naming Convention**: `feature/dependency-update`
 
 **Validation**:
+
 - [ ] Branch created successfully
 - [ ] Pushed to remote
 - [ ] Tracking remote branch
@@ -100,12 +104,14 @@ ls -la .backup-dep-update/
 ```
 
 **Files to Backup**:
+
 - [x] package.json
 - [x] package-lock.json
 - [x] tsconfig.json
 - [x] .eslintrc.json (if exists)
 
 **Validation**:
+
 - [ ] All files backed up successfully
 - [ ] Backup directory created in git-ignored location
 - [ ] File sizes match originals
@@ -127,13 +133,16 @@ Create `ROLLBACK.md` with rollback procedures:
 If dependency updates cause critical issues:
 
 \`\`\`bash
+
 # Option 1: Restore from backup
+
 cp .backup-dep-update/package.json.backup package.json
 cp .backup-dep-update/package-lock.json.backup package-lock.json
 npm install
 npm test
 
 # Option 2: Git revert
+
 git checkout main -- package.json package-lock.json
 npm install
 npm test
@@ -144,7 +153,9 @@ npm test
 To revert specific package:
 
 \`\`\`bash
+
 # Example: Revert ESLint to 8.56.0
+
 npm install eslint@8.56.0 --save-dev
 npm test
 \`\`\`
@@ -162,22 +173,23 @@ npm test
 
 \`\`\`json
 {
-  "typescript": "^5.3.3",
-  "eslint": "^8.56.0",
-  "@typescript-eslint/eslint-plugin": "^6.15.0",
-  "@typescript-eslint/parser": "^6.15.0",
-  "mocha": "^10.2.0",
-  "@vscode/test-electron": "^2.3.8",
-  "@vscode/vsce": "^2.22.0",
-  "glob": "^10.3.10",
-  "@types/node": "^20.x",
-  "@types/mocha": "^10.0.6",
-  "@types/vscode": "^1.85.0"
+"typescript": "^5.3.3",
+"eslint": "^8.56.0",
+"@typescript-eslint/eslint-plugin": "^6.15.0",
+"@typescript-eslint/parser": "^6.15.0",
+"mocha": "^10.2.0",
+"@vscode/test-electron": "^2.3.8",
+"@vscode/vsce": "^2.22.0",
+"glob": "^10.3.10",
+"@types/node": "^20.x",
+"@types/mocha": "^10.0.6",
+"@types/vscode": "^1.85.0"
 }
 \`\`\`
 ```
 
 **Validation**:
+
 - [ ] ROLLBACK.md created
 - [ ] Procedures tested (dry run)
 - [ ] Known versions documented
@@ -197,6 +209,7 @@ cat .gitignore | grep backup
 ```
 
 **Validation**:
+
 - [ ] .backup-dep-update/ in .gitignore
 - [ ] Backup files not tracked by git
 
@@ -223,12 +236,14 @@ git push origin feature/dependency-update
 ```
 
 **Commit Message Structure**:
+
 - Type: `chore` (maintenance work)
 - Scope: Dependency update preparation
 - Body: Key baseline metrics
 - Footer: Task reference
 
 **Validation**:
+
 - [ ] Commit created successfully
 - [ ] Pushed to remote
 - [ ] Contains baseline and rollback docs
@@ -271,6 +286,7 @@ git diff package.json  # Should show no changes
 ```
 
 **Validation**:
+
 - [ ] Backup restoration works
 - [ ] Git checkout restoration works
 - [ ] Files restored correctly
