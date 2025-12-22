@@ -75,6 +75,18 @@ export class DashboardPanel {
             this._disposables
         );
 
+        // Listen for visibility changes and tell webview to restore scroll
+        this._panel.onDidChangeViewState(
+            e => {
+                if (e.webviewPanel.visible) {
+                    // Webview became visible - tell it to restore scroll position
+                    this._panel.webview.postMessage({ command: 'restoreScroll' });
+                }
+            },
+            null,
+            this._disposables
+        );
+
         // Watch for file changes
         this._setupFileWatcher();
     }
@@ -354,15 +366,26 @@ export class DashboardPanel {
             padding-top: 20px;
             border-top: 1px solid var(--vscode-panel-border);
         }
+        
+        .button-group {
+            display: flex;
+            justify-content: flex-start;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .button-icon {
+            margin-right: 6px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>ORCA Results Dashboard</h1>
-        <div>
-            <button onclick="openOutputFile()">📄 Open Output File</button>
-            <button onclick="refresh()">🔄 Refresh</button>
-            <button onclick="exportResults()">📋 Copy JSON</button>
+        <div class="button-group">
+            <button onclick="openOutputFile()"><span class="button-icon">📄</span>Open Output File</button>
+            <button onclick="exportResults()"><span class="button-icon">📋</span>Copy JSON</button>
+            <button onclick="refresh()"><span class="button-icon">🔄</span>Refresh</button>
         </div>
     </div>
     
@@ -392,8 +415,69 @@ export class DashboardPanel {
         }
         
         function goToLine(lineNumber) {
+            // Save scroll position before navigating
+            saveScrollPosition();
             vscode.postMessage({ command: 'goToLine', lineNumber: lineNumber });
         }
+        
+        // Scroll position management
+        function saveScrollPosition() {
+            const state = vscode.getState() || {};
+            state.scrollTop = window.scrollY;
+            vscode.setState(state);
+        }
+        
+        function restoreScrollPosition() {
+            const state = vscode.getState();
+            if (state && state.scrollTop !== undefined && state.scrollTop > 0) {
+                // Use multiple attempts with delays to ensure scroll works
+                const targetScroll = state.scrollTop;
+                
+                // Immediate attempt
+                window.scrollTo(0, targetScroll);
+                
+                // Delayed attempts for reliability
+                requestAnimationFrame(() => {
+                    window.scrollTo(0, targetScroll);
+                });
+                
+                setTimeout(() => {
+                    window.scrollTo(0, targetScroll);
+                }, 50);
+                
+                setTimeout(() => {
+                    window.scrollTo(0, targetScroll);
+                }, 150);
+            }
+        }
+        
+        // Listen for messages from the extension
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.command === 'restoreScroll') {
+                restoreScrollPosition();
+            }
+        });
+        
+        // Restore scroll position on various events
+        document.addEventListener('DOMContentLoaded', restoreScrollPosition);
+        window.addEventListener('load', restoreScrollPosition);
+        
+        // Restore when page becomes visible (e.g., when switching back to webview)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                restoreScrollPosition();
+            }
+        });
+        
+        // Also restore on focus (backup mechanism)
+        window.addEventListener('focus', restoreScrollPosition);
+        
+        // Save scroll position periodically
+        window.addEventListener('scroll', () => {
+            clearTimeout(window.scrollSaveTimeout);
+            window.scrollSaveTimeout = setTimeout(saveScrollPosition, 100);
+        });
     </script>
 </body>
 </html>`;
