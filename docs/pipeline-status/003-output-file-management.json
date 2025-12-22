@@ -1,0 +1,22 @@
+{
+  "prdId": "003",
+  "featureName": "output-file-management",
+  "started": "2025-12-22T00:00:00Z",
+  "mode": "feature",
+  "currentStage": 5,
+  "prdFile": "docs/prd/003-output-file-management.md",
+  "taskFile": "docs/tasks/003-output-file-management.md",
+  "stages": {
+    "1": { "status": "skipped", "output": null },
+    "2": { "status": "completed", "output": "docs/prd/003-output-file-management.md" },
+    "3": { "status": "completed", "output": "PASS" },
+    "4": { "status": "completed", "output": "docs/tasks/003-output-file-management.md" },
+    "5": { "status": "in-progress", "output": null },
+    "4": { "status": "pending", "output": null },
+    "5": { "status": "pending", "output": null },
+    "6": { "status": "pending", "output": null },
+    "7": { "status": "pending", "output": null }
+  },
+  "errors": [],
+  "lastUpdated": "2025-12-22T00:00:00Z"
+}

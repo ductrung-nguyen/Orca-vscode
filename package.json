@@ -154,23 +154,49 @@
           "description": "Maximum output file size (in MB) to display in real-time",
           "order": 5
         },
+        "orca.saveOutputToFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically save ORCA output to .out files",
+          "order": 6
+        },
+        "orca.outputSyntaxHighlighting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable syntax highlighting for .out files",
+          "order": 7
+        },
+        "orca.maxSyntaxFileSize": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Maximum file size (MB) for syntax highlighting of .out files",
+          "order": 8
+        },
+        "orca.dashboardAutoOpen": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically open results dashboard after job completion",
+          "order": 9
+        },
         "orca.autoDetectOnStartup": {
           "type": "boolean",
           "default": false,
           "description": "Automatically detect and validate ORCA installation on startup",
-          "order": 6
+          "order": 10
         },
         "orca.installationWizardCompleted": {
           "type": "boolean",
           "default": false,
           "description": "Whether the installation wizard has been completed (internal use)",
-          "order": 7
+          "order": 11
         },
         "orca.licenseAcknowledged": {
           "type": "boolean",
           "default": false,
           "description": "Whether the user has acknowledged ORCA academic license terms (internal use)",
-          "order": 8
+          "order": 12
         }
       }
     }

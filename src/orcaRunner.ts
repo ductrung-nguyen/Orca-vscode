@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
+import { OutputFileWriter } from './outputFileWriter';
 
 /**
  * Result of parsing ORCA output file
@@ -102,6 +103,7 @@ export class OrcaRunner {
     private statusBarItem: vscode.StatusBarItem;
     private outputFilePath: string | null = null;
     private fileWatcher: fs.FSWatcher | null = null;
+    private outputFileWriter: OutputFileWriter | null = null;
 
     constructor() {
         this.outputChannel = vscode.window.createOutputChannel('ORCA');
@@ -130,6 +132,7 @@ export class OrcaRunner {
         const config = vscode.workspace.getConfiguration('orca');
         const binaryPath = config.get<string>('binaryPath', '/opt/orca/orca');
         const clearOutput = config.get<boolean>('clearOutputBeforeRun', true);
+        const saveOutputToFile = config.get<boolean>('saveOutputToFile', true);
 
         if (clearOutput) {
             this.outputChannel.clear();
@@ -161,6 +164,22 @@ export class OrcaRunner {
             }
         }
 
+        // Initialize output file writer if enabled
+        if (saveOutputToFile) {
+            try {
+                this.outputFileWriter = new OutputFileWriter({
+                    inputFilePath: inputFilePath,
+                    append: false
+                });
+                await this.outputFileWriter.open();
+                this.outputChannel.appendLine(`Writing output to: ${this.outputFileWriter.getOutputPath()}`);
+            } catch (err) {
+                this.outputChannel.appendLine(`Warning: Could not initialize output file writer: ${err}`);
+                vscode.window.showWarningMessage('Failed to create output file. Output will only show in panel.');
+                this.outputFileWriter = null;
+            }
+        }
+
         this.isRunning = true;
         this.updateStatusBar('Running', true);
 
@@ -172,22 +191,43 @@ export class OrcaRunner {
 
         // Capture stdout
         this.currentProcess.stdout?.on('data', (data: Buffer) => {
-            this.outputChannel.append(data.toString());
+            const text = data.toString();
+            this.outputChannel.append(text);
+            
+            // Write to file in real-time if enabled
+            if (this.outputFileWriter) {
+                this.outputFileWriter.writeSync(text);
+            }
         });
 
         // Capture stderr
         this.currentProcess.stderr?.on('data', (data: Buffer) => {
             const errorText = data.toString();
             this.outputChannel.append(errorText);
+            
+            // Write stderr to file as well
+            if (this.outputFileWriter) {
+                this.outputFileWriter.writeSync(errorText);
+            }
         });
 
         // Watch the output file for real-time updates
         this.watchOutputFile(this.outputFilePath);
 
         // Handle process completion
-        this.currentProcess.on('close', (code: number | null) => {
+        this.currentProcess.on('close', async (code: number | null) => {
             this.isRunning = false;
             this.stopWatchingOutputFile();
+            
+            // Close output file writer
+            if (this.outputFileWriter) {
+                try {
+                    await this.outputFileWriter.close();
+                    this.outputFileWriter = null;
+                } catch (err) {
+                    this.outputChannel.appendLine(`Warning: Error closing output file: ${err}`);
+                }
+            }
             
             this.outputChannel.appendLine('');
             this.outputChannel.appendLine('═══════════════════════════════════════════════════════');
@@ -216,9 +256,20 @@ export class OrcaRunner {
         });
 
         // Handle process errors
-        this.currentProcess.on('error', (err: Error) => {
+        this.currentProcess.on('error', async (err: Error) => {
             this.isRunning = false;
             this.stopWatchingOutputFile();
+            
+            // Close output file writer on error
+            if (this.outputFileWriter) {
+                try {
+                    await this.outputFileWriter.close();
+                    this.outputFileWriter = null;
+                } catch (closeErr) {
+                    // Ignore errors during cleanup
+                }
+            }
+            
             this.outputChannel.appendLine('');
             this.outputChannel.appendLine('═══════════════════════════════════════════════════════');
             this.outputChannel.appendLine(`❌ Error starting ORCA: ${err.message}`);
@@ -479,6 +530,13 @@ export class OrcaRunner {
     dispose(): void {
         this.killJob();
         this.stopWatchingOutputFile();
+        
+        // Clean up output file writer
+        if (this.outputFileWriter) {
+            this.outputFileWriter.dispose();
+            this.outputFileWriter = null;
+        }
+        
         this.outputChannel.dispose();
         this.statusBarItem.dispose();
     }
