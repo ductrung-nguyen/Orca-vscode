@@ -1,0 +1,106 @@
+# Release Workflow for VS-ORCA Extension
+# Triggers on version tags (v*.*.*) to:
+# 1. Build and package the extension
+# 2. Publish to VS Code Marketplace
+# 3. Create a GitHub Release with .vsix artifact
+#
+# Prerequisites:
+# - VSCE_PAT secret must be configured in repository settings
+# - PAT must have Marketplace > Manage scope
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+# Ensure only one release runs at a time
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for creating GitHub releases
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests with Xvfb
+        run: xvfb-run -a npm test
+        env:
+          DISPLAY: ':99.0'
+
+      - name: Package extension
+        run: npm run package
+
+      - name: Get package info
+        id: package
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+          echo "vsix_file=$(ls *.vsix)" >> $GITHUB_OUTPUT
+
+      - name: Verify version matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PACKAGE_VERSION="${{ steps.package.outputs.version }}"
+          if [[ "$TAG_VERSION" != "$PACKAGE_VERSION" ]]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match package.json version ($PACKAGE_VERSION)"
+            exit 1
+          fi
+          echo "Version verified: $PACKAGE_VERSION"
+
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish -p ${{ secrets.VSCE_PAT }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.package.outputs.vsix_file }}
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}
+          name: VS-ORCA ${{ steps.package.outputs.version }}
+          body: |
+            ## VS-ORCA v${{ steps.package.outputs.version }}
+            
+            ### Installation
+            
+            **From VS Code Marketplace:**
+            1. Open VS Code
+            2. Go to Extensions (Ctrl+Shift+X)
+            3. Search for "VS-ORCA"
+            4. Click Install
+            
+            **From VSIX file:**
+            ```bash
+            code --install-extension ${{ steps.package.outputs.vsix_file }}
+            ```
+            
+            ### Changelog
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
