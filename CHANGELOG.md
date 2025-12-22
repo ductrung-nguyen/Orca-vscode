@@ -4,6 +4,39 @@ All notable changes to the "VS-ORCA" extension will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.2] - 2025-12-22
+
+### ✨ New Features
+
+**Dashboard Table of Contents Navigation**
+
+Added an interactive Table of Contents (TOC) sidebar to the Results Dashboard, enabling quick navigation to specific sections in ORCA output files while preserving dashboard scroll context.
+
+- 📑 **TOC Sidebar**: Collapsible sidebar displaying all major sections in the output file
+- 🎯 **One-Click Navigation**: Click any TOC entry to jump to that section in the editor
+- 📍 **Scroll Preservation**: Dashboard scroll position preserved after navigation for seamless context switching
+- 🎨 **Status Indicators**: Visual icons and color-coding for success (✅), warnings (⚠️), and errors (❌)
+- 🔍 **15+ Section Types**: Detects headers, SCF iterations, optimization steps, frequencies, energies, and more
+- 📊 **Smart Detection**: Automatically identifies calculation type and shows relevant sections
+- ⚡ **Fast Loading**: TOC generated in <100ms for typical output files
+- 🧪 **Tested**: Comprehensive test suite with 10+ test cases
+
+**Detected Sections:**
+
+- ORCA Header (📋), Input File (📝), Basis Set Info (🔬)
+- SCF Iterations (🔄), SCF Converged (✅), SCF Not Converged (❌)
+- Geometry Optimization (📐), Optimization Converged (✅)
+- Vibrational Frequencies (🎵), Thermochemistry (🌡️)
+- Final Energy (⚡), Total Run Time (⏱️)
+- Success Markers (🎉), Error Markers (🚫), Warnings (⚠️)
+
+**User Benefits:**
+
+- **Faster Analysis**: Navigate directly to sections of interest without scrolling
+- **Better Context**: Visual overview of calculation structure and outcomes
+- **Enhanced Workflow**: Jump between dashboard and source output seamlessly
+- **Clear Diagnostics**: Quickly locate warnings and errors with status indicators
+
 ## [0.3.1] - 2025-12-22
 
 ### ✨ New Features

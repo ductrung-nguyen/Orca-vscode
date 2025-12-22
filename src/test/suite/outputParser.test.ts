@@ -305,3 +305,185 @@ suite('Output Parser Test Suite', () => {
         assert.strictEqual(result.scfIterations.length, 1);
     });
 });
+
+// Import parseTocEntries for TOC tests
+import { parseTocEntries } from '../../outputParser';
+
+suite('TOC Parser Test Suite', () => {
+    test('should parse single point calculation TOC entries', () => {
+        const content = `
+                                                 *****************
+                                                 * O   R   C   A *
+                                                 *****************
+
+                         INPUT FILE
+                         ==========
+    ! B3LYP def2-SVP
+
+                         SCF ITERATIONS
+                         ---------------
+
+                         ****************
+                         * SCF CONVERGED *
+                         ****************
+
+                         FINAL SINGLE POINT ENERGY      -76.123456789
+
+                         ****HURRAY******
+
+                         TOTAL RUN TIME: 0 days 0 hours 0 minutes 5 seconds 0 msec
+        `;
+
+        const entries = parseTocEntries(content);
+        
+        // Should find at least: ORCA Header, Input File, SCF Iterations, SCF Converged, Final Energy, HURRAY, Total Run Time
+        assert.ok(entries.length >= 5, `Expected at least 5 entries, got ${entries.length}`);
+        
+        // Check specific entries exist
+        const entryTitles = entries.map(e => e.title);
+        assert.ok(entryTitles.includes('ORCA Header'), 'Should detect ORCA Header');
+        assert.ok(entryTitles.includes('Input File'), 'Should detect Input File');
+        assert.ok(entryTitles.includes('SCF Iterations'), 'Should detect SCF Iterations');
+        assert.ok(entryTitles.includes('Final Energy'), 'Should detect Final Energy');
+        assert.ok(entryTitles.includes('HURRAY'), 'Should detect HURRAY');
+    });
+
+    test('should detect geometry optimization sections', () => {
+        const content = `
+            GEOMETRY OPTIMIZATION
+            ---------------------
+
+            THE OPTIMIZATION HAS CONVERGED
+        `;
+
+        const entries = parseTocEntries(content);
+        const entryTitles = entries.map(e => e.title);
+        
+        assert.ok(entryTitles.includes('Geometry Optimization'), 'Should detect Geometry Optimization');
+        assert.ok(entryTitles.includes('Optimization Converged'), 'Should detect Optimization Converged');
+    });
+
+    test('should detect frequency calculation sections', () => {
+        const content = `
+            VIBRATIONAL FREQUENCIES
+            -----------------------
+
+            THERMOCHEMISTRY
+            ---------------
+        `;
+
+        const entries = parseTocEntries(content);
+        const entryTitles = entries.map(e => e.title);
+        
+        assert.ok(entryTitles.includes('Vibrational Frequencies'), 'Should detect Vibrational Frequencies');
+        assert.ok(entryTitles.includes('Thermochemistry'), 'Should detect Thermochemistry');
+    });
+
+    test('should detect failed calculation sections', () => {
+        const content = `
+            SCF NOT CONVERGED
+            
+            ABORTING THE RUN
+        `;
+
+        const entries = parseTocEntries(content);
+        const entryTitles = entries.map(e => e.title);
+        
+        assert.ok(entryTitles.includes('SCF Not Converged'), 'Should detect SCF Not Converged');
+        assert.ok(entryTitles.includes('Aborting'), 'Should detect Aborting');
+        
+        // Check status is error
+        const scfNotConverged = entries.find(e => e.title === 'SCF Not Converged');
+        const aborting = entries.find(e => e.title === 'Aborting');
+        
+        assert.strictEqual(scfNotConverged?.status, 'error', 'SCF Not Converged should have error status');
+        assert.strictEqual(aborting?.status, 'error', 'Aborting should have error status');
+    });
+
+    test('should return empty array for empty file', () => {
+        const entries = parseTocEntries('');
+        assert.strictEqual(entries.length, 0);
+    });
+
+    test('should have accurate line numbers', () => {
+        const content = `Line 1
+Line 2
+                         FINAL SINGLE POINT ENERGY      -76.123456789
+Line 4
+                         ****HURRAY******
+Line 6`;
+
+        const entries = parseTocEntries(content);
+        
+        const energyEntry = entries.find(e => e.title === 'Final Energy');
+        const hurrayEntry = entries.find(e => e.title === 'HURRAY');
+        
+        assert.strictEqual(energyEntry?.lineNumber, 3, 'Final Energy should be at line 3');
+        assert.strictEqual(hurrayEntry?.lineNumber, 5, 'HURRAY should be at line 5');
+    });
+
+    test('should have unique IDs for each entry', () => {
+        const content = `
+            SCF ITERATIONS
+            SCF ITERATIONS
+            SCF ITERATIONS
+        `;
+
+        const entries = parseTocEntries(content);
+        const ids = entries.map(e => e.id);
+        const uniqueIds = new Set(ids);
+        
+        assert.strictEqual(ids.length, uniqueIds.size, 'All entry IDs should be unique');
+    });
+
+    test('should set correct icons for sections', () => {
+        const content = `
+                                                 *****************
+                                                 * O   R   C   A *
+                                                 *****************
+            SCF ITERATIONS
+            VIBRATIONAL FREQUENCIES
+            THERMOCHEMISTRY
+        `;
+
+        const entries = parseTocEntries(content);
+        
+        const headerEntry = entries.find(e => e.title === 'ORCA Header');
+        const scfEntry = entries.find(e => e.title === 'SCF Iterations');
+        const freqEntry = entries.find(e => e.title === 'Vibrational Frequencies');
+        const thermoEntry = entries.find(e => e.title === 'Thermochemistry');
+        
+        assert.strictEqual(headerEntry?.icon, '📋', 'ORCA Header should have 📋 icon');
+        assert.strictEqual(scfEntry?.icon, '🔄', 'SCF Iterations should have 🔄 icon');
+        assert.strictEqual(freqEntry?.icon, '🎵', 'Vibrational Frequencies should have 🎵 icon');
+        assert.strictEqual(thermoEntry?.icon, '🌡️', 'Thermochemistry should have 🌡️ icon');
+    });
+
+    test('should set success status for converged sections', () => {
+        const content = `
+            SCF CONVERGED
+            THE OPTIMIZATION HAS CONVERGED
+            HURRAY
+        `;
+
+        const entries = parseTocEntries(content);
+        
+        entries.forEach(entry => {
+            if (['SCF Converged', 'Optimization Converged', 'HURRAY'].includes(entry.title)) {
+                assert.strictEqual(entry.status, 'success', `${entry.title} should have success status`);
+            }
+        });
+    });
+
+    test('should include tocEntries in ParsedResults', () => {
+        const content = `
+            FINAL SINGLE POINT ENERGY      -76.123456789
+            ****HURRAY******
+        `;
+
+        const result = parseOrcaOutputEnhanced(content);
+        
+        assert.ok(Array.isArray(result.tocEntries), 'tocEntries should be an array');
+        assert.ok(result.tocEntries.length > 0, 'tocEntries should not be empty for valid content');
+    });
+});

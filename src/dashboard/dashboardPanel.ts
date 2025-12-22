@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { parseOrcaOutputEnhanced, ParsedResults } from '../outputParser';
+import { parseOrcaOutputEnhanced, ParsedResults, TocEntry } from '../outputParser';
 
 /**
  * Manages the results dashboard webview panel
@@ -218,8 +218,109 @@ export class DashboardPanel {
             font-family: var(--vscode-font-family);
             color: var(--vscode-foreground);
             background-color: var(--vscode-editor-background);
-            padding: 20px;
+            padding: 0;
+            margin: 0;
             line-height: 1.6;
+        }
+        
+        /* Dashboard container with TOC sidebar */
+        .dashboard-container {
+            display: flex;
+            flex-direction: row;
+            min-height: 100vh;
+        }
+        
+        /* TOC Sidebar styles */
+        .toc-sidebar {
+            width: 220px;
+            min-width: 180px;
+            max-width: 280px;
+            border-right: 1px solid var(--vscode-panel-border);
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            max-height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            background-color: var(--vscode-sideBar-background);
+        }
+        
+        .toc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: bold;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--vscode-panel-border);
+        }
+        
+        .toc-toggle {
+            background: none;
+            border: none;
+            color: var(--vscode-foreground);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        
+        .toc-toggle:hover {
+            background: var(--vscode-list-hoverBackground);
+        }
+        
+        .toc-entry {
+            padding: 6px 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+            margin: 2px 0;
+            font-size: 13px;
+        }
+        
+        .toc-entry:hover {
+            background: var(--vscode-list-hoverBackground);
+        }
+        
+        .toc-entry.success {
+            color: var(--vscode-testing-iconPassed);
+        }
+        
+        .toc-entry.warning {
+            color: var(--vscode-editorWarning-foreground);
+        }
+        
+        .toc-entry.error {
+            color: var(--vscode-testing-iconFailed);
+        }
+        
+        .toc-icon {
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .toc-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .toc-collapsed .toc-entries {
+            display: none;
+        }
+        
+        .toc-empty {
+            color: var(--vscode-descriptionForeground);
+            font-style: italic;
+            padding: 8px;
+        }
+        
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            padding: 20px;
         }
         
         h1, h2, h3 {
@@ -380,22 +481,27 @@ export class DashboardPanel {
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>ORCA Results Dashboard</h1>
-        <div class="button-group">
-            <button onclick="openOutputFile()"><span class="button-icon">📄</span>Open Output File</button>
-            <button onclick="exportResults()"><span class="button-icon">📋</span>Copy JSON</button>
-            <button onclick="refresh()"><span class="button-icon">🔄</span>Refresh</button>
+    <div class="dashboard-container">
+        ${this._generateTocSidebar(results.tocEntries)}
+        <div class="main-content">
+            <div class="header">
+                <h1>ORCA Results Dashboard</h1>
+                <div class="button-group">
+                    <button onclick="openOutputFile()"><span class="button-icon">📄</span>Open Output File</button>
+                    <button onclick="exportResults()"><span class="button-icon">📋</span>Copy JSON</button>
+                    <button onclick="refresh()"><span class="button-icon">🔄</span>Refresh</button>
+                </div>
+            </div>
+            
+            ${this._generateSummarySection(results)}
+            ${this._generateEnergySection(results)}
+            ${this._generateScfSection(results)}
+            ${this._generateOptimizationSection(results)}
+            ${this._generateFrequencySection(results)}
+            ${this._generateDiagnosticsSection(results)}
+            ${this._generateTimingSection(results)}
         </div>
     </div>
-    
-    ${this._generateSummarySection(results)}
-    ${this._generateEnergySection(results)}
-    ${this._generateScfSection(results)}
-    ${this._generateOptimizationSection(results)}
-    ${this._generateFrequencySection(results)}
-    ${this._generateDiagnosticsSection(results)}
-    ${this._generateTimingSection(results)}
     
     <script>
         const vscode = acquireVsCodeApi();
@@ -418,6 +524,51 @@ export class DashboardPanel {
             // Save scroll position before navigating
             saveScrollPosition();
             vscode.postMessage({ command: 'goToLine', lineNumber: lineNumber });
+        }
+        
+        // TOC navigation function
+        function navigateToLine(lineNumber) {
+            // Save scroll position before navigation
+            saveScrollPosition();
+            
+            // Send message to extension to navigate
+            vscode.postMessage({
+                command: 'goToLine',
+                lineNumber: lineNumber
+            });
+        }
+        
+        // TOC toggle function
+        function toggleToc() {
+            const sidebar = document.getElementById('tocSidebar');
+            const icon = document.getElementById('tocToggleIcon');
+            
+            if (sidebar) {
+                sidebar.classList.toggle('toc-collapsed');
+                if (icon) {
+                    icon.textContent = sidebar.classList.contains('toc-collapsed') ? '+' : '−';
+                }
+                
+                // Save collapse state
+                const state = vscode.getState() || {};
+                state.tocCollapsed = sidebar.classList.contains('toc-collapsed');
+                vscode.setState(state);
+            }
+        }
+        
+        // Restore TOC collapse state on load
+        function restoreTocState() {
+            const state = vscode.getState();
+            if (state && state.tocCollapsed) {
+                const sidebar = document.getElementById('tocSidebar');
+                const icon = document.getElementById('tocToggleIcon');
+                if (sidebar) {
+                    sidebar.classList.add('toc-collapsed');
+                    if (icon) {
+                        icon.textContent = '+';
+                    }
+                }
+            }
         }
         
         // Scroll position management
@@ -459,9 +610,15 @@ export class DashboardPanel {
             }
         });
         
-        // Restore scroll position on various events
-        document.addEventListener('DOMContentLoaded', restoreScrollPosition);
-        window.addEventListener('load', restoreScrollPosition);
+        // Restore scroll position and TOC state on various events
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreScrollPosition();
+            restoreTocState();
+        });
+        window.addEventListener('load', () => {
+            restoreScrollPosition();
+            restoreTocState();
+        });
         
         // Restore when page becomes visible (e.g., when switching back to webview)
         document.addEventListener('visibilitychange', () => {
@@ -481,6 +638,48 @@ export class DashboardPanel {
     </script>
 </body>
 </html>`;
+    }
+
+    /**
+     * Generate TOC sidebar HTML from TocEntry array
+     */
+    private _generateTocSidebar(entries: TocEntry[]): string {
+        if (entries.length === 0) {
+            return `
+            <div class="toc-sidebar" id="tocSidebar">
+                <div class="toc-header">
+                    <span>Table of Contents</span>
+                </div>
+                <div class="toc-empty">No sections found</div>
+            </div>
+            `;
+        }
+
+        const entriesHtml = entries.map(entry => {
+            const statusClass = entry.status ? ` ${entry.status}` : '';
+            return `
+                <div class="toc-entry${statusClass}" 
+                     onclick="navigateToLine(${entry.lineNumber})" 
+                     title="Line ${entry.lineNumber}">
+                    <span class="toc-icon">${entry.icon || ''}</span>
+                    <span class="toc-title">${this._escapeHtml(entry.title)}</span>
+                </div>
+            `;
+        }).join('');
+
+        return `
+        <div class="toc-sidebar" id="tocSidebar">
+            <div class="toc-header">
+                <span>Table of Contents</span>
+                <button class="toc-toggle" onclick="toggleToc()" title="Toggle TOC">
+                    <span id="tocToggleIcon">−</span>
+                </button>
+            </div>
+            <div class="toc-entries" id="tocEntries">
+                ${entriesHtml}
+            </div>
+        </div>
+        `;
     }
 
     private _generateSummarySection(results: ParsedResults): string {
