@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
 import { OutputFileWriter } from './outputFileWriter';
 import { parseOrcaOutput, OrcaParseResult } from './outputParser';
+import { setRunningFile } from './orcaCodeLensProvider';
 
 // Re-export for backward compatibility
 export { parseOrcaOutput, OrcaParseResult } from './outputParser';
@@ -124,6 +125,9 @@ export class OrcaRunner {
 
         this.isRunning = true;
         this.updateStatusBar('Running', true);
+        
+        // Notify CodeLens provider that this file is running
+        setRunningFile(inputFilePath);
 
         // Start the ORCA process
         this.currentProcess = spawn(binaryPath, [inputFilePath], {
@@ -160,6 +164,9 @@ export class OrcaRunner {
         this.currentProcess.on('close', async (code: number | null) => {
             this.isRunning = false;
             this.stopWatchingOutputFile();
+            
+            // Notify CodeLens provider that job is done
+            setRunningFile(null);
             
             // Close output file writer
             if (this.outputFileWriter) {
@@ -241,6 +248,9 @@ export class OrcaRunner {
         
         // Kill the process
         this.currentProcess.kill('SIGTERM');
+        
+        // Notify CodeLens provider immediately for better UX
+        setRunningFile(null);
         
         // Force kill after 5 seconds if still alive
         setTimeout(() => {

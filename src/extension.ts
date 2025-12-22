@@ -7,6 +7,7 @@ import { OrcaDetector } from './installation/detector';
 import { OrcaValidator } from './installation/validator';
 import { OrcaOutputSymbolProvider } from './orcaOutputSymbolProvider';
 import { DashboardPanel } from './dashboard/dashboardPanel';
+import { OrcaCodeLensProvider } from './orcaCodeLensProvider';
 
 let orcaRunner: OrcaRunner;
 let statusBarItem: vscode.StatusBarItem;
@@ -22,6 +23,14 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerDocumentSymbolProvider(
             { language: 'orca-output' },
             new OrcaOutputSymbolProvider()
+        )
+    );
+    
+    // Register CodeLens provider for .inp files (Run ORCA action)
+    context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider(
+            { language: 'orca', scheme: 'file' },
+            new OrcaCodeLensProvider()
         )
     );
     
