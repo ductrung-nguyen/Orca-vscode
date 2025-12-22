@@ -128,7 +128,7 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
     result.scfFailed = content.includes('SCF NOT CONVERGED');
     
     // Extract final energy
-    const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-\d.]+)/);
+    const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-+]?\d+\.?\d*(?:[eE][-+]?\d+)?)/);
     if (energyMatch) {
         result.finalEnergy = parseFloat(energyMatch[1]);
     }

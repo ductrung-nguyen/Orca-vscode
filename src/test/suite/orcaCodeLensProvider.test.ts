@@ -37,11 +37,9 @@ suite('OrcaCodeLensProvider Test Suite', () => {
             assert.ok(provider.onDidChangeCodeLenses !== undefined);
         });
 
-        test('should have event emitter for refresh', () => {
-            assert.ok(typeof provider.onDidChangeCodeLenses === 'object');
-        });
-
-        test('resolveCodeLens should return the same CodeLens', () => {
+    test('should have event emitter for refresh', () => {
+        assert.ok(typeof provider.onDidChangeCodeLenses === 'function');
+    });        test('resolveCodeLens should return the same CodeLens', () => {
             const range = new vscode.Range(0, 0, 0, 0);
             const codeLens = new vscode.CodeLens(range, {
                 title: 'Test',
@@ -69,7 +67,7 @@ suite('OrcaOutputCodeLensProvider Test Suite', () => {
     });
 
     test('should have event emitter for changes', () => {
-        assert.ok(typeof provider.onDidChangeCodeLenses === 'object');
+        assert.ok(typeof provider.onDidChangeCodeLenses === 'function');
     });
 
     test('resolveCodeLens should return the same CodeLens', () => {
