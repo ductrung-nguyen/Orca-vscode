@@ -6,6 +6,7 @@ import { WizardPanel } from './installation/wizard/wizardPanel';
 import { OrcaDetector } from './installation/detector';
 import { OrcaValidator } from './installation/validator';
 import { OrcaOutputSymbolProvider } from './orcaOutputSymbolProvider';
+import { DashboardPanel } from './dashboard/dashboardPanel';
 
 let orcaRunner: OrcaRunner;
 let statusBarItem: vscode.StatusBarItem;
@@ -262,6 +263,47 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
+    // Register command: Show Results Dashboard
+    const showDashboardCommand = vscode.commands.registerCommand('vs-orca.showResultsDashboard', async (uri?: vscode.Uri) => {
+        let outputFile: string | undefined;
+
+        if (uri) {
+            // Called from context menu with URI
+            outputFile = uri.fsPath;
+        } else {
+            // Called from command palette
+            const editor = vscode.window.activeTextEditor;
+            if (editor) {
+                const currentFile = editor.document.fileName;
+                
+                if (currentFile.endsWith('.out')) {
+                    outputFile = currentFile;
+                } else if (currentFile.endsWith('.inp')) {
+                    // Try to find corresponding .out file
+                    const parsedPath = path.parse(currentFile);
+                    const potentialOutputFile = path.join(parsedPath.dir, `${parsedPath.name}.out`);
+                    
+                    if (fs.existsSync(potentialOutputFile)) {
+                        outputFile = potentialOutputFile;
+                    }
+                }
+            }
+        }
+
+        if (!outputFile) {
+            vscode.window.showWarningMessage('No ORCA output file found. Please open a .out file or run an ORCA job first.');
+            return;
+        }
+
+        if (!fs.existsSync(outputFile)) {
+            vscode.window.showWarningMessage(`Output file not found: ${path.basename(outputFile)}`);
+            return;
+        }
+
+        // Show the dashboard
+        DashboardPanel.createOrShow(context.extensionUri, outputFile);
+    });
+
     context.subscriptions.push(
         runCommand, 
         killCommand, 
@@ -269,7 +311,8 @@ export function activate(context: vscode.ExtensionContext) {
         detectCommand, 
         validateCommand,
         healthCommand,
-        openOutputCommand
+        openOutputCommand,
+        showDashboardCommand
     );
 }
 
