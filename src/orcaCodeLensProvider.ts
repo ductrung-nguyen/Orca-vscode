@@ -106,3 +106,38 @@ export class OrcaCodeLensProvider implements vscode.CodeLensProvider {
         return codeLens;
     }
 }
+
+/**
+ * CodeLens provider for ORCA output files (.out)
+ * Provides "Open Dashboard" action at the top of the file
+ */
+export class OrcaOutputCodeLensProvider implements vscode.CodeLensProvider {
+    private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
+    public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
+
+    provideCodeLenses(document: vscode.TextDocument, _token: vscode.CancellationToken): vscode.CodeLens[] {
+        const codeLenses: vscode.CodeLens[] = [];
+
+        // Only provide CodeLens for .out files
+        if (!document.fileName.endsWith('.out') && document.languageId !== 'orca-output') {
+            return codeLenses;
+        }
+
+        const topOfDocument = new vscode.Range(0, 0, 0, 0);
+
+        // Add "Open Dashboard" CodeLens
+        const dashboardCodeLens = new vscode.CodeLens(topOfDocument, {
+            title: '$(graph) Open Dashboard',
+            tooltip: 'Open ORCA Results Dashboard',
+            command: 'vs-orca.showResultsDashboard',
+            arguments: [vscode.Uri.file(document.fileName)]
+        });
+        codeLenses.push(dashboardCodeLens);
+
+        return codeLenses;
+    }
+
+    resolveCodeLens(codeLens: vscode.CodeLens, _token: vscode.CancellationToken): vscode.CodeLens {
+        return codeLens;
+    }
+}
