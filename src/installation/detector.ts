@@ -139,7 +139,8 @@ export class OrcaDetector {
     }
 
     /**
-     * Get ORCA version by running bare command
+     * Get ORCA version by running with a minimal input file
+     * ORCA requires an input file to show its banner with version info
      */
     private async getVersion(binaryPath: string): Promise<string> {
         // First, check if this is the wrong orca (GNOME screen reader) - don't run it!
@@ -147,56 +148,82 @@ export class OrcaDetector {
             throw new Error('This appears to be GNOME Orca screen reader, not ORCA computational chemistry software');
         }
         
-        return new Promise((resolve, reject) => {
-            const process = spawn(binaryPath, [], { shell: false });
-            let stderr = '';
-            let stdout = '';
+        // Create a minimal temporary input file
+        const tmpDir = os.tmpdir();
+        const tmpInputFile = path.join(tmpDir, `orca_version_check_${Date.now()}.inp`);
+        
+        try {
+            // Write minimal ORCA input that will fail fast but still show banner
+            await fs.promises.writeFile(tmpInputFile, '! HF\n');
             
-            process.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-            
-            process.stderr.on('data', (data) => {
-                stderr += data.toString();
-                // If we see the version banner, kill the process early
-                if (stderr.includes('Program Version') || stderr.includes('ORCA')) {
-                    process.kill('SIGTERM');
-                }
-            });
-            
-            // Send EOF to stdin to make programs that wait for input exit
-            process.stdin.end();
-            
-            const timeout = setTimeout(() => {
-                process.kill('SIGTERM');
-                reject(new Error('Version check timeout - this may not be ORCA computational chemistry software'));
-            }, 5000);
-            
-            process.on('close', () => {
-                clearTimeout(timeout);
+            return await new Promise((resolve, reject) => {
+                const proc = spawn(binaryPath, [tmpInputFile], { shell: false });
+                let stderr = '';
+                let stdout = '';
+                let resolved = false;
                 
-                const combined = stderr + stdout;
-                
-                // Parse version from stderr banner
-                const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
-                if (versionMatch) {
-                    resolve(versionMatch[1]);
-                } else {
-                    // Try alternative version patterns
-                    const altMatch = combined.match(/Version\s+(\d+\.\d+\.\d+)/i);
-                    if (altMatch) {
-                        resolve(altMatch[1]);
-                    } else {
-                        reject(new Error('Not ORCA computational chemistry software (no version banner found)'));
+                const tryResolveVersion = () => {
+                    if (resolved) return;
+                    
+                    const combined = stdout + stderr;
+                    const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
+                    if (versionMatch) {
+                        resolved = true;
+                        proc.kill('SIGTERM');
+                        resolve(versionMatch[1]);
                     }
-                }
+                };
+                
+                proc.stdout.on('data', (data) => {
+                    stdout += data.toString();
+                    tryResolveVersion();
+                });
+                
+                proc.stderr.on('data', (data) => {
+                    stderr += data.toString();
+                });
+                
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        proc.kill('SIGTERM');
+                        reject(new Error('Version check timeout - this may not be ORCA computational chemistry software'));
+                    }
+                }, 5000);
+                
+                proc.on('close', () => {
+                    clearTimeout(timeout);
+                    if (resolved) return;
+                    
+                    // Final attempt to parse version
+                    const combined = stdout + stderr;
+                    const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
+                    if (versionMatch) {
+                        resolve(versionMatch[1]);
+                    } else {
+                        const altMatch = combined.match(/Version\s+(\d+\.\d+\.\d+)/i);
+                        if (altMatch) {
+                            resolve(altMatch[1]);
+                        } else {
+                            reject(new Error('Not ORCA computational chemistry software (no version banner found)'));
+                        }
+                    }
+                });
+                
+                proc.on('error', (error) => {
+                    clearTimeout(timeout);
+                    if (!resolved) {
+                        reject(error);
+                    }
+                });
             });
-            
-            process.on('error', (error) => {
-                clearTimeout(timeout);
-                reject(error);
-            });
-        });
+        } finally {
+            // Clean up temporary file
+            try {
+                await fs.promises.unlink(tmpInputFile);
+            } catch {
+                // Ignore cleanup errors
+            }
+        }
     }
     
     /**
@@ -326,7 +353,9 @@ export class OrcaDetector {
                     // Note: /usr/bin/orca is intentionally excluded as it's usually GNOME Orca screen reader
                     path.join(homeDir, 'orca', 'orca'),
                     path.join(homeDir, '.local', 'bin', 'orca'),
-                    path.join(homeDir, 'bin', 'orca')
+                    path.join(homeDir, 'bin', 'orca'),
+                    // Scan for versioned directories (e.g., orca_6_1_1)
+                    ...this.findVersionedOrcaDirectories(homeDir)
                 ];
                 
             case Platform.MacOS:
@@ -335,7 +364,11 @@ export class OrcaDetector {
                     '/opt/homebrew/bin/orca',
                     path.join(homeDir, 'Applications', 'orca', 'orca'),
                     path.join(homeDir, 'orca', 'orca'),
-                    '/Applications/orca/orca'
+                    '/Applications/orca/orca',
+                    // Common manual installation locations
+                    path.join(homeDir, 'Library', 'orca', 'orca'),
+                    // Scan for versioned directories (e.g., orca_6_1_1)
+                    ...this.findVersionedOrcaDirectories(homeDir)
                 ];
                 
             case Platform.Windows:
@@ -349,6 +382,44 @@ export class OrcaDetector {
             default:
                 return [];
         }
+    }
+    
+    /**
+     * Find versioned ORCA directories (e.g., orca_6_1_1, orca_5_0_4)
+     * Common pattern for manual ORCA installations
+     */
+    private findVersionedOrcaDirectories(homeDir: string): string[] {
+        const paths: string[] = [];
+        
+        // Common parent directories where ORCA might be installed
+        const parentDirs = [
+            path.join(homeDir, 'Library'),           // macOS: ~/Library/orca_*
+            path.join(homeDir, 'Applications'),      // macOS: ~/Applications/orca_*
+            homeDir,                                 // ~/orca_*
+            '/opt',                                  // /opt/orca_*
+            '/usr/local',                            // /usr/local/orca_*
+        ];
+        
+        for (const parentDir of parentDirs) {
+            try {
+                if (!fs.existsSync(parentDir)) continue;
+                
+                const entries = fs.readdirSync(parentDir, { withFileTypes: true });
+                for (const entry of entries) {
+                    // Look for directories matching orca_* pattern (case-insensitive)
+                    if (entry.isDirectory() && /^orca[_-]?\d/i.test(entry.name)) {
+                        const orcaBinary = path.join(parentDir, entry.name, 'orca');
+                        if (fs.existsSync(orcaBinary)) {
+                            paths.push(orcaBinary);
+                        }
+                    }
+                }
+            } catch {
+                // Skip directories we can't read
+            }
+        }
+        
+        return paths;
     }
     
     /**

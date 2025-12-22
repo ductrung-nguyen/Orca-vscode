@@ -144,6 +144,7 @@ function createMockContext(): vscode.ExtensionContext {
         logPath: '/tmp/orca-test-log',
         asAbsolutePath: (relativePath: string): string => relativePath,
         environmentVariableCollection: {} as vscode.GlobalEnvironmentVariableCollection,
-        extension: {} as vscode.Extension<unknown>
+        extension: {} as vscode.Extension<unknown>,
+        languageModelAccessInformation: {} as vscode.LanguageModelAccessInformation
     } as unknown as vscode.ExtensionContext;
 }

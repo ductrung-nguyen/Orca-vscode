@@ -61,7 +61,6 @@ This maintenance release updates all development dependencies to their latest st
 - No high/critical/moderate/low security issues
 
 ---
-
 ## [0.2.0] - 2025-12-20
 
 ### 🎉 Major Feature: ORCA Installation Capability
