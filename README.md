@@ -65,6 +65,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 | **Syntax Highlighting**   | Color-coded output sections (headers, energies, warnings, errors) | ✅     |
 | **Structured Navigation** | Outline view and Go to Symbol for quick section jumping           | ✅     |
 | **Results Dashboard**     | Interactive webview with parsed results and visual tables         | ✅     |
+| **TOC Navigation**        | Interactive Table of Contents sidebar for quick section jumping   | ✅     |
 | **Enhanced Parsing**      | Extract SCF iterations, geometry steps, frequencies, diagnostics  | ✅     |
 | **Live Updates**          | Dashboard auto-refreshes when output file changes                 | ✅     |
 | **Export Capability**     | Copy parsed results as JSON to clipboard                          | ✅     |
@@ -79,9 +80,11 @@ Computational chemists using ORCA face a **fragmented workflow**:
 - **Automatic Output Persistence**: All calculation output saved to `.out` files
 - **Syntax Highlighted Output**: Open `.out` files with color-coded sections
 - **Interactive Dashboard**: Visual results with tables, metrics, and diagnostics
+- **TOC Sidebar**: Collapsible Table of Contents with one-click navigation to sections
 - **Quick Navigation**: Use Outline view or Ctrl+Shift+O to jump to sections
 - **CodeLens Actions**: Click "Open Dashboard" at the top of any `.out` file for instant access
 - **Smart Diagnostics**: Warnings and errors collected with line numbers
+- **Scroll Preservation**: Dashboard context maintained during TOC navigation
 
 📖 **Detailed guide:** See [OUTPUT_FILE_MANAGEMENT_GUIDE.md](docs/OUTPUT_FILE_MANAGEMENT_GUIDE.md)
 
