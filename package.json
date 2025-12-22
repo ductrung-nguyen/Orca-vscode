@@ -39,6 +39,17 @@
           ".orca"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "orca-output",
+        "aliases": [
+          "ORCA Output",
+          "orca-output"
+        ],
+        "extensions": [
+          ".out"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -46,6 +57,11 @@
         "language": "orca",
         "scopeName": "source.orca",
         "path": "./syntaxes/orca.tmLanguage.json"
+      },
+      {
+        "language": "orca-output",
+        "scopeName": "source.orca.output",
+        "path": "./syntaxes/orca-output.tmLanguage.json"
       }
     ],
     "snippets": [
@@ -90,6 +106,12 @@
         "title": "Check ORCA Health",
         "category": "ORCA",
         "icon": "$(heart)"
+      },
+      {
+        "command": "vs-orca.openOutputFile",
+        "title": "Open ORCA Output File",
+        "category": "ORCA",
+        "icon": "$(file-text)"
       }
     ],
     "keybindings": [
@@ -100,6 +122,13 @@
       }
     ],
     "menus": {
+      "explorer/context": [
+        {
+          "command": "vs-orca.openOutputFile",
+          "when": "resourceExtname == .inp",
+          "group": "orca@1"
+        }
+      ],
       "editor/title": [
         {
           "command": "vs-orca.runJob",
