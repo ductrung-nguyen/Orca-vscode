@@ -4,6 +4,16 @@ All notable changes to the "VS-ORCA" extension will be documented in this file.
 
 ## [Unreleased]
 
+### ✨ New Features
+
+**CodeLens for Output Files**
+
+- 🔍 Added CodeLens provider for `.out` files with "Open Dashboard" action
+- 📊 One-click access to Results Dashboard directly from the editor
+- 🎯 CodeLens appears at the top of output files for instant dashboard access
+- 🔗 Automatically passes file URI to dashboard for correct file display
+- 🧪 Unit tests for CodeLens provider functionality
+
 ## [0.3.0] - 2025-12-22
 
 ### 🎉 Major Feature: Output File Management & Enhanced Analysis

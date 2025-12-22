@@ -7,7 +7,7 @@ import { OrcaDetector } from './installation/detector';
 import { OrcaValidator } from './installation/validator';
 import { OrcaOutputSymbolProvider } from './orcaOutputSymbolProvider';
 import { DashboardPanel } from './dashboard/dashboardPanel';
-import { OrcaCodeLensProvider } from './orcaCodeLensProvider';
+import { OrcaCodeLensProvider, OrcaOutputCodeLensProvider } from './orcaCodeLensProvider';
 
 let orcaRunner: OrcaRunner;
 let statusBarItem: vscode.StatusBarItem;
@@ -31,6 +31,14 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerCodeLensProvider(
             { language: 'orca', scheme: 'file' },
             new OrcaCodeLensProvider()
+        )
+    );
+    
+    // Register CodeLens provider for .out files (Open Dashboard action)
+    context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider(
+            { language: 'orca-output', scheme: 'file' },
+            new OrcaOutputCodeLensProvider()
         )
     );
     

@@ -48,6 +48,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 | **Path Configuration** | Settings UI to define ORCA binary location                        | ✅     |
 | **Live Output**        | Real-time streaming of calculation output to VS Code panel        | ✅     |
 | **Process Control**    | Kill/terminate running jobs from GUI                              | ✅     |
+| **CodeLens Actions**   | Click "Run ORCA" directly in the editor above your input file     | ✅     |
 
 **Workflow:**
 
@@ -71,6 +72,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 | **Energy Extraction**     | Display final energy in status bar instantly                      | ✅     |
 | **Optimization Tracking** | Step-by-step geometry optimization progress                       | ✅     |
 | **Frequency Analysis**    | Detect and highlight imaginary frequencies                        | ✅     |
+| **CodeLens Dashboard**    | One-click "Open Dashboard" action at top of `.out` files          | ✅     |
 
 **New Capabilities:**
 
@@ -78,6 +80,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 - **Syntax Highlighted Output**: Open `.out` files with color-coded sections
 - **Interactive Dashboard**: Visual results with tables, metrics, and diagnostics
 - **Quick Navigation**: Use Outline view or Ctrl+Shift+O to jump to sections
+- **CodeLens Actions**: Click "Open Dashboard" at the top of any `.out` file for instant access
 - **Smart Diagnostics**: Warnings and errors collected with line numbers
 
 📖 **Detailed guide:** See [OUTPUT_FILE_MANAGEMENT_GUIDE.md](docs/OUTPUT_FILE_MANAGEMENT_GUIDE.md)
