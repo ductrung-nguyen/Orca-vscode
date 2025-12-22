@@ -4,6 +4,54 @@ All notable changes to the "VS-ORCA" extension will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-12-22
+
+### 🚀 DevOps: CI/CD Pipeline Implementation
+
+This release introduces a complete CI/CD pipeline using GitHub Actions, automating quality checks on every commit and streamlining the release process for VS Code Marketplace.
+
+#### New Features
+
+**GitHub Actions CI Workflow**
+
+- 🔄 Automated CI pipeline (`.github/workflows/ci.yml`)
+- ✅ Runs on all pull requests and pushes to `main` branch
+- 🧹 **Lint job**: ESLint validation for code quality
+- 🔨 **Build job**: TypeScript compilation verification
+- 🧪 **Test job**: Automated test execution with Xvfb for VS Code Extension Host
+- ⏱️ Concurrent run cancellation for efficiency
+- 📦 Node.js 20 with npm caching for fast builds
+
+**GitHub Actions Release Workflow**
+
+- 📦 Automated release pipeline (`.github/workflows/release.yml`)
+- 🏷️ Triggered on version tags (`v*.*.*`)
+- ✅ Full CI validation before publishing
+- 🚀 One-click VS Code Marketplace publishing via `@vscode/vsce`
+- 🔐 Secure token handling via GitHub Secrets (`VSCE_PAT`)
+- 📋 Automated GitHub Release creation with `.vsix` artifact
+
+**Developer Experience**
+
+- 🎯 CI badge added to README.md for build status visibility
+- 📖 Comprehensive CI/CD documentation in CONTRIBUTING.md
+- 🛠️ Troubleshooting guide for common CI/Release issues
+- 🔑 Setup instructions for VS Code Marketplace PAT
+
+#### Technical Details
+
+- **CI Runtime**: ~2-3 minutes for full pipeline
+- **Release Runtime**: ~5 minutes including marketplace publish
+- **Node.js Version**: 20.x (LTS)
+- **Test Environment**: Ubuntu latest with Xvfb for headless VS Code testing
+
+#### Documentation
+
+- Updated CONTRIBUTING.md with CI/CD workflow documentation
+- Added CI status badges to README.md
+- Troubleshooting section for CI pipeline issues
+- Release workflow setup guide
+
 ## [0.3.2] - 2025-12-22
 
 ### ✨ New Features
@@ -47,7 +95,7 @@ Added a CodeLens provider for ORCA output files (`.out`) that displays an "Open 
 
 - 🔍 **Open Dashboard CodeLens**: One-click action at the top of `.out` files
 - 📊 **Direct Dashboard Access**: Opens Results Dashboard without leaving the editor
-- 🎯 **Consistent UX**: Aligns `.out` file experience with existing `.inp` file CodeLens pattern
+- �� **Consistent UX**: Aligns `.out` file experience with existing `.inp` file CodeLens pattern
 - 🔗 **Smart File Handling**: Automatically passes file URI to dashboard for correct file display
 - 🧪 **Tested**: Unit tests for CodeLens provider functionality
 
