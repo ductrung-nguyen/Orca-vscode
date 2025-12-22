@@ -4,6 +4,87 @@ All notable changes to the "VS-ORCA" extension will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-12-22
+
+### 🎉 Major Feature: Output File Management & Enhanced Analysis
+
+This release introduces comprehensive output file management with automatic persistence, syntax highlighting, structured navigation, and an interactive results dashboard.
+
+#### New Features
+
+**Output File Persistence**
+- ✨ Automatic `.out` file creation for every ORCA job execution
+- 📝 Real-time streaming to output files during calculation
+- ⚙️ Configurable via `orca.saveOutputToFile` setting (default: enabled)
+- 🔄 Proper resource cleanup and error handling
+
+**Syntax Highlighting for Output Files**
+- 🎨 Color-coded sections for `.out` files (headers, energies, warnings, errors)
+- 🖌️ TextMate grammar with 12+ pattern categories
+- 🎯 Highlights: energy values, convergence markers, SCF iterations, frequencies
+- ⚡ Configurable file size limit (`orca.maxSyntaxFileSize`, default: 5 MB)
+
+**Structured Navigation**
+- 📑 Document symbol provider for Outline view integration
+- ⌨️ Go to Symbol support (Ctrl+Shift+O) for quick section access
+- 🗺️ Breadcrumbs navigation through output file sections
+- 📍 Hierarchical structure with 15+ recognized section types
+
+**Interactive Results Dashboard**
+- 📊 Webview panel with comprehensive visual results
+- 📈 Summary section: status, final energy, SCF cycles, warnings count
+- ⚛️ Energy section: final energy, zero-point energy (high precision)
+- 🔄 SCF convergence table: iterations with energy, ΔE, density changes
+- 📐 Geometry optimization: step-by-step progress with gradients
+- 🎵 Frequency analysis: complete table with imaginary mode detection
+- ⚠️ Diagnostics: all warnings and errors with line numbers
+- ⏱️ Timing information: total run time breakdown
+- 🔄 Auto-refresh on file changes via FileSystemWatcher
+- 📋 Copy parsed results as JSON to clipboard
+- 🎨 Native VS Code theming support
+
+**Enhanced Output Parsing**
+- 🧠 Comprehensive `ParsedResults` interface with 10+ data categories
+- 📊 SCF cycle counting and iteration extraction
+- 📐 Geometry optimization step parser
+- 🎵 Frequency table parser with imaginary mode detection
+- ⚡ Zero-point energy extraction
+- ⚠️ Warning and error collection with line numbers
+- ⏱️ Total run time parsing
+- 🧪 100+ unit tests for parsing functions
+
+**New Commands**
+- `vs-orca.openOutputFile` - Open corresponding .out file from .inp file
+- `vs-orca.showResultsDashboard` - Show interactive results dashboard
+
+**New Settings**
+- `orca.saveOutputToFile` - Auto-save output to files (default: true)
+- `orca.outputSyntaxHighlighting` - Enable syntax highlighting (default: true)
+- `orca.maxSyntaxFileSize` - Max file size for highlighting (default: 5 MB)
+- `orca.dashboardAutoOpen` - Auto-open dashboard after completion (default: false)
+
+**Context Menu Integrations**
+- Right-click `.inp` files: "Open ORCA Output File"
+- Right-click `.out` files: "Show Results Dashboard"
+- Editor title bar icons for quick access
+
+#### Technical Improvements
+
+- 🏗️ New `OutputFileWriter` class with streaming support
+- 🔧 Async/sync write methods with backpressure handling
+- 🎯 Enhanced `OrcaRunner` integration with real-time file writing
+- 📦 New `outputParser` module with pure functions
+- 🧪 Comprehensive test suite (50+ tests across 3 test files)
+- 📚 Extensive user documentation (OUTPUT_FILE_MANAGEMENT_GUIDE.md)
+- ♻️ Backward compatible with existing parsing API
+
+#### Documentation
+
+- 📖 New comprehensive user guide: `docs/OUTPUT_FILE_MANAGEMENT_GUIDE.md`
+- 📋 Updated README with new features section
+- 🎯 Usage examples for all new capabilities
+- 🛠️ Troubleshooting guide for common issues
+
 ## [0.2.1] - 2025-12-21
 
 ### 🔧 Maintenance: Development Dependencies Update

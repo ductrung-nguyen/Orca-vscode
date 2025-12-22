@@ -1,8 +1,8 @@
 # VS-ORCA (Virtual Studio for ORCA Chemistry)
 
-A comprehensive Visual Studio Code extension that transforms VS Code into a unified development environment for **ORCA computational chemistry** calculations. Streamline your workflow with intelligent input editing, one-click execution, and automated output parsing.
+A comprehensive Visual Studio Code extension that transforms VS Code into a unified development environment for **ORCA computational chemistry** calculations. Streamline your workflow with intelligent input editing, one-click execution, automated output parsing, and interactive results visualization.
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue)
+![Version](https://img.shields.io/badge/version-0.3.0-blue)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.85.0+-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -56,13 +56,31 @@ Computational chemists using ORCA face a **fragmented workflow**:
 3. Output streams live to the **ORCA** output panel
 4. Status bar shows real-time progress
 
-### 📊 Module C: Automated Analyst (Phase 2)
+### 📊 Module C: Output File Management & Analysis
 
-| Feature                 | Description                                                          | Status |
-| ----------------------- | -------------------------------------------------------------------- | ------ |
-| **Convergence Check**   | Auto-detect "HURRAY" or "SCF NOT CONVERGED" with toast notifications | ✅     |
-| **Energy Extraction**   | Display final energy in status bar instantly                         | ✅     |
-| **Optimization Status** | Detect geometry convergence and imaginary frequencies                | ✅     |
+| Feature                    | Description                                                        | Status |
+| -------------------------- | ------------------------------------------------------------------ | ------ |
+| **Auto-Save Outputs**      | Every ORCA job automatically creates a `.out` file                 | ✅     |
+| **Syntax Highlighting**    | Color-coded output sections (headers, energies, warnings, errors)  | ✅     |
+| **Structured Navigation**  | Outline view and Go to Symbol for quick section jumping            | ✅     |
+| **Results Dashboard**      | Interactive webview with parsed results and visual tables          | ✅     |
+| **Enhanced Parsing**       | Extract SCF iterations, geometry steps, frequencies, diagnostics   | ✅     |
+| **Live Updates**           | Dashboard auto-refreshes when output file changes                  | ✅     |
+| **Export Capability**      | Copy parsed results as JSON to clipboard                           | ✅     |
+| **Convergence Detection**  | Auto-detect "HURRAY" or "SCF NOT CONVERGED" with notifications     | ✅     |
+| **Energy Extraction**      | Display final energy in status bar instantly                       | ✅     |
+| **Optimization Tracking**  | Step-by-step geometry optimization progress                        | ✅     |
+| **Frequency Analysis**     | Detect and highlight imaginary frequencies                         | ✅     |
+
+**New Capabilities:**
+
+- **Automatic Output Persistence**: All calculation output saved to `.out` files
+- **Syntax Highlighted Output**: Open `.out` files with color-coded sections
+- **Interactive Dashboard**: Visual results with tables, metrics, and diagnostics
+- **Quick Navigation**: Use Outline view or Ctrl+Shift+O to jump to sections
+- **Smart Diagnostics**: Warnings and errors collected with line numbers
+
+📖 **Detailed guide:** See [OUTPUT_FILE_MANAGEMENT_GUIDE.md](docs/OUTPUT_FILE_MANAGEMENT_GUIDE.md)
 
 ---
 
