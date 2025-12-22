@@ -4,15 +4,25 @@ All notable changes to the "VS-ORCA" extension will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-12-22
+
 ### ✨ New Features
 
 **CodeLens for Output Files**
 
-- 🔍 Added CodeLens provider for `.out` files with "Open Dashboard" action
-- 📊 One-click access to Results Dashboard directly from the editor
-- 🎯 CodeLens appears at the top of output files for instant dashboard access
-- 🔗 Automatically passes file URI to dashboard for correct file display
-- 🧪 Unit tests for CodeLens provider functionality
+Added a CodeLens provider for ORCA output files (`.out`) that displays an "Open Dashboard" action directly in the editor. This enhancement provides a more discoverable and convenient way for users to access the Results Dashboard when viewing calculation results.
+
+- 🔍 **Open Dashboard CodeLens**: One-click action at the top of `.out` files
+- 📊 **Direct Dashboard Access**: Opens Results Dashboard without leaving the editor
+- 🎯 **Consistent UX**: Aligns `.out` file experience with existing `.inp` file CodeLens pattern
+- 🔗 **Smart File Handling**: Automatically passes file URI to dashboard for correct file display
+- 🧪 **Tested**: Unit tests for CodeLens provider functionality
+
+**User Benefits:**
+
+- **Improved Discoverability**: Dashboard feature is now visible immediately when opening `.out` files
+- **Reduced Clicks**: No need to use context menu, command palette, or title bar icons
+- **Streamlined Workflow**: Analyze results directly from where you're already working
 
 ## [0.3.0] - 2025-12-22
 
