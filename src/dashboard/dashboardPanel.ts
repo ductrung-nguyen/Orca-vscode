@@ -63,6 +63,9 @@ export class DashboardPanel {
                     case 'refresh':
                         this._update();
                         break;
+                    case 'openOutputFile':
+                        this._openOutputFile();
+                        break;
                 }
             },
             null,
@@ -114,6 +117,18 @@ export class DashboardPanel {
     private async _copyToClipboard(data: string) {
         await vscode.env.clipboard.writeText(data);
         vscode.window.showInformationMessage('Results copied to clipboard');
+    }
+
+    /**
+     * Open the output file in the editor
+     */
+    private async _openOutputFile() {
+        try {
+            const document = await vscode.workspace.openTextDocument(this._outputFilePath);
+            await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to open output file: ${error}`);
+        }
     }
 
     /**
@@ -308,6 +323,7 @@ export class DashboardPanel {
     <div class="header">
         <h1>ORCA Results Dashboard</h1>
         <div>
+            <button onclick="openOutputFile()">📄 Open Output File</button>
             <button onclick="refresh()">🔄 Refresh</button>
             <button onclick="exportResults()">📋 Copy JSON</button>
         </div>
@@ -324,6 +340,10 @@ export class DashboardPanel {
     <script>
         const vscode = acquireVsCodeApi();
         const results = ${resultsJson};
+        
+        function openOutputFile() {
+            vscode.postMessage({ command: 'openOutputFile' });
+        }
         
         function refresh() {
             vscode.postMessage({ command: 'refresh' });

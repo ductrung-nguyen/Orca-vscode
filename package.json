@@ -221,7 +221,7 @@
         },
         "orca.dashboardAutoOpen": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Automatically open results dashboard after job completion",
           "order": 9
         },

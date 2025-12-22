@@ -61,12 +61,13 @@ This release introduces comprehensive output file management with automatic pers
 - `orca.saveOutputToFile` - Auto-save output to files (default: true)
 - `orca.outputSyntaxHighlighting` - Enable syntax highlighting (default: true)
 - `orca.maxSyntaxFileSize` - Max file size for highlighting (default: 5 MB)
-- `orca.dashboardAutoOpen` - Auto-open dashboard after completion (default: false)
+- `orca.dashboardAutoOpen` - Auto-open dashboard after completion (default: true)
 
 **Context Menu Integrations**
 - Right-click `.inp` files: "Open ORCA Output File"
 - Right-click `.out` files: "Show Results Dashboard"
 - Editor title bar icons for quick access
+- Dashboard "Open Output File" button for direct file access
 
 #### Technical Improvements
 
