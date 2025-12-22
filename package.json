@@ -249,6 +249,7 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
+    "postcompile": "node -e \"require('fs').cpSync('src/test/fixtures', 'out/test/fixtures', {recursive: true})\"",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint src --ext ts",
