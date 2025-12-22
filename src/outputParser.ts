@@ -46,6 +46,22 @@ export interface DiagnosticMessage {
 }
 
 /**
+ * Table of Contents entry for navigation
+ */
+export interface TocEntry {
+    /** Unique identifier (e.g., 'scf-iterations-42') */
+    id: string;
+    /** Display name (e.g., 'SCF Iterations') */
+    title: string;
+    /** 1-indexed line number in output file */
+    lineNumber: number;
+    /** Emoji icon (e.g., '🔄') */
+    icon?: string;
+    /** Optional status indicator */
+    status?: 'success' | 'warning' | 'error';
+}
+
+/**
  * Comprehensive parsed results from ORCA output
  */
 export interface ParsedResults {
@@ -76,6 +92,9 @@ export interface ParsedResults {
     
     // Timing
     totalRunTime: number | null; // in seconds
+    
+    // Table of Contents
+    tocEntries: TocEntry[];
 }
 
 /**
@@ -100,7 +119,8 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
         warnings: [],
         errors: [],
         hasErrors: false,
-        totalRunTime: null
+        totalRunTime: null,
+        tocEntries: []
     };
 
     // Basic convergence checks
@@ -133,6 +153,7 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
     result.errors = parseErrors(content);
     result.hasErrors = result.errors.length > 0 || result.scfFailed;
     result.totalRunTime = parseTotalRunTime(content);
+    result.tocEntries = parseTocEntries(content);
 
     return result;
 }
@@ -443,4 +464,63 @@ export function parseOrcaOutput(content: string): OrcaParseResult {
         imaginaryFreqCount: enhanced.imaginaryFreqCount,
         hasErrors: enhanced.hasErrors
     };
+}
+
+/**
+ * Section pattern definition for TOC parsing
+ */
+interface TocPattern {
+    id: string;
+    regex: RegExp;
+    title: string;
+    icon: string;
+    status?: 'success' | 'warning' | 'error';
+}
+
+/**
+ * Parse ORCA output and extract Table of Contents entries
+ * @param content Full ORCA output content
+ * @returns Array of TOC entries with line numbers
+ */
+export function parseTocEntries(content: string): TocEntry[] {
+    const entries: TocEntry[] = [];
+    const lines = content.split('\n');
+    
+    // Section detection patterns (from PRD FR-002)
+    const patterns: TocPattern[] = [
+        { id: 'orca-header', regex: /^\s*\*+\s+O\s+R\s+C\s+A\s+\*+/, title: 'ORCA Header', icon: '📋' },
+        { id: 'input-file', regex: /INPUT FILE/i, title: 'Input File', icon: '📝' },
+        { id: 'basis-set', regex: /Orbital basis set information/i, title: 'Basis Set Info', icon: '🔬' },
+        { id: 'warnings', regex: /^-+\s*WARNINGS\s*-+$/i, title: 'Warnings', icon: '⚠️', status: 'warning' },
+        { id: 'scf-iterations', regex: /SCF ITERATIONS/i, title: 'SCF Iterations', icon: '🔄' },
+        { id: 'scf-converged', regex: /SCF CONVERGED/i, title: 'SCF Converged', icon: '✅', status: 'success' },
+        { id: 'scf-not-converged', regex: /SCF NOT CONVERGED/i, title: 'SCF Not Converged', icon: '❌', status: 'error' },
+        { id: 'geometry-opt', regex: /GEOMETRY OPTIMIZATION|OPTIMIZATION RUN/i, title: 'Geometry Optimization', icon: '📐' },
+        { id: 'opt-converged', regex: /THE OPTIMIZATION HAS CONVERGED/i, title: 'Optimization Converged', icon: '✅', status: 'success' },
+        { id: 'frequencies', regex: /VIBRATIONAL FREQUENCIES/i, title: 'Vibrational Frequencies', icon: '🎵' },
+        { id: 'thermochemistry', regex: /THERMOCHEMISTRY/i, title: 'Thermochemistry', icon: '🌡️' },
+        { id: 'final-energy', regex: /FINAL SINGLE POINT ENERGY/i, title: 'Final Energy', icon: '⚡' },
+        { id: 'total-run-time', regex: /TOTAL RUN TIME/i, title: 'Total Run Time', icon: '⏱️' },
+        { id: 'hurray', regex: /HURRAY/i, title: 'HURRAY', icon: '🎉', status: 'success' },
+        { id: 'aborting', regex: /ABORTING/i, title: 'Aborting', icon: '🚫', status: 'error' }
+    ];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        for (const pattern of patterns) {
+            if (pattern.regex.test(line)) {
+                entries.push({
+                    id: `${pattern.id}-${i}`,
+                    title: pattern.title,
+                    lineNumber: i + 1, // 1-indexed
+                    icon: pattern.icon,
+                    status: pattern.status
+                });
+                break; // Only match first pattern per line
+            }
+        }
+    }
+    
+    return entries;
 }
