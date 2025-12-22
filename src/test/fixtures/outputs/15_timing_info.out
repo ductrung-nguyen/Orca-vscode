@@ -1,0 +1,22 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+FINAL SINGLE POINT ENERGY      -76.123456789012
+
+                          *** CONVERGENCE OF SCF ACHIEVED ***
+
+THE ORCA FINISHED SUCCESSFULLY
+
+---------------------------------------------------------------------------
+                              TIMINGS
+---------------------------------------------------------------------------
+
+Total SCF time:                ...       12.345 sec
+Total time for integrals:      ...        2.345 sec
+Total time for Fock matrix:    ...        8.123 sec
+Total time for diagonalization:...        1.234 sec
+
+Total run time:                ...       45.678 sec
+
+****ORCA TERMINATED NORMALLY****

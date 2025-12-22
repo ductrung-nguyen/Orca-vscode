@@ -284,14 +284,16 @@ export function parseFrequencies(content: string): FrequencyData[] {
         // Parse frequency line
         if (inFreqSection) {
             // Format: mode: frequency cm**-1 intensity
+            // Also handles: mode: frequency cm**-1 ***imaginary mode***
             const match = line.match(/^\s*(\d+):\s*([-]?\d+\.\d+)\s+cm\*\*-1.*?(\d+\.\d+)/);
             if (match) {
                 const freq = parseFloat(match[2]);
+                const isImaginary = freq < 0 || line.includes('***imaginary mode***');
                 frequencies.push({
                     modeNumber: parseInt(match[1]),
-                    frequency: Math.abs(freq),
+                    frequency: isImaginary ? Math.abs(freq) : freq,
                     intensity: parseFloat(match[3]),
-                    isImaginary: freq < 0 || line.includes('***imaginary mode***')
+                    isImaginary: isImaginary
                 });
             }
         }

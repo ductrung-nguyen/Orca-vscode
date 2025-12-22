@@ -1,0 +1,26 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+INPUT FILE: test.inp
+
+WARNING: Small basis set def2-SVP may not be sufficient for accurate results
+WARNING: Consider using def2-TZVP or larger for production calculations
+WARNING: Tight convergence criteria may be difficult to achieve
+
+SCF ITERATIONS
+  Iter       Energy         Delta-E        Max-DP      RMS-DP
+     0   -76.000000000    0.0000000000   0.1234567   0.0123456
+     1   -76.100000000   -0.1000000000   0.0234567   0.0023456
+     2   -76.123000000   -0.0230000000   0.0034567   0.0003456
+     3   -76.123456000   -0.0004560000   0.0000567   0.0000056
+
+                          *** CONVERGENCE OF SCF ACHIEVED ***
+
+FINAL SINGLE POINT ENERGY      -76.123456789012
+
+WARNING: Mulliken population analysis may be basis set dependent
+WARNING: Consider using Löwdin population for more robust results
+
+THE ORCA FINISHED SUCCESSFULLY
+****ORCA TERMINATED NORMALLY****

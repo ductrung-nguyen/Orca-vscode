@@ -1,0 +1,15 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+SCF ITERATIONS
+  Iter       Energy         Delta-E        Max-DP      RMS-DP
+     0   -76.000000000    0.0000000000   0.9234567   0.0923456
+     1   -75.800000000    0.2000000000   1.2345678   0.1234567
+     2   -75.600000000    0.2000000000   1.5678901   0.1567890
+     3   -75.400000000    0.2000000000   1.8901234   0.1890123
+
+ERROR: SCF NOT CONVERGED AFTER 50 ITERATIONS
+
+THE ORCA FINISHED WITH ERROR
+****ORCA TERMINATED WITH ERROR****
