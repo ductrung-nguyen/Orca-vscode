@@ -36,8 +36,7 @@ suite('OrcaValidator Test Suite', () => {
                 storageUri: vscode.Uri.file('/tmp/orca-test-storage'),
                 asAbsolutePath: (relativePath: string) => relativePath,
                 environmentVariableCollection: {} as vscode.GlobalEnvironmentVariableCollection,
-                extension: {} as vscode.Extension<unknown>,
-                languageModelAccessInformation: {} as vscode.LanguageModelAccessInformation
+                extension: {} as vscode.Extension<unknown>
             } as unknown as vscode.ExtensionContext;
             
             validator = new OrcaValidator(context);
