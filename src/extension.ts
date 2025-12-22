@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
 import { OrcaRunner } from './orcaRunner';
 import { WizardPanel } from './installation/wizard/wizardPanel';
 import { OrcaDetector } from './installation/detector';
 import { OrcaValidator } from './installation/validator';
+import { OrcaOutputSymbolProvider } from './orcaOutputSymbolProvider';
 
 let orcaRunner: OrcaRunner;
 let statusBarItem: vscode.StatusBarItem;
@@ -13,6 +15,14 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Initialize the ORCA runner
     orcaRunner = new OrcaRunner();
+    
+    // Register document symbol provider for .out files
+    context.subscriptions.push(
+        vscode.languages.registerDocumentSymbolProvider(
+            { language: 'orca-output' },
+            new OrcaOutputSymbolProvider()
+        )
+    );
     
     // Create status bar item
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -217,13 +227,49 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Register command: Open Output File
+    const openOutputCommand = vscode.commands.registerCommand('vs-orca.openOutputFile', async () => {
+        const editor = vscode.window.activeTextEditor;
+        
+        if (!editor) {
+            vscode.window.showErrorMessage('No active editor found.');
+            return;
+        }
+
+        const inputFile = editor.document.fileName;
+        
+        // Check if this is an .inp file
+        if (!inputFile.endsWith('.inp')) {
+            vscode.window.showWarningMessage('This command works with ORCA input files (.inp)');
+            return;
+        }
+
+        // Determine the output file path
+        const parsedPath = path.parse(inputFile);
+        const outputFile = path.join(parsedPath.dir, `${parsedPath.name}.out`);
+
+        // Check if output file exists
+        if (!fs.existsSync(outputFile)) {
+            vscode.window.showWarningMessage(`Output file not found: ${path.basename(outputFile)}`);
+            return;
+        }
+
+        // Open the output file
+        const document = await vscode.workspace.openTextDocument(outputFile);
+        await vscode.window.showTextDocument(document, {
+            preview: false,
+            viewColumn: vscode.ViewColumn.Beside
+        });
+    });
+
     context.subscriptions.push(
         runCommand, 
         killCommand, 
         setupCommand, 
         detectCommand, 
         validateCommand,
-        healthCommand
+        healthCommand,
+        openOutputCommand
     );
 }
 

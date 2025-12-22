@@ -1,0 +1,240 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "ORCA Output",
+    "scopeName": "source.orca.output",
+    "patterns": [
+        { "include": "#header-section" },
+        { "include": "#section-markers" },
+        { "include": "#energy-values" },
+        { "include": "#convergence-markers" },
+        { "include": "#warnings" },
+        { "include": "#errors" },
+        { "include": "#frequencies" },
+        { "include": "#geometry-table" },
+        { "include": "#scf-iterations" },
+        { "include": "#timing-info" },
+        { "include": "#coordinates" },
+        { "include": "#numbers" }
+    ],
+    "repository": {
+        "header-section": {
+            "patterns": [
+                {
+                    "name": "markup.heading.orca.output",
+                    "match": "^\\s*\\*+\\s+O   R   C   A\\s+\\*+.*$"
+                },
+                {
+                    "name": "markup.heading.orca.output",
+                    "match": "^\\s*#.*$"
+                },
+                {
+                    "name": "comment.line.orca.output",
+                    "match": "^\\s*\\|.*\\|\\s*$"
+                }
+            ]
+        },
+        "section-markers": {
+            "patterns": [
+                {
+                    "name": "entity.name.section.orca.output",
+                    "match": "^-+$"
+                },
+                {
+                    "name": "entity.name.section.orca.output",
+                    "match": "^=+$"
+                },
+                {
+                    "name": "entity.name.section.orca.output",
+                    "match": "^\\*{10,}.*\\*{10,}$"
+                },
+                {
+                    "name": "keyword.control.section.orca.output",
+                    "match": "^[A-Z][A-Z ]{5,}[A-Z]\\s*$"
+                },
+                {
+                    "name": "keyword.control.section.orca.output",
+                    "match": "^\\s*(INPUT FILE|GEOMETRY|SCF CONVERGENCE|OPTIMIZATION|FREQUENCY|THERMOCHEMISTRY|HURRAY|ABORTING).*$"
+                }
+            ]
+        },
+        "energy-values": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.energy.final.orca.output",
+                    "match": "^.*FINAL SINGLE POINT ENERGY\\s+([-]?\\d+\\.\\d+).*$",
+                    "captures": {
+                        "1": { "name": "constant.numeric.orca.output" }
+                    }
+                },
+                {
+                    "name": "constant.numeric.energy.orca.output",
+                    "match": "^.*Total Energy\\s*:\\s*([-]?\\d+\\.\\d+).*$",
+                    "captures": {
+                        "1": { "name": "constant.numeric.orca.output" }
+                    }
+                },
+                {
+                    "name": "constant.numeric.energy.orca.output",
+                    "match": "^.*TOTAL SCF ENERGY\\s*=\\s*([-]?\\d+\\.\\d+).*$",
+                    "captures": {
+                        "1": { "name": "constant.numeric.orca.output" }
+                    }
+                },
+                {
+                    "name": "constant.numeric.energy.orca.output",
+                    "match": "^.*(E\\(.*\\))\\s*\\.+\\s*([-]?\\d+\\.\\d+).*$"
+                }
+            ]
+        },
+        "convergence-markers": {
+            "patterns": [
+                {
+                    "name": "string.success.orca.output",
+                    "match": "^.*HURRAY.*$"
+                },
+                {
+                    "name": "string.success.orca.output",
+                    "match": "^.*THE OPTIMIZATION HAS CONVERGED.*$"
+                },
+                {
+                    "name": "string.success.orca.output",
+                    "match": "^.*SCF CONVERGED.*$"
+                },
+                {
+                    "name": "markup.inserted.orca.output",
+                    "match": "^.*\\*\\*\\*\\s*CONVERGENCE.*$"
+                }
+            ]
+        },
+        "warnings": {
+            "patterns": [
+                {
+                    "name": "markup.changed.orca.output",
+                    "match": "^.*(WARNING|Warning|warning).*$"
+                },
+                {
+                    "name": "markup.changed.orca.output",
+                    "match": "^.*\\*\\*\\*imaginary mode\\*\\*\\*.*$"
+                },
+                {
+                    "name": "markup.changed.orca.output",
+                    "match": "^.*Wavefunction not converged.*$"
+                }
+            ]
+        },
+        "errors": {
+            "patterns": [
+                {
+                    "name": "markup.deleted.orca.output",
+                    "match": "^.*(ERROR|Error|ABORTING|FAILED|SCF NOT CONVERGED).*$"
+                },
+                {
+                    "name": "markup.deleted.orca.output",
+                    "match": "^.*Not enough memory.*$"
+                },
+                {
+                    "name": "markup.deleted.orca.output",
+                    "match": "^.*cannot allocate memory.*$"
+                },
+                {
+                    "name": "markup.deleted.orca.output",
+                    "match": "^.*This wavefunction IS NOT CONVERGED.*$"
+                }
+            ]
+        },
+        "frequencies": {
+            "patterns": [
+                {
+                    "name": "entity.name.tag.orca.output",
+                    "match": "^.*VIBRATIONAL FREQUENCIES.*$"
+                },
+                {
+                    "name": "entity.name.tag.orca.output",
+                    "match": "^.*Mode\\s+freq\\s+epsilon.*$"
+                },
+                {
+                    "name": "constant.numeric.frequency.orca.output",
+                    "match": "^\\s*\\d+:\\s*([-]?\\d+\\.\\d+)\\s+cm\\*\\*-1.*$",
+                    "captures": {
+                        "1": { "name": "constant.numeric.orca.output" }
+                    }
+                }
+            ]
+        },
+        "geometry-table": {
+            "patterns": [
+                {
+                    "name": "entity.name.tag.orca.output",
+                    "match": "^.*CARTESIAN COORDINATES.*$"
+                },
+                {
+                    "name": "entity.name.tag.orca.output",
+                    "match": "^.*INTERNAL COORDINATES.*$"
+                },
+                {
+                    "name": "entity.name.tag.orca.output",
+                    "match": "^.*ATOMIC MASSES.*$"
+                },
+                {
+                    "name": "variable.other.orca.output",
+                    "match": "^\\s*\\d+\\s+([A-Z][a-z]?)\\s+([-]?\\d+\\.\\d+)\\s+([-]?\\d+\\.\\d+)\\s+([-]?\\d+\\.\\d+).*$",
+                    "captures": {
+                        "1": { "name": "entity.name.type.orca.output" }
+                    }
+                }
+            ]
+        },
+        "scf-iterations": {
+            "patterns": [
+                {
+                    "name": "entity.name.tag.orca.output",
+                    "match": "^.*SCF ITERATIONS.*$"
+                },
+                {
+                    "name": "comment.line.orca.output",
+                    "match": "^\\s*ITER\\s+Energy\\s+Delta-E\\s+Max-DP\\s+RMS-DP.*$"
+                },
+                {
+                    "name": "variable.other.orca.output",
+                    "match": "^\\s*\\d+\\s+([-]?\\d+\\.\\d+E?[+-]?\\d*)\\s+([-]?\\d+\\.\\d+E?[+-]?\\d*).*$"
+                }
+            ]
+        },
+        "timing-info": {
+            "patterns": [
+                {
+                    "name": "comment.line.timing.orca.output",
+                    "match": "^.*Timings for individual modules.*$"
+                },
+                {
+                    "name": "comment.line.timing.orca.output",
+                    "match": "^.*Total time\\s+\\.+\\s+\\d+.*$"
+                },
+                {
+                    "name": "comment.line.timing.orca.output",
+                    "match": "^.*TOTAL RUN TIME.*$"
+                }
+            ]
+        },
+        "coordinates": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.coordinate.orca.output",
+                    "match": "\\b[-]?\\d+\\.\\d{4,}\\b"
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.orca.output",
+                    "match": "\\b[-]?\\d+\\.\\d+[EeDd]?[+-]?\\d*\\b"
+                },
+                {
+                    "name": "constant.numeric.orca.output",
+                    "match": "\\b\\d+\\b"
+                }
+            ]
+        }
+    }
+}
