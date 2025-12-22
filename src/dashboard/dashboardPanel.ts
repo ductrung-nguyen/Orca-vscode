@@ -66,6 +66,9 @@ export class DashboardPanel {
                     case 'openOutputFile':
                         this._openOutputFile();
                         break;
+                    case 'goToLine':
+                        this._goToLine(message.lineNumber);
+                        break;
                 }
             },
             null,
@@ -128,6 +131,29 @@ export class DashboardPanel {
             await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to open output file: ${error}`);
+        }
+    }
+
+    /**
+     * Open the output file at a specific line number
+     */
+    private async _goToLine(lineNumber: number) {
+        try {
+            const document = await vscode.workspace.openTextDocument(this._outputFilePath);
+            const editor = await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
+            
+            // Convert to 0-indexed line number and create position
+            const line = Math.max(0, lineNumber - 1);
+            const position = new vscode.Position(line, 0);
+            
+            // Set cursor position and reveal the line
+            editor.selection = new vscode.Selection(position, position);
+            editor.revealRange(
+                new vscode.Range(position, position),
+                vscode.TextEditorRevealType.InCenter
+            );
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to navigate to line: ${error}`);
         }
     }
 
@@ -291,6 +317,17 @@ export class DashboardPanel {
             background-color: var(--vscode-inputValidation-errorBackground);
         }
         
+        .line-link {
+            color: var(--vscode-textLink-foreground);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .line-link:hover {
+            color: var(--vscode-textLink-activeForeground);
+            text-decoration: underline;
+        }
+        
         button {
             background-color: var(--vscode-button-background);
             color: var(--vscode-button-foreground);
@@ -352,6 +389,10 @@ export class DashboardPanel {
         function exportResults() {
             const jsonString = JSON.stringify(results, null, 2);
             vscode.postMessage({ command: 'copyToClipboard', data: jsonString });
+        }
+        
+        function goToLine(lineNumber) {
+            vscode.postMessage({ command: 'goToLine', lineNumber: lineNumber });
         }
     </script>
 </body>
@@ -545,14 +586,14 @@ export class DashboardPanel {
         const warningItems = results.warnings.map(w => `
             <div class="message warning">
                 <strong>Warning:</strong> ${this._escapeHtml(w.message)}
-                ${w.lineNumber ? ` (line ${w.lineNumber})` : ''}
+                ${w.lineNumber ? ` <a href="#" class="line-link" onclick="goToLine(${w.lineNumber}); return false;">(line ${w.lineNumber})</a>` : ''}
             </div>
         `).join('');
 
         const errorItems = results.errors.map(e => `
             <div class="message error">
                 <strong>Error:</strong> ${this._escapeHtml(e.message)}
-                ${e.lineNumber ? ` (line ${e.lineNumber})` : ''}
+                ${e.lineNumber ? ` <a href="#" class="line-link" onclick="goToLine(${e.lineNumber}); return false;">(line ${e.lineNumber})</a>` : ''}
             </div>
         `).join('');
 
