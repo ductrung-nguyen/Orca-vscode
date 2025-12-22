@@ -3,70 +3,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
 import { OutputFileWriter } from './outputFileWriter';
+import { parseOrcaOutput, OrcaParseResult } from './outputParser';
 
-/**
- * Result of parsing ORCA output file
- */
-export interface OrcaParseResult {
-    converged: boolean;
-    scfFailed: boolean;
-    finalEnergy: number | null;
-    optimizationConverged: boolean;
-    hasFrequencies: boolean;
-    imaginaryFreqCount: number;
-    hasErrors: boolean;
-}
+// Re-export for backward compatibility
+export { parseOrcaOutput, OrcaParseResult } from './outputParser';
 
-/**
- * Parse ORCA output content and extract key results
- * Pure function for easier testing
- * @param content Full or partial content of ORCA output file
- * @returns Structured parse results
- */
-export function parseOrcaOutput(content: string): OrcaParseResult {
-    const result: OrcaParseResult = {
-        converged: false,
-        scfFailed: false,
-        finalEnergy: null,
-        optimizationConverged: false,
-        hasFrequencies: false,
-        imaginaryFreqCount: 0,
-        hasErrors: false
-    };
-    
-    // Check for successful convergence (HURRAY marker)
-    result.converged = content.includes('HURRAY');
-    
-    // Check for SCF convergence failure
-    result.scfFailed = content.includes('SCF NOT CONVERGED');
-    
-    // Extract final energy
-    const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-\d.]+)/);
-    if (energyMatch) {
-        result.finalEnergy = parseFloat(energyMatch[1]);
-    }
-    
-    // Check for geometry optimization convergence
-    result.optimizationConverged = content.includes('THE OPTIMIZATION HAS CONVERGED');
-    
-    // Check for frequency calculation
-    result.hasFrequencies = content.includes('VIBRATIONAL FREQUENCIES');
-    
-    // Count imaginary frequencies
-    const imagMatch = content.match(/\*\*\*imaginary mode\*\*\*/g);
-    if (imagMatch) {
-        result.imaginaryFreqCount = imagMatch.length;
-    }
-    
-    // Detect various error conditions
-    result.hasErrors = result.scfFailed || 
-                       content.includes('ABORTING THE RUN') ||
-                       content.includes('Not enough memory') ||
-                       content.includes('cannot allocate memory');
-    
-    return result;
-}
-
+// Legacy helper functions for backward compatibility
 /**
  * Extract final energy from ORCA output
  * @param content ORCA output content
