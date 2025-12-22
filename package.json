@@ -112,6 +112,12 @@
         "title": "Open ORCA Output File",
         "category": "ORCA",
         "icon": "$(file-text)"
+      },
+      {
+        "command": "vs-orca.showResultsDashboard",
+        "title": "Show Results Dashboard",
+        "category": "ORCA",
+        "icon": "$(graph)"
       }
     ],
     "keybindings": [
@@ -127,12 +133,22 @@
           "command": "vs-orca.openOutputFile",
           "when": "resourceExtname == .inp",
           "group": "orca@1"
+        },
+        {
+          "command": "vs-orca.showResultsDashboard",
+          "when": "resourceExtname == .out",
+          "group": "orca@2"
         }
       ],
       "editor/title": [
         {
           "command": "vs-orca.runJob",
           "when": "resourceExtname == .inp",
+          "group": "navigation"
+        },
+        {
+          "command": "vs-orca.showResultsDashboard",
+          "when": "resourceExtname == .out",
           "group": "navigation"
         }
       ],

@@ -182,6 +182,14 @@ export class OrcaRunner {
                 // Parse the output for key results
                 if (this.outputFilePath) {
                     this.parseResults(this.outputFilePath);
+                    
+                    // Auto-open dashboard if configured
+                    const config = vscode.workspace.getConfiguration('orca');
+                    const autoOpenDashboard = config.get<boolean>('dashboardAutoOpen', false);
+                    
+                    if (autoOpenDashboard) {
+                        vscode.commands.executeCommand('vs-orca.showResultsDashboard', vscode.Uri.file(this.outputFilePath));
+                    }
                 }
             } else if (code === null) {
                 this.outputChannel.appendLine('⚠️  ORCA job was terminated');
