@@ -2,7 +2,7 @@
 
 A comprehensive Visual Studio Code extension that transforms VS Code into a unified development environment for **ORCA computational chemistry** calculations. Streamline your workflow with intelligent input editing, one-click execution, automated output parsing, and interactive results visualization.
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue)
+![Version](https://img.shields.io/badge/version-0.3.1-blue)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.85.0+-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
