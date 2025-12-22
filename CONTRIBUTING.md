@@ -2,6 +2,46 @@
 
 Thank you for your interest in contributing to VS-ORCA! This document provides guidelines for contributing to the project.
 
+## Continuous Integration
+
+All pull requests and pushes to `main` are automatically tested by our CI pipeline.
+
+### CI Checks
+
+Every PR must pass these automated checks before merging:
+
+| Check | Description | Command |
+|-------|-------------|---------|
+| **Lint** | ESLint validation | `npm run lint` |
+| **Build** | TypeScript compilation | `npm run compile` |
+| **Test** | Unit and integration tests | `npm test` |
+
+### CI Status
+
+[![CI](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/ci.yml)
+
+View CI runs: [GitHub Actions](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/ci.yml)
+
+### Running Tests Locally
+
+Before submitting a PR, run the full test suite locally:
+
+```bash
+# Run linting
+npm run lint
+
+# Compile TypeScript
+npm run compile
+
+# Run tests (requires display on Linux)
+npm test
+
+# On Linux without display, use Xvfb
+xvfb-run -a npm test
+```
+
+---
+
 ## Development Setup
 
 1. **Prerequisites**:
@@ -153,13 +193,208 @@ Edit [snippets/orca.json](snippets/orca.json):
 
 (For maintainers)
 
-1. Update version in `package.json`
-2. Update `CHANGELOG.md` with release notes
-3. Commit: `git commit -m "Release v0.x.x"`
-4. Tag: `git tag v0.x.x`
-5. Push: `git push && git push --tags`
-6. Package: `npm run package`
-7. Publish to VS Code Marketplace
+### Automated Release Pipeline
+
+VS-ORCA uses GitHub Actions for automated releases. When you push a version tag, the release workflow:
+
+1. ✅ Runs all CI checks (lint, build, test)
+2. 📦 Packages the extension as `.vsix`
+3. 🚀 Publishes to VS Code Marketplace
+4. 📋 Creates a GitHub Release with the `.vsix` attached
+
+### Release Steps
+
+1. **Update version in `package.json`**:
+   ```bash
+   # Update version field, e.g., "0.4.0"
+   ```
+
+2. **Update `CHANGELOG.md`** with release notes:
+   ```markdown
+   ## [0.4.0] - YYYY-MM-DD
+   
+   ### Added
+   - New feature description
+   
+   ### Changed
+   - Changed behavior description
+   
+   ### Fixed
+   - Bug fix description
+   ```
+
+3. **Commit the changes**:
+   ```bash
+   git add package.json CHANGELOG.md
+   git commit -m "Release v0.4.0"
+   ```
+
+4. **Create and push the version tag**:
+   ```bash
+   git tag v0.4.0
+   git push origin main
+   git push origin v0.4.0
+   ```
+
+5. **Monitor the release**:
+   - Watch [GitHub Actions](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/release.yml)
+   - Verify the extension appears in [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ductrung-nguyen.vs-orca)
+
+### Version Numbering
+
+Follow [Semantic Versioning](https://semver.org/):
+- **MAJOR** (1.0.0): Breaking changes
+- **MINOR** (0.1.0): New features, backward compatible
+- **PATCH** (0.0.1): Bug fixes, backward compatible
+
+### Pre-release Versions
+
+For pre-release versions, use suffixes:
+- `v0.4.0-alpha.1` - Alpha release
+- `v0.4.0-beta.1` - Beta release
+- `v0.4.0-rc.1` - Release candidate
+
+---
+
+## VSCE_PAT Setup (For Maintainers)
+
+The release workflow requires a VS Code Marketplace Personal Access Token (PAT) to publish the extension.
+
+### Generating a PAT
+
+1. Go to [Azure DevOps](https://dev.azure.com/)
+2. Sign in with your Microsoft account
+3. Click **User settings** (top right) → **Personal access tokens**
+4. Click **New Token**
+5. Configure the token:
+   - **Name**: `VS-ORCA VSCE Publishing`
+   - **Organization**: `All accessible organizations`
+   - **Expiration**: Set a reasonable expiration (max 1 year)
+   - **Scopes**: Click **Custom defined**, then:
+     - Under **Marketplace**, check **Manage**
+6. Click **Create** and copy the token immediately
+
+### Adding the Secret to GitHub
+
+1. Go to the [repository settings](https://github.com/ductrung-nguyen/Orca-vscode/settings)
+2. Navigate to **Secrets and variables** → **Actions**
+3. Click **New repository secret**
+4. Set:
+   - **Name**: `VSCE_PAT`
+   - **Value**: Paste your PAT
+5. Click **Add secret**
+
+### PAT Renewal Reminder
+
+- Set a calendar reminder 2 weeks before PAT expiration
+- Document the expiration date in team notes
+- Regenerate PAT and update the GitHub secret before expiration
+
+---
+
+## Troubleshooting
+
+### CI Pipeline Issues
+
+#### Lint Job Fails
+
+**Symptoms**: ESLint errors in CI
+
+**Solution**:
+```bash
+# Run lint locally to see errors
+npm run lint
+
+# Auto-fix some issues
+npm run lint -- --fix
+```
+
+#### Build Job Fails
+
+**Symptoms**: TypeScript compilation errors
+
+**Solution**:
+```bash
+# Check for type errors
+npm run compile
+
+# Common fixes:
+# - Add missing type annotations
+# - Install missing @types/* packages
+# - Check import paths
+```
+
+#### Test Job Fails
+
+**Symptoms**: Tests fail in CI but pass locally
+
+**Possible Causes**:
+1. **Missing Xvfb**: VS Code extension tests require a display
+   ```bash
+   # Run with Xvfb locally
+   xvfb-run -a npm test
+   ```
+
+2. **Timing issues**: Add appropriate waits in tests
+3. **Path differences**: Use path.join() instead of hardcoded separators
+
+### Release Workflow Issues
+
+#### "VSCE_PAT not configured"
+
+**Symptoms**: Release workflow fails at publish step
+
+**Solution**:
+1. Verify `VSCE_PAT` secret exists in repository settings
+2. Regenerate the PAT if expired
+3. Ensure PAT has `Marketplace > Manage` scope
+
+#### "Version mismatch" Error
+
+**Symptoms**: Release fails with version verification error
+
+**Solution**:
+Ensure the tag version matches `package.json`:
+```bash
+# Tag should match package.json version
+# If package.json has "version": "0.4.0"
+# Then tag should be v0.4.0
+git tag v0.4.0  # Correct
+git tag v0.4.1  # Wrong - will fail
+```
+
+#### "Extension not found in Marketplace"
+
+**Symptoms**: Published but not visible
+
+**Possible Causes**:
+1. **Propagation delay**: Wait 5-10 minutes
+2. **Publisher mismatch**: Verify `publisher` in `package.json`
+3. **Validation failure**: Check workflow logs for marketplace errors
+
+### Common Development Issues
+
+#### "Cannot find module" Errors
+
+```bash
+# Reinstall dependencies
+rm -rf node_modules
+npm ci
+```
+
+#### Syntax Highlighting Not Working
+
+1. Ensure `.inp` file extension is recognized
+2. Check `syntaxes/orca.tmLanguage.json` for syntax errors
+3. Reload VS Code window (Ctrl+Shift+P → "Reload Window")
+
+#### Extension Not Activating
+
+1. Check activation events in `package.json`
+2. Look for errors in Extension Development Host console
+3. Verify `main` entry point in `package.json`
+
+---
 
 ## Questions?
 
