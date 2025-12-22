@@ -1,0 +1,14 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+INPUT FILE:
+! B3LYP def2-TZVPPP Opt
+
+ERROR: Basis set def2-TZVPPP not found in the database
+ERROR: Available basis sets: def2-SVP, def2-TZVP, def2-QZVP
+
+ABORTING THE RUN
+
+THE ORCA FINISHED WITH ERROR
+****ORCA TERMINATED WITH ERROR****

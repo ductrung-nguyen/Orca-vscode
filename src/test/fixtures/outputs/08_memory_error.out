@@ -1,0 +1,15 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+SCF ITERATIONS
+  Iter       Energy         Delta-E        Max-DP      RMS-DP
+     0   -76.000000000    0.0000000000   0.1234567   0.0123456
+
+ERROR: Insufficient memory available
+ERROR: Requested 128000000 MB but only 16000 MB available
+
+ABORTING THE RUN
+
+THE ORCA FINISHED WITH ERROR
+****ORCA TERMINATED WITH ERROR****

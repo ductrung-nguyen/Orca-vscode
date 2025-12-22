@@ -1,0 +1,41 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+GEOMETRY OPTIMIZATION CYCLE    1
+---------------------------------
+Coordinates (Angstroms)
+ O     0.000000    0.000000    0.000000
+ H     0.000000    0.000000    1.000000
+ H     0.000000    1.000000    0.000000
+
+SCF Energy    :    -76.000000000
+Gradient Norm :      0.050000000
+
+GEOMETRY OPTIMIZATION CYCLE    2
+---------------------------------
+Coordinates (Angstroms)
+ O     0.000000    0.000000    0.000000
+ H     0.000000    0.000000    0.970000
+ H     0.000000    0.970000    0.000000
+
+SCF Energy    :    -76.050000000
+Gradient Norm :      0.010000000
+
+GEOMETRY OPTIMIZATION CYCLE    3
+---------------------------------
+Coordinates (Angstroms)
+ O     0.000000    0.000000    0.000000
+ H     0.000000    0.000000    0.960000
+ H     0.000000    0.960000    0.000000
+
+SCF Energy    :    -76.068123456
+Gradient Norm :      0.000500000
+
+                      *** THE OPTIMIZATION HAS CONVERGED ***
+                                    HURRAY
+
+FINAL SINGLE POINT ENERGY      -76.068123456789
+
+THE ORCA FINISHED SUCCESSFULLY
+****ORCA TERMINATED NORMALLY****

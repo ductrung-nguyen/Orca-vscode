@@ -1,0 +1,30 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+FINAL SINGLE POINT ENERGY      -40.234567890123
+
+---------------------------------------------------------------------------
+                           VIBRATIONAL FREQUENCIES
+---------------------------------------------------------------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+   0:         0.00 cm**-1     0.00000
+   1:         0.00 cm**-1     0.00000
+   2:         0.00 cm**-1     0.00000
+   3:         0.00 cm**-1     0.00000
+   4:         0.00 cm**-1     0.00000
+   5:         0.00 cm**-1     0.00000
+   6:      -234.56 cm**-1    12.34567 ***imaginary mode***
+   7:       856.23 cm**-1    45.67890
+   8:      1234.56 cm**-1    78.90123
+
+---------------------------------------------------------------------------
+
+***WARNING: The vibrational calculation shows imaginary frequencies!
+
+Zero point energy            ...      0.012345 Eh       7.75 kcal/mol
+
+THE ORCA FINISHED SUCCESSFULLY
+****ORCA TERMINATED NORMALLY****

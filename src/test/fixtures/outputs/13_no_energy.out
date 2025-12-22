@@ -1,0 +1,18 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+INPUT FILE:
+! B3LYP def2-SVP
+
+STARTING CALCULATION
+
+SCF ITERATIONS
+  Iter       Energy         Delta-E        Max-DP      RMS-DP
+     0   -76.000000000    0.0000000000   0.1234567   0.0123456
+
+ERROR: Job killed by user
+ERROR: No final energy computed
+
+THE ORCA FINISHED WITH ERROR
+****ORCA TERMINATED ABNORMALLY****

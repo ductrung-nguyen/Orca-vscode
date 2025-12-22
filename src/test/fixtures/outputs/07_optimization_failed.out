@@ -1,0 +1,25 @@
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+GEOMETRY OPTIMIZATION CYCLE    1
+---------------------------------
+SCF Energy    :    -76.000000000
+Gradient Norm :      0.150000000
+
+GEOMETRY OPTIMIZATION CYCLE    2
+---------------------------------
+SCF Energy    :    -75.950000000
+Gradient Norm :      0.180000000
+
+GEOMETRY OPTIMIZATION CYCLE   50
+---------------------------------
+SCF Energy    :    -75.800000000
+Gradient Norm :      0.250000000
+
+                      *** THE OPTIMIZATION HAS NOT CONVERGED ***
+
+WARNING: Maximum number of optimization cycles reached
+
+THE ORCA FINISHED WITH WARNING
+****ORCA TERMINATED WITH ERROR****
