@@ -13,24 +13,28 @@ This release introduces comprehensive output file management with automatic pers
 #### New Features
 
 **Output File Persistence**
+
 - ✨ Automatic `.out` file creation for every ORCA job execution
 - 📝 Real-time streaming to output files during calculation
 - ⚙️ Configurable via `orca.saveOutputToFile` setting (default: enabled)
 - 🔄 Proper resource cleanup and error handling
 
 **Syntax Highlighting for Output Files**
+
 - 🎨 Color-coded sections for `.out` files (headers, energies, warnings, errors)
 - 🖌️ TextMate grammar with 12+ pattern categories
 - 🎯 Highlights: energy values, convergence markers, SCF iterations, frequencies
 - ⚡ Configurable file size limit (`orca.maxSyntaxFileSize`, default: 5 MB)
 
 **Structured Navigation**
+
 - 📑 Document symbol provider for Outline view integration
 - ⌨️ Go to Symbol support (Ctrl+Shift+O) for quick section access
 - 🗺️ Breadcrumbs navigation through output file sections
 - 📍 Hierarchical structure with 15+ recognized section types
 
 **Interactive Results Dashboard**
+
 - 📊 Webview panel with comprehensive visual results
 - 📈 Summary section: status, final energy, SCF cycles, warnings count
 - ⚛️ Energy section: final energy, zero-point energy (high precision)
@@ -44,6 +48,7 @@ This release introduces comprehensive output file management with automatic pers
 - 🎨 Native VS Code theming support
 
 **Enhanced Output Parsing**
+
 - 🧠 Comprehensive `ParsedResults` interface with 10+ data categories
 - 📊 SCF cycle counting and iteration extraction
 - 📐 Geometry optimization step parser
@@ -54,16 +59,19 @@ This release introduces comprehensive output file management with automatic pers
 - 🧪 100+ unit tests for parsing functions
 
 **New Commands**
+
 - `vs-orca.openOutputFile` - Open corresponding .out file from .inp file
 - `vs-orca.showResultsDashboard` - Show interactive results dashboard
 
 **New Settings**
+
 - `orca.saveOutputToFile` - Auto-save output to files (default: true)
 - `orca.outputSyntaxHighlighting` - Enable syntax highlighting (default: true)
 - `orca.maxSyntaxFileSize` - Max file size for highlighting (default: 5 MB)
 - `orca.dashboardAutoOpen` - Auto-open dashboard after completion (default: true)
 
 **Context Menu Integrations**
+
 - Right-click `.inp` files: "Open ORCA Output File"
 - Right-click `.out` files: "Show Results Dashboard"
 - Editor title bar icons for quick access
@@ -143,6 +151,7 @@ This maintenance release updates all development dependencies to their latest st
 - No high/critical/moderate/low security issues
 
 ---
+
 ## [0.2.0] - 2025-12-20
 
 ### 🎉 Major Feature: ORCA Installation Capability

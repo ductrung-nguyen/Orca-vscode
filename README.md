@@ -58,19 +58,19 @@ Computational chemists using ORCA face a **fragmented workflow**:
 
 ### 📊 Module C: Output File Management & Analysis
 
-| Feature                    | Description                                                        | Status |
-| -------------------------- | ------------------------------------------------------------------ | ------ |
-| **Auto-Save Outputs**      | Every ORCA job automatically creates a `.out` file                 | ✅     |
-| **Syntax Highlighting**    | Color-coded output sections (headers, energies, warnings, errors)  | ✅     |
-| **Structured Navigation**  | Outline view and Go to Symbol for quick section jumping            | ✅     |
-| **Results Dashboard**      | Interactive webview with parsed results and visual tables          | ✅     |
-| **Enhanced Parsing**       | Extract SCF iterations, geometry steps, frequencies, diagnostics   | ✅     |
-| **Live Updates**           | Dashboard auto-refreshes when output file changes                  | ✅     |
-| **Export Capability**      | Copy parsed results as JSON to clipboard                           | ✅     |
-| **Convergence Detection**  | Auto-detect "HURRAY" or "SCF NOT CONVERGED" with notifications     | ✅     |
-| **Energy Extraction**      | Display final energy in status bar instantly                       | ✅     |
-| **Optimization Tracking**  | Step-by-step geometry optimization progress                        | ✅     |
-| **Frequency Analysis**     | Detect and highlight imaginary frequencies                         | ✅     |
+| Feature                   | Description                                                       | Status |
+| ------------------------- | ----------------------------------------------------------------- | ------ |
+| **Auto-Save Outputs**     | Every ORCA job automatically creates a `.out` file                | ✅     |
+| **Syntax Highlighting**   | Color-coded output sections (headers, energies, warnings, errors) | ✅     |
+| **Structured Navigation** | Outline view and Go to Symbol for quick section jumping           | ✅     |
+| **Results Dashboard**     | Interactive webview with parsed results and visual tables         | ✅     |
+| **Enhanced Parsing**      | Extract SCF iterations, geometry steps, frequencies, diagnostics  | ✅     |
+| **Live Updates**          | Dashboard auto-refreshes when output file changes                 | ✅     |
+| **Export Capability**     | Copy parsed results as JSON to clipboard                          | ✅     |
+| **Convergence Detection** | Auto-detect "HURRAY" or "SCF NOT CONVERGED" with notifications    | ✅     |
+| **Energy Extraction**     | Display final energy in status bar instantly                      | ✅     |
+| **Optimization Tracking** | Step-by-step geometry optimization progress                       | ✅     |
+| **Frequency Analysis**    | Detect and highlight imaginary frequencies                        | ✅     |
 
 **New Capabilities:**
 
@@ -293,7 +293,7 @@ After job completion, VS-ORCA automatically extracts:
 - Output streaming
 - Basic parsing
 
-### ✅ Phase 2: Installation Capability (Current - v0.2.0)
+### ✅ Phase 2: Installation Capability (v0.2.0)
 
 - Interactive installation wizard
 - Automatic ORCA detection
@@ -301,14 +301,23 @@ After job completion, VS-ORCA automatically extracts:
 - OS-specific installation strategies
 - Multi-version support
 
-### 🔄 Phase 3: Enhanced Parsing (v0.3.0)
+### ✅ Phase 3: Output File Management (Current - v0.3.0)
 
-- Side panel with optimization trajectory
+- Automatic output file persistence
+- Syntax highlighting for output files
+- Structured navigation (Outline, Go to Symbol)
+- Interactive results dashboard
+- Enhanced parsing (SCF, geometry, frequencies)
+- JSON export capability
+
+### 🔄 Phase 4: Real-time Visualization (v0.4.0)
+
+- Live streaming visualization during execution
 - Energy vs. cycle plots
+- Convergence graphs
 - Molecular orbital viewer integration
-- Export results to CSV/JSON
 
-### 🚀 Phase 4: Remote Execution (v0.4.0)
+### 🚀 Phase 5: Remote Execution (v0.5.0)
 
 - SSH integration for cluster submission
 - SLURM/PBS job management
