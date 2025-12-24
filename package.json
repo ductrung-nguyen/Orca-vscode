@@ -257,6 +257,8 @@
     "package": "vsce package"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.19.27",
     "@types/vscode": "^1.85.0",
@@ -268,6 +270,8 @@
     "eslint": "^9.39.2",
     "glob": "^11.1.0",
     "mocha": "^10.8.2",
+    "semantic-release": "^25.0.2",
+    "semantic-release-vsce": "^5.7.4",
     "typescript": "^5.7.2"
   }
 }
