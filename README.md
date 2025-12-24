@@ -8,6 +8,8 @@ A comprehensive Visual Studio Code extension that transforms VS Code into a unif
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.85.0+-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+[![Buy Me A Beer](https://img.shields.io/badge/Buy%20Me%20A%20Beer-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/ductrungnguyen)
+
 ## 🎯 Problem Solved
 
 Computational chemists using ORCA face a **fragmented workflow**:
@@ -378,6 +380,14 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - **Issues**: [GitHub Issues](https://github.com/ductrung-nguyen/Orca-vscode/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/ductrung-nguyen/Orca-vscode/discussions)
+
+---
+
+## 💖 Support the Project
+
+If you find this extension helpful, consider buying me a beer! Your support helps maintain and improve VS-ORCA.
+
+[![Buy Me A Beer](https://img.shields.io/badge/Buy%20Me%20A%20Beer-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/ductrungnguyen)
 
 ---
 
