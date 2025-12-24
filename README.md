@@ -20,7 +20,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 
 **VS-ORCA unifies this workflow** by bringing intelligent editing, execution, and automated parsing into VS Code.
 
-![Dashboard](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/blob/main/docs/screenshots/input1-running.gif)
+![Dashboard](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/main/docs/screenshots/input1-running.gif)
 
 ---
 
@@ -44,7 +44,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 *
 ```
 
-![Input with snippets](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/blob/main/docs/screenshots/input-w-snippets.gif)
+![Input with snippets](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/main/docs/screenshots/input-w-snippets.gif)
 
 ### 🚀 Execution Engine
 
@@ -63,7 +63,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 3. Output streams live to the **ORCA** output panel
 4. Status bar shows real-time progress
 
-![How to run](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/blob/main/docs/screenshots/input1.png)
+![How to run](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/main/docs/screenshots/input1.png)
 
 ### 📊 Output File Management & Analysis
 
@@ -83,7 +83,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 | **Frequency Analysis**    | Detect and highlight imaginary frequencies                        |
 | **CodeLens Dashboard**    | One-click "Open Dashboard" action at top of `.out` files          |
 
-![Output](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/blob/main/docs/screenshots/output1-dashboard.gif)
+![Output](https://raw.githubusercontent.com/ductrung-nguyen/Orca-vscode/main/docs/screenshots/output1-dashboard.gif)
 
 **Other Capabilities:**
 
