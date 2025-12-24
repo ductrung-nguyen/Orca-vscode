@@ -107,8 +107,9 @@ Computational chemists using ORCA face a **fragmented workflow**:
 
 ### Quick Start
 
-1. **Install the Extension:**
-   - Clone repository or install from marketplace
+1. **Install the Extension (Recommended via VS Code Marketplace):**
+   - Install from [VS-ORCA on the VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ductrung-nguyen.vs-orca)
+   - Or clone the repository from GitHub
 2. **Install ORCA:**
 
    - **Option 1:** Use the built-in Installation Wizard
