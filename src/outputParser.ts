@@ -192,7 +192,7 @@ export function parseScfIterations(content: string): ScfIteration[] {
         // Parse iteration line
         if (inScfSection) {
             // Format: iteration energy deltaE maxDP rmsDP
-            const match = line.match(/^\s*(\d+)\s+([-]?\d+\.\d+)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)/);
+            const match = line.match(/^\s*(\d+)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)\s+([-]?\d+\.\d+[EeDd]?[+-]?\d*)/);
             if (match) {
                 iterations.push({
                     iteration: parseInt(match[1]),
