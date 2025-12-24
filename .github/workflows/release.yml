@@ -1,19 +1,24 @@
-# Release Workflow for VS-ORCA Extension
-# Triggers on version tags (v*.*.*) to:
-# 1. Build and package the extension
-# 2. Publish to VS Code Marketplace
-# 3. Create a GitHub Release with .vsix artifact
+# Semantic Release Workflow for VS-ORCA Extension
+# Automatically triggers on push to main branch
+# Uses semantic-release to:
+# 1. Analyze commit messages (conventional commits)
+# 2. Determine next version
+# 3. Generate CHANGELOG
+# 4. Publish to VS Code Marketplace
+# 5. Create GitHub Release with .vsix artifact
+# 6. Update package.json and commit changes
 #
 # Prerequisites:
 # - VSCE_PAT secret must be configured in repository settings
 # - PAT must have Marketplace > Manage scope
+# - GH_TOKEN or GITHUB_TOKEN for GitHub releases
 
 name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
 
 # Ensure only one release runs at a time
 concurrency:
@@ -22,14 +27,20 @@ concurrency:
 
 jobs:
   release:
-    name: Build & Publish
+    name: Semantic Release
     runs-on: ubuntu-latest
+    # Skip if commit message contains [skip ci]
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     permissions:
-      contents: write  # Required for creating GitHub releases
+      contents: write  # Required for creating releases and pushing commits
+      issues: write    # Required for commenting on issues
+      pull-requests: write  # Required for commenting on PRs
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for semantic-release to analyze all commits
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,56 +62,18 @@ jobs:
         env:
           DISPLAY: ':99.0'
 
-      - name: Package extension
-        run: npm run package
-
-      - name: Get package info
-        id: package
-        run: |
-          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
-          echo "vsix_file=$(ls *.vsix)" >> $GITHUB_OUTPUT
-
-      - name: Verify version matches tag
-        run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          PACKAGE_VERSION="${{ steps.package.outputs.version }}"
-          if [[ "$TAG_VERSION" != "$PACKAGE_VERSION" ]]; then
-            echo "Error: Tag version ($TAG_VERSION) does not match package.json version ($PACKAGE_VERSION)"
-            exit 1
-          fi
-          echo "Version verified: $PACKAGE_VERSION"
-
-      - name: Publish to VS Code Marketplace
-        run: npx vsce publish -p ${{ secrets.VSCE_PAT }}
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ steps.package.outputs.vsix_file }}
-          generate_release_notes: true
-          draft: false
-          prerelease: ${{ contains(github.ref, '-') }}
-          name: VS-ORCA ${{ steps.package.outputs.version }}
-          body: |
-            ## VS-ORCA v${{ steps.package.outputs.version }}
-            
-            ### Installation
-            
-            **From VS Code Marketplace:**
-            1. Open VS Code
-            2. Go to Extensions (Ctrl+Shift+X)
-            3. Search for "VS-ORCA"
-            4. Click Install
-            
-            **From VSIX file:**
-            ```bash
-            code --install-extension ${{ steps.package.outputs.vsix_file }}
-            ```
-            
-            ### Changelog
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+      - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx semantic-release
+
+      - name: Summary
+        if: success()
+        run: |
+          {
+            echo "✅ Release workflow completed successfully!"
+            echo "Check the releases page for the new version."
+            echo "### Changelog"
+            echo "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
+          } >> "$GITHUB_STEP_SUMMARY"
