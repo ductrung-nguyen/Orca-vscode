@@ -294,15 +294,15 @@ suite('Output Parser Test Suite', () => {
             FINAL SINGLE POINT ENERGY      -7.612345678E+01
             
             SCF ITERATIONS
-            --------------
-            ITER       Energy         Delta-E
-            0   -7.59876543E+01   0.00000000E+00
-            --------------
+            ==============
+            ITER       Energy         Delta-E        Max-DP      RMS-DP      [F,P]     Damp
+            0   -7.59876543E+01   0.00000000E+00  0.05201953  0.00298466  0.1848625  0.7000
         `;
         
         const result = parseOrcaOutputEnhanced(content);
         assert.strictEqual(result.finalEnergy, -76.12345678);
         assert.strictEqual(result.scfIterations.length, 1);
+        assert.strictEqual(result.scfIterations[0].energy, -75.9876543);
     });
 });
 

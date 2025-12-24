@@ -18,17 +18,19 @@ Computational chemists using ORCA face a **fragmented workflow**:
 
 **VS-ORCA unifies this workflow** by bringing intelligent editing, execution, and automated parsing into VS Code.
 
+![Dashboard](./docs/screenshots/dashboard-1.png)
+
 ---
 
 ## ✨ Features
 
-### 📝 Module A: Intelligent Input Editor
+### 📝 Intelligent Input Editor
 
-| Feature                 | Description                                                              | Status |
-| ----------------------- | ------------------------------------------------------------------------ | ------ |
-| **Syntax Highlighting** | Color-coded ORCA keywords (`!`), blocks (`%`), coordinates, and comments | ✅     |
-| **Smart Snippets**      | Type `opt` → full optimization block, `freq` → frequency template        | ✅     |
-| **Auto-completion**     | Common functionals (B3LYP, wB97X-D3), basis sets (def2-TZVP), job types  | ✅     |
+| Feature                 | Description                                                              |
+| ----------------------- | ------------------------------------------------------------------------ |
+| **Syntax Highlighting** | Color-coded ORCA keywords (`!`), blocks (`%`), coordinates, and comments |
+| **Smart Snippets**      | Type `opt` → full optimization block, `freq` → frequency template        |
+| **Auto-completion**     | Common functionals (B3LYP, wB97X-D3), basis sets (def2-TZVP), job types  |
 
 **Example:**
 
@@ -40,15 +42,15 @@ Computational chemists using ORCA face a **fragmented workflow**:
 *
 ```
 
-### 🚀 Module B: Execution Engine
+### 🚀 Execution Engine
 
-| Feature                | Description                                                       | Status |
-| ---------------------- | ----------------------------------------------------------------- | ------ |
-| **One-Click Run**      | Press `F5` or click "Run ORCA" to execute the current `.inp` file | ✅     |
-| **Path Configuration** | Settings UI to define ORCA binary location                        | ✅     |
-| **Live Output**        | Real-time streaming of calculation output to VS Code panel        | ✅     |
-| **Process Control**    | Kill/terminate running jobs from GUI                              | ✅     |
-| **CodeLens Actions**   | Click "Run ORCA" directly in the editor above your input file     | ✅     |
+| Feature                | Description                                                       |
+| ---------------------- | ----------------------------------------------------------------- |
+| **One-Click Run**      | Press `F5` or click "Run ORCA" to execute the current `.inp` file |
+| **Path Configuration** | Settings UI to define ORCA binary location                        |
+| **Live Output**        | Real-time streaming of calculation output to VS Code panel        |
+| **Process Control**    | Kill/terminate running jobs from GUI                              |
+| **CodeLens Actions**   | Click "Run ORCA" directly in the editor above your input file     |
 
 **Workflow:**
 
@@ -57,25 +59,29 @@ Computational chemists using ORCA face a **fragmented workflow**:
 3. Output streams live to the **ORCA** output panel
 4. Status bar shows real-time progress
 
-### 📊 Module C: Output File Management & Analysis
+![How to run](./docs/screenshots/input1.png)
 
-| Feature                   | Description                                                       | Status |
-| ------------------------- | ----------------------------------------------------------------- | ------ |
-| **Auto-Save Outputs**     | Every ORCA job automatically creates a `.out` file                | ✅     |
-| **Syntax Highlighting**   | Color-coded output sections (headers, energies, warnings, errors) | ✅     |
-| **Structured Navigation** | Outline view and Go to Symbol for quick section jumping           | ✅     |
-| **Results Dashboard**     | Interactive webview with parsed results and visual tables         | ✅     |
-| **TOC Navigation**        | Interactive Table of Contents sidebar for quick section jumping   | ✅     |
-| **Enhanced Parsing**      | Extract SCF iterations, geometry steps, frequencies, diagnostics  | ✅     |
-| **Live Updates**          | Dashboard auto-refreshes when output file changes                 | ✅     |
-| **Export Capability**     | Copy parsed results as JSON to clipboard                          | ✅     |
-| **Convergence Detection** | Auto-detect "HURRAY" or "SCF NOT CONVERGED" with notifications    | ✅     |
-| **Energy Extraction**     | Display final energy in status bar instantly                      | ✅     |
-| **Optimization Tracking** | Step-by-step geometry optimization progress                       | ✅     |
-| **Frequency Analysis**    | Detect and highlight imaginary frequencies                        | ✅     |
-| **CodeLens Dashboard**    | One-click "Open Dashboard" action at top of `.out` files          | ✅     |
+### 📊 Output File Management & Analysis
 
-**New Capabilities:**
+| Feature                   | Description                                                       |
+| ------------------------- | ----------------------------------------------------------------- |
+| **Auto-Save Outputs**     | Every ORCA job automatically creates a `.out` file                |
+| **Syntax Highlighting**   | Color-coded output sections (headers, energies, warnings, errors) |
+| **Structured Navigation** | Outline view and Go to Symbol for quick section jumping           |
+| **Results Dashboard**     | Interactive webview with parsed results and visual tables         |
+| **TOC Navigation**        | Interactive Table of Contents sidebar for quick section jumping   |
+| **Enhanced Parsing**      | Extract SCF iterations, geometry steps, frequencies, diagnostics  |
+| **Live Updates**          | Dashboard auto-refreshes when output file changes                 |
+| **Export Capability**     | Copy parsed results as JSON to clipboard                          |
+| **Convergence Detection** | Auto-detect "HURRAY" or "SCF NOT CONVERGED" with notifications    |
+| **Energy Extraction**     | Display final energy in status bar instantly                      |
+| **Optimization Tracking** | Step-by-step geometry optimization progress                       |
+| **Frequency Analysis**    | Detect and highlight imaginary frequencies                        |
+| **CodeLens Dashboard**    | One-click "Open Dashboard" action at top of `.out` files          |
+
+![Output](./docs/screenshots/output1.png)
+
+**Other Capabilities:**
 
 - **Automatic Output Persistence**: All calculation output saved to `.out` files
 - **Syntax Highlighted Output**: Open `.out` files with color-coded sections
@@ -86,7 +92,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 - **Smart Diagnostics**: Warnings and errors collected with line numbers
 - **Scroll Preservation**: Dashboard context maintained during TOC navigation
 
-📖 **Detailed guide:** See [OUTPUT_FILE_MANAGEMENT_GUIDE.md](docs/OUTPUT_FILE_MANAGEMENT_GUIDE.md)
+![Output](./docs/screenshots/output2.png)
 
 ---
 
@@ -100,7 +106,7 @@ Computational chemists using ORCA face a **fragmented workflow**:
 ### Quick Start
 
 1. **Install the Extension:**
-   - Clone repository or install from marketplace (when published)
+   - Clone repository or install from marketplace
 2. **Install ORCA:**
 
    - **Option 1:** Use the built-in Installation Wizard
@@ -147,6 +153,8 @@ Computational chemists using ORCA face a **fragmented workflow**:
 4. **Open in VS Code and press F5** to launch the extension in a new window.
 
 ### Install from VSIX (Coming Soon)
+
+You can download the VSIX file from the Release page of this repository, then run the following command:
 
 ```bash
 code --install-extension vs-orca-0.1.0.vsix
@@ -259,7 +267,7 @@ All commands are available via Command Palette (`Ctrl/Cmd + Shift + P`):
 **Access via:**
 
 - Command Palette (`Ctrl/Cmd + Shift + P`) → "ORCA: ..."
-- Right-click editor → "Run ORCA Job"
+- Open input file, and click "▶️ Run ORCA" at the top of the file
 - Editor toolbar icon (▶️) for Run
 - Status bar (click to detect installations)
 
