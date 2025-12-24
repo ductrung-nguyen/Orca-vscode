@@ -14,6 +14,8 @@ suite('OrcaValidator Test Suite', () => {
         // Get extension context
         const ext = vscode.extensions.getExtension('ductrung-nguyen.vs-orca');
         if (ext) {
+            // Ensure extension is activated
+            await ext.activate();
             context = ext.exports?.context || {
                 subscriptions: [],
                 extensionPath: __dirname,
