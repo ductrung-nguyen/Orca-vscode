@@ -245,7 +245,7 @@ export function parseGeometrySteps(content: string): GeometryStep[] {
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         
-        // Detect geometry cycle
+        // Detect geometry cycle (format: *  GEOMETRY OPTIMIZATION CYCLE   N  *)
         const cycleMatch = line.match(/GEOMETRY OPTIMIZATION CYCLE\s+(\d+)/i);
         if (cycleMatch) {
             if (currentStep && currentStep.stepNumber !== undefined) {
@@ -259,36 +259,43 @@ export function parseGeometrySteps(content: string): GeometryStep[] {
         }
         
         if (currentStep) {
-            // Extract energy
-            const energyMatch = line.match(/Energy\s*=\s*([-]?\d+\.\d+)/i);
-            if (energyMatch) {
-                currentStep.energy = parseFloat(energyMatch[1]);
+            // Extract energy from "FINAL SINGLE POINT ENERGY" (appears after each cycle)
+            const finalEnergyMatch = line.match(/FINAL SINGLE POINT ENERGY\s+([-]?\d+\.\d+)/i);
+            if (finalEnergyMatch) {
+                currentStep.energy = parseFloat(finalEnergyMatch[1]);
             }
             
-            // Extract gradient information
-            const maxGradMatch = line.match(/MAX gradient\s*([-]?\d+\.\d+[EeDd]?[+-]?\d*)/i);
-            if (maxGradMatch) {
-                currentStep.maxGradient = parseFloat(maxGradMatch[1]);
+            // Also try "SCF Energy" format for simpler outputs
+            const scfEnergyMatch = line.match(/SCF Energy\s*:\s*([-]?\d+\.\d+)/i);
+            if (scfEnergyMatch && currentStep.energy === undefined) {
+                currentStep.energy = parseFloat(scfEnergyMatch[1]);
             }
             
-            const rmsGradMatch = line.match(/RMS gradient\s*([-]?\d+\.\d+[EeDd]?[+-]?\d*)/i);
-            if (rmsGradMatch) {
-                currentStep.rmsGradient = parseFloat(rmsGradMatch[1]);
+            // Extract gradient from formatted table line:
+            // "          RMS gradient        0.0075687691            0.0000080000      NO"
+            const rmsGradTableMatch = line.match(/^\s*RMS gradient\s+([-]?\d+\.?\d*[EeDd]?[+-]?\d*)/i);
+            if (rmsGradTableMatch) {
+                currentStep.rmsGradient = parseFloat(rmsGradTableMatch[1].replace(/[DdEe]/g, 'e'));
             }
             
-            // Extract step information
-            const maxStepMatch = line.match(/MAX step\s*([-]?\d+\.\d+[EeDd]?[+-]?\d*)/i);
-            if (maxStepMatch) {
-                currentStep.maxStep = parseFloat(maxStepMatch[1]);
+            const maxGradTableMatch = line.match(/^\s*MAX gradient\s+([-]?\d+\.?\d*[EeDd]?[+-]?\d*)/i);
+            if (maxGradTableMatch) {
+                currentStep.maxGradient = parseFloat(maxGradTableMatch[1].replace(/[DdEe]/g, 'e'));
             }
             
-            const rmsStepMatch = line.match(/RMS step\s*([-]?\d+\.\d+[EeDd]?[+-]?\d*)/i);
+            // Extract step information from formatted table
+            const rmsStepMatch = line.match(/^\s*RMS step\s+([-]?\d+\.?\d*[EeDd]?[+-]?\d*)/i);
             if (rmsStepMatch) {
-                currentStep.rmsStep = parseFloat(rmsStepMatch[1]);
+                currentStep.rmsStep = parseFloat(rmsStepMatch[1].replace(/[DdEe]/g, 'e'));
             }
             
-            // Check convergence
-            if (/Geometry convergence.*YES/i.test(line)) {
+            const maxStepMatch = line.match(/^\s*MAX step\s+([-]?\d+\.?\d*[EeDd]?[+-]?\d*)/i);
+            if (maxStepMatch) {
+                currentStep.maxStep = parseFloat(maxStepMatch[1].replace(/[DdEe]/g, 'e'));
+            }
+            
+            // Check convergence (THE OPTIMIZATION HAS CONVERGED)
+            if (/THE OPTIMIZATION HAS CONVERGED/i.test(line) || /Geometry convergence.*YES/i.test(line)) {
                 currentStep.converged = true;
             }
         }
