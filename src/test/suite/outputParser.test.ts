@@ -70,27 +70,56 @@ suite('Output Parser Test Suite', () => {
 
     test('should parse geometry optimization steps', () => {
         const content = `
-            GEOMETRY OPTIMIZATION CYCLE 1
-            Energy = -76.1234567
-            MAX gradient = 0.012345
-            RMS gradient = 0.001234
-            MAX step = 0.023456
-            RMS step = 0.002345
-            
-            GEOMETRY OPTIMIZATION CYCLE 2
-            Energy = -76.2345678
-            MAX gradient = 0.001234
-            RMS gradient = 0.000123
-            MAX step = 0.012345
-            RMS step = 0.001234
-            Geometry convergence ... YES
+         *                GEOMETRY OPTIMIZATION CYCLE   1            *
+         
+               *           SCF CONVERGED AFTER  12 CYCLES          *
+               
+FINAL SINGLE POINT ENERGY     -76.1234567890
+
+          RMS gradient        0.0075687691            0.0000080000      NO
+          MAX gradient        0.0517107625            0.0000300000      NO
+          RMS step            0.0192474022            0.0001000000      NO
+          MAX step            0.0905289627            0.0002000000      NO
+
+         *                GEOMETRY OPTIMIZATION CYCLE   2            *
+
+               *           SCF CONVERGED AFTER  10 CYCLES          *
+
+FINAL SINGLE POINT ENERGY     -76.2345678901
+
+          RMS gradient        0.0000050000            0.0000080000      YES
+          MAX gradient        0.0000200000            0.0000300000      YES
+          RMS step            0.0000080000            0.0001000000      YES
+          MAX step            0.0000150000            0.0002000000      YES
+
+                      *** THE OPTIMIZATION HAS CONVERGED ***
         `;
         
         const steps = parseGeometrySteps(content);
         assert.strictEqual(steps.length, 2);
         assert.strictEqual(steps[0].stepNumber, 1);
-        assert.strictEqual(steps[0].energy, -76.1234567);
+        assert.ok(Math.abs(steps[0].energy! - (-76.1234567890)) < 0.0000001, 'Energy should match');
+        assert.ok(Math.abs(steps[0].rmsGradient! - 0.0075687691) < 0.0000001, 'RMS gradient should match');
+        assert.ok(Math.abs(steps[0].maxGradient! - 0.0517107625) < 0.0000001, 'MAX gradient should match');
         assert.strictEqual(steps[1].converged, true);
+        // Check delta energy calculation
+        assert.ok(steps[1].deltaEnergy !== undefined, 'Delta energy should be calculated');
+        assert.ok(Math.abs(steps[1].deltaEnergy! - (steps[1].energy! - steps[0].energy!)) < 0.0000001, 'Delta E should be difference');
+    });
+
+    test('should parse geometry optimization with SCF Energy format (legacy)', () => {
+        const content = `
+            GEOMETRY OPTIMIZATION CYCLE 1
+            SCF Energy    :    -76.1234567
+            
+            GEOMETRY OPTIMIZATION CYCLE 2
+            SCF Energy    :    -76.2345678
+        `;
+        
+        const steps = parseGeometrySteps(content);
+        assert.strictEqual(steps.length, 2);
+        assert.strictEqual(steps[0].stepNumber, 1);
+        assert.ok(Math.abs(steps[0].energy! - (-76.1234567)) < 0.0000001, 'Energy should match legacy format');
     });
 
     test('should parse frequency table', () => {
@@ -204,8 +233,6 @@ suite('Output Parser Test Suite', () => {
 
     test('should extract comprehensive results', () => {
         const content = `
-            FINAL SINGLE POINT ENERGY      -76.123456789
-            
             SCF ITERATIONS
             --------------
             ITER       Energy         Delta-E        Max-DP      RMS-DP
@@ -213,13 +240,14 @@ suite('Output Parser Test Suite', () => {
             1   -76.1234567890  -0.1358024680   0.0001234   0.0000123
             --------------
             
-            GEOMETRY OPTIMIZATION CYCLE 1
-            Energy = -76.123456789
-            MAX gradient = 0.000123
-            RMS gradient = 0.000012
-            Geometry convergence ... YES
-            
-            THE OPTIMIZATION HAS CONVERGED
+         *                GEOMETRY OPTIMIZATION CYCLE   1            *
+
+FINAL SINGLE POINT ENERGY     -76.123456789
+
+          RMS gradient        0.0000120000            0.0000080000      YES
+          MAX gradient        0.0001230000            0.0000300000      YES
+
+                      *** THE OPTIMIZATION HAS CONVERGED ***
             
             VIBRATIONAL FREQUENCIES
             -----------------------
