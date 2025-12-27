@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { parseOrcaOutputEnhanced, ParsedResults, TocEntry } from '../outputParser';
+import { readFileWithEncoding } from '../utils/fileEncoding';
 
 /**
  * Manages the results dashboard webview panel
@@ -181,7 +182,7 @@ export class DashboardPanel {
 
         try {
             if (fs.existsSync(this._outputFilePath)) {
-                const content = fs.readFileSync(this._outputFilePath, 'utf-8');
+                const content = readFileWithEncoding(this._outputFilePath);
                 results = parseOrcaOutputEnhanced(content);
             } else {
                 errorMessage = 'Output file not found';
