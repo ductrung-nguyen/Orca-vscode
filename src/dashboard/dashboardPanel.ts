@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { parseOrcaOutputEnhanced, ParsedResults, TocEntry } from '../outputParser';
+import { readFileWithEncoding } from '../utils/fileEncoding';
 
 /**
  * Manages the results dashboard webview panel
@@ -181,7 +182,7 @@ export class DashboardPanel {
 
         try {
             if (fs.existsSync(this._outputFilePath)) {
-                const content = fs.readFileSync(this._outputFilePath, 'utf-8');
+                const content = readFileWithEncoding(this._outputFilePath);
                 results = parseOrcaOutputEnhanced(content);
             } else {
                 errorMessage = 'Output file not found';
@@ -635,6 +636,21 @@ export class DashboardPanel {
             clearTimeout(window.scrollSaveTimeout);
             window.scrollSaveTimeout = setTimeout(saveScrollPosition, 100);
         });
+        
+        // Toggle warnings collapsible section
+        function toggleWarnings() {
+            const content = document.getElementById('warningsContent');
+            const icon = document.getElementById('warningsToggleIcon');
+            if (content && icon) {
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    icon.textContent = '▼';
+                } else {
+                    content.style.display = 'none';
+                    icon.textContent = '▶';
+                }
+            }
+        }
     </script>
 </body>
 </html>`;
@@ -683,24 +699,51 @@ export class DashboardPanel {
     }
 
     private _generateSummarySection(results: ParsedResults): string {
-        const statusClass = results.converged ? 'success' : (results.hasErrors ? 'failed' : 'warning');
-        const statusText = results.converged ? '✓ Converged' : (results.hasErrors ? '✗ Failed' : '⚠ Incomplete');
+        // Job status display
+        let jobStatusClass: string;
+        let jobStatusText: string;
+        switch (results.jobStatus) {
+            case 'finished':
+                jobStatusClass = 'success';
+                jobStatusText = '✓ Finished';
+                break;
+            case 'died':
+                jobStatusClass = 'failed';
+                jobStatusText = '✗ Died';
+                break;
+            case 'running':
+                jobStatusClass = 'warning';
+                jobStatusText = '⏳ Running';
+                break;
+            case 'killed':
+                jobStatusClass = 'warning';
+                jobStatusText = '⚠ Killed';
+                break;
+            default:
+                jobStatusClass = 'warning';
+                jobStatusText = '? Unknown';
+        }
+
+        // Total optimization steps (N/A if no geometry optimization)
+        const totalOptSteps = results.geometrySteps.length > 0 
+            ? results.geometrySteps.length.toString() 
+            : 'N/A';
 
         return `
     <section>
         <h2>Summary</h2>
         <div class="grid">
             <div class="metric">
-                <div class="metric-label">Status</div>
-                <div class="metric-value"><span class="status ${statusClass}">${statusText}</span></div>
+                <div class="metric-label">Job Status</div>
+                <div class="metric-value"><span class="status ${jobStatusClass}">${jobStatusText}</span></div>
             </div>
             <div class="metric">
                 <div class="metric-label">Final Energy</div>
                 <div class="metric-value">${results.finalEnergy !== null ? results.finalEnergy.toFixed(8) + ' Eh' : 'N/A'}</div>
             </div>
             <div class="metric">
-                <div class="metric-label">SCF Cycles</div>
-                <div class="metric-value">${results.scfCycles}</div>
+                <div class="metric-label">Total Opt Steps</div>
+                <div class="metric-value">${totalOptSteps}</div>
             </div>
             <div class="metric">
                 <div class="metric-label">Warnings</div>
@@ -776,15 +819,22 @@ export class DashboardPanel {
             return '';
         }
 
-        const rows = results.geometrySteps.map(step => `
+        const rows = results.geometrySteps.map(step => {
+            const deltaEDisplay = step.deltaEnergy !== undefined 
+                ? step.deltaEnergy.toExponential(1) 
+                : '-';
+            const rmsGradDisplay = step.rmsGradient !== undefined 
+                ? step.rmsGradient.toExponential(1) 
+                : 'N/A';
+            return `
             <tr>
                 <td>${step.stepNumber}</td>
                 <td>${step.energy !== undefined ? step.energy.toFixed(8) : 'N/A'}</td>
-                <td>${step.maxGradient !== undefined ? step.maxGradient.toExponential(4) : 'N/A'}</td>
-                <td>${step.rmsGradient !== undefined ? step.rmsGradient.toExponential(4) : 'N/A'}</td>
-                <td>${step.converged ? '✓' : ''}</td>
+                <td>${deltaEDisplay}</td>
+                <td>${rmsGradDisplay}</td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
 
         return `
     <section>
@@ -804,9 +854,8 @@ export class DashboardPanel {
                 <tr>
                     <th>Step</th>
                     <th>Energy (Eh)</th>
-                    <th>Max Gradient</th>
+                    <th>Delta E</th>
                     <th>RMS Gradient</th>
-                    <th>Converged</th>
                 </tr>
             </thead>
             <tbody>
@@ -862,7 +911,8 @@ export class DashboardPanel {
     }
 
     private _generateDiagnosticsSection(results: ParsedResults): string {
-        if (results.warnings.length === 0 && results.errors.length === 0) {
+        // Only show diagnostics if there are warnings (T7: removed errors section)
+        if (results.warnings.length === 0) {
             return '';
         }
 
@@ -873,18 +923,21 @@ export class DashboardPanel {
             </div>
         `).join('');
 
-        const errorItems = results.errors.map(e => `
-            <div class="message error">
-                <strong>Error:</strong> ${this._escapeHtml(e.message)}
-                ${e.lineNumber ? ` <a href="#" class="line-link" onclick="goToLine(${e.lineNumber}); return false;">(line ${e.lineNumber})</a>` : ''}
-            </div>
-        `).join('');
+        // T6: Default collapsed if > 3 warnings
+        const defaultCollapsed = results.warnings.length > 3;
+        const collapsedClass = defaultCollapsed ? 'collapsed' : '';
+        const toggleIcon = defaultCollapsed ? '▶' : '▼';
 
         return `
     <section>
         <h2>Diagnostics</h2>
-        ${results.errors.length > 0 ? `<h3>Errors (${results.errors.length})</h3>${errorItems}` : ''}
-        ${results.warnings.length > 0 ? `<h3>Warnings (${results.warnings.length})</h3>${warningItems}` : ''}
+        <div class="collapsible-header" onclick="toggleWarnings()" style="cursor: pointer; user-select: none;">
+            <span id="warningsToggleIcon" style="margin-right: 8px;">${toggleIcon}</span>
+            <h3 style="display: inline; margin: 0;">Warnings (${results.warnings.length})</h3>
+        </div>
+        <div id="warningsContent" class="collapsible-content ${collapsedClass}" style="${defaultCollapsed ? 'display: none;' : ''}">
+            ${warningItems}
+        </div>
     </section>`;
     }
 
