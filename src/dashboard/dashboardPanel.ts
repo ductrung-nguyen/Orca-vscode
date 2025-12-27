@@ -271,17 +271,17 @@ export class DashboardPanel {
         }
         
         .toc-entry {
-            padding: 6px 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            border-radius: 4px;
             margin: 2px 0;
             font-size: 13px;
         }
         
-        .toc-entry:hover {
+        .toc-entry.toc-parent {
+            /* Parent entries don't get hover background on the wrapper */
+        }
+        
+        .toc-entry:not(.toc-parent):hover {
             background: var(--vscode-list-hoverBackground);
+            border-radius: 4px;
         }
         
         .toc-entry.success {
@@ -318,11 +318,12 @@ export class DashboardPanel {
         }
         
         /* Tree view styling for collapsible TOC */
-        .toc-parent {
-            font-weight: 600;
+        .toc-tree {
+            /* Tree container */
         }
         
         .toc-parent > .toc-entry-content {
+            font-weight: 600;
             cursor: pointer;
         }
         
@@ -337,6 +338,7 @@ export class DashboardPanel {
             user-select: none;
             transition: transform 0.15s ease-out;
             flex-shrink: 0;
+            font-size: 10px;
         }
         
         .toc-entry-toggle.expanded {
@@ -344,35 +346,53 @@ export class DashboardPanel {
         }
         
         .toc-children {
+            margin-left: 12px;
+            padding-left: 8px;
+            border-left: 1px solid var(--vscode-panel-border);
             overflow: hidden;
-            max-height: 2000px;
-            transition: max-height 0.2s ease-out, opacity 0.15s ease-out;
+            max-height: 5000px;
+            transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
             opacity: 1;
         }
         
         .toc-children.collapsed {
             max-height: 0;
             opacity: 0;
+            padding-left: 0;
+            margin-left: 0;
+            border-left: none;
         }
         
         .toc-child {
-            padding-left: 20px;
-        }
-        
-        .toc-child .toc-child {
-            padding-left: 36px;
+            /* Child entries inherit tree indentation from .toc-children */
         }
         
         .toc-entry-content {
             display: flex;
             align-items: center;
-            padding: 6px 8px;
+            padding: 5px 8px;
             border-radius: 4px;
             cursor: pointer;
         }
         
         .toc-entry-content:hover {
             background: var(--vscode-list-hoverBackground);
+        }
+        
+        /* Nested level visual indicators */
+        .toc-children .toc-children {
+            border-left-color: var(--vscode-panel-border);
+        }
+        
+        .toc-leaf-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: var(--vscode-descriptionForeground);
         }
         
         /* Main content area */
@@ -809,6 +829,7 @@ export class DashboardPanel {
             return `
                 <div class="toc-entry${statusClass}${depthClass}" data-toc-id="${entry.id}">
                     <div class="toc-entry-content" onclick="navigateToLine(${entry.lineNumber})" title="Line ${entry.lineNumber}">
+                        <span class="toc-leaf-icon">•</span>
                         <span class="toc-icon">${entry.icon || ''}</span>
                         <span class="toc-title">${this._escapeHtml(entry.title)}</span>
                     </div>
