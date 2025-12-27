@@ -5,6 +5,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { OutputFileWriter } from './outputFileWriter';
 import { parseOrcaOutput, OrcaParseResult } from './outputParser';
 import { setRunningFile } from './orcaCodeLensProvider';
+import { readFileWithEncoding, readFileTail } from './utils/fileEncoding';
 
 // Re-export for backward compatibility
 export { parseOrcaOutput, OrcaParseResult } from './outputParser';
@@ -426,17 +427,11 @@ export class OrcaRunner {
             
             let content: string;
             if (canFullyParse) {
-                // Read full file for small outputs
-                content = fs.readFileSync(outputFilePath, 'utf-8');
+                // Read full file for small outputs (with encoding detection)
+                content = readFileWithEncoding(outputFilePath);
             } else {
-                // For large files, read only last 50KB for final results
-                const stats = fs.statSync(outputFilePath);
-                const bytesToRead = Math.min(stats.size, 50 * 1024);
-                const buffer = Buffer.alloc(bytesToRead);
-                const fd = fs.openSync(outputFilePath, 'r');
-                fs.readSync(fd, buffer, 0, bytesToRead, stats.size - bytesToRead);
-                fs.closeSync(fd);
-                content = buffer.toString('utf-8');
+                // For large files, read only last 50KB for final results (with encoding detection)
+                content = readFileTail(outputFilePath, 50 * 1024);
             }
             
             // Use extracted parsing functions
@@ -473,7 +468,7 @@ export class OrcaRunner {
             // Check for errors and suggest recovery
             if (parseResult.scfFailed || parseResult.hasErrors) {
                 // Read more content if we only parsed tail for error detection
-                const fullContent = canFullyParse ? content : fs.readFileSync(outputFilePath, 'utf-8');
+                const fullContent = canFullyParse ? content : readFileWithEncoding(outputFilePath);
                 this.suggestRecovery(fullContent);
             }
 

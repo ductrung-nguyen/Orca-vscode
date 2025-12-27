@@ -13,6 +13,7 @@ export interface GeometryStep {
     maxStep: number;
     rmsStep: number;
     converged: boolean;
+    deltaEnergy?: number;
 }
 
 /**
@@ -69,6 +70,7 @@ export interface ParsedResults {
     converged: boolean;
     scfFailed: boolean;
     finalEnergy: number | null;
+    jobStatus: 'finished' | 'running' | 'died' | 'killed' | 'unknown';
     
     // SCF details
     scfCycles: number;
@@ -107,6 +109,7 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
         converged: false,
         scfFailed: false,
         finalEnergy: null,
+        jobStatus: 'unknown',
         scfCycles: 0,
         scfIterations: [],
         optimizationConverged: false,
@@ -127,10 +130,10 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
     result.converged = content.includes('HURRAY');
     result.scfFailed = content.includes('SCF NOT CONVERGED');
     
-    // Extract final energy
-    const energyMatch = content.match(/FINAL SINGLE POINT ENERGY\s+([-+]?\d+\.?\d*(?:[eE][-+]?\d+)?)/);
-    if (energyMatch) {
-        result.finalEnergy = parseFloat(energyMatch[1]);
+    // Extract final energy (use last occurrence for optimization jobs)
+    const energyMatches = [...content.matchAll(/FINAL SINGLE POINT ENERGY\s+([+-]?\d+\.?\d*(?:[eE][+-]?\d+)?)/g)];
+    if (energyMatches.length > 0) {
+        result.finalEnergy = parseFloat(energyMatches[energyMatches.length - 1][1]);
     }
     
     // Geometry optimization
@@ -154,8 +157,23 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
     result.hasErrors = result.errors.length > 0 || result.scfFailed;
     result.totalRunTime = parseTotalRunTime(content);
     result.tocEntries = parseTocEntries(content);
+    result.jobStatus = detectJobStatus(content);
 
     return result;
+}
+
+/**
+ * Detect job status from ORCA output content
+ */
+function detectJobStatus(content: string): 'finished' | 'died' | 'unknown' {
+    if (content.includes('****ORCA TERMINATED NORMALLY****')) {
+        return 'finished';
+    }
+    if (content.includes('ABORTING') || 
+        content.includes('ORCA finished by error termination')) {
+        return 'died';
+    }
+    return 'unknown';
 }
 
 /**
@@ -272,6 +290,15 @@ export function parseGeometrySteps(content: string): GeometryStep[] {
     // Add last step if exists
     if (currentStep && currentStep.stepNumber !== undefined) {
         steps.push(currentStep as GeometryStep);
+    }
+    
+    // Calculate delta energies
+    for (let i = 0; i < steps.length; i++) {
+        if (i === 0) {
+            steps[i].deltaEnergy = undefined;
+        } else if (steps[i].energy !== undefined && steps[i-1].energy !== undefined) {
+            steps[i].deltaEnergy = steps[i].energy - steps[i-1].energy;
+        }
     }
     
     return steps;
