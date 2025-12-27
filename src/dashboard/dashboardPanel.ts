@@ -1098,10 +1098,10 @@ export class DashboardPanel {
 
         const rows = results.geometrySteps.map(step => {
             const deltaEDisplay = step.deltaEnergy !== undefined 
-                ? step.deltaEnergy.toExponential(2) 
+                ? step.deltaEnergy.toFixed(6) 
                 : '-';
             const rmsGradDisplay = step.rmsGradient !== undefined 
-                ? step.rmsGradient.toExponential(2) 
+                ? step.rmsGradient.toFixed(6) 
                 : 'N/A';
             return `
             <tr>
