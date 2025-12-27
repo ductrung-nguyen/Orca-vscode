@@ -1,3 +1,20 @@
+# [0.5.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.4.0...v0.5.0) (2025-12-27)
+
+
+### Bug Fixes
+
+* add automatic file encoding detection for cross-platform support ([ae3e9c3](https://github.com/ductrung-nguyen/Orca-vscode/commit/ae3e9c3df39650d1ab8ab41b521202c3d1e192f9))
+* add iteration patterns to top-level TOC for single-point calculations ([28027a1](https://github.com/ductrung-nguyen/Orca-vscode/commit/28027a1190e236408cd1139d15f6faa46e22eeab))
+* add pointer-events:none to collapsed TOC children to fix click navigation ([a60ceda](https://github.com/ductrung-nguyen/Orca-vscode/commit/a60ceda321aca9af2fb5433909e7c01d18de0835))
+* improve TOC tree view with proper hierarchical structure ([04a6fd2](https://github.com/ductrung-nguyen/Orca-vscode/commit/04a6fd209fdbe487eac98cf4f2c52c73b0658a8e))
+* **parser:** improve geometry optimization energy extraction ([12b7026](https://github.com/ductrung-nguyen/Orca-vscode/commit/12b7026d36ebc68a1f53c6a090cc509a8eb0b13e))
+
+
+### Features
+
+* **dashboard:** add collapsible iteration TOC for geometry optimization ([65a5959](https://github.com/ductrung-nguyen/Orca-vscode/commit/65a5959c2d7f9329205c4873be2b611b448e7103)), closes [#002](https://github.com/ductrung-nguyen/Orca-vscode/issues/002)
+* **dashboard:** improve Results Dashboard accuracy and UX ([d43d1c2](https://github.com/ductrung-nguyen/Orca-vscode/commit/d43d1c21746f23568e8390074eb5572f5f326dd5)), closes [#11](https://github.com/ductrung-nguyen/Orca-vscode/issues/11)
+
 # [0.4.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.3.0...v0.4.0) (2025-12-24)
 
 
