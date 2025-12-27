@@ -2,35 +2,60 @@
                                  * O   R   C   A *
                                  *****************
 
-GEOMETRY OPTIMIZATION CYCLE    1
+         *                GEOMETRY OPTIMIZATION CYCLE   1            *
+
 ---------------------------------
 Coordinates (Angstroms)
  O     0.000000    0.000000    0.000000
  H     0.000000    0.000000    1.000000
  H     0.000000    1.000000    0.000000
 
-SCF Energy    :    -76.000000000
-Gradient Norm :      0.050000000
+               *           SCF CONVERGED AFTER  12 CYCLES          *
 
-GEOMETRY OPTIMIZATION CYCLE    2
+FINAL SINGLE POINT ENERGY     -76.000000000123
+
+          RMS gradient        0.0075687691            0.0000080000      NO
+          MAX gradient        0.0517107625            0.0000300000      NO
+          RMS step            0.0192474022            0.0001000000      NO
+          MAX step            0.0905289627            0.0002000000      NO
+
+The optimization has not yet converged - more geometry cycles are needed
+
+         *                GEOMETRY OPTIMIZATION CYCLE   2            *
+
 ---------------------------------
 Coordinates (Angstroms)
  O     0.000000    0.000000    0.000000
  H     0.000000    0.000000    0.970000
  H     0.000000    0.970000    0.000000
 
-SCF Energy    :    -76.050000000
-Gradient Norm :      0.010000000
+               *           SCF CONVERGED AFTER  10 CYCLES          *
 
-GEOMETRY OPTIMIZATION CYCLE    3
+FINAL SINGLE POINT ENERGY     -76.050000000456
+
+          RMS gradient        0.0028088199            0.0000080000      NO
+          MAX gradient        0.0251109900            0.0000300000      NO
+          RMS step            0.0188187353            0.0001000000      NO
+          MAX step            0.1141867576            0.0002000000      NO
+
+The optimization has not yet converged - more geometry cycles are needed
+
+         *                GEOMETRY OPTIMIZATION CYCLE   3            *
+
 ---------------------------------
 Coordinates (Angstroms)
  O     0.000000    0.000000    0.000000
  H     0.000000    0.000000    0.960000
  H     0.000000    0.960000    0.000000
 
-SCF Energy    :    -76.068123456
-Gradient Norm :      0.000500000
+               *           SCF CONVERGED AFTER  8 CYCLES          *
+
+FINAL SINGLE POINT ENERGY     -76.068123456789
+
+          RMS gradient        0.0000050000            0.0000080000      YES
+          MAX gradient        0.0000200000            0.0000300000      YES
+          RMS step            0.0000080000            0.0001000000      YES
+          MAX step            0.0000150000            0.0002000000      YES
 
                       *** THE OPTIMIZATION HAS CONVERGED ***
                                     HURRAY

@@ -271,17 +271,17 @@ export class DashboardPanel {
         }
         
         .toc-entry {
-            padding: 6px 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            border-radius: 4px;
             margin: 2px 0;
             font-size: 13px;
         }
         
-        .toc-entry:hover {
+        .toc-entry.toc-parent {
+            /* Parent entries don't get hover background on the wrapper */
+        }
+        
+        .toc-entry:not(.toc-parent):hover {
             background: var(--vscode-list-hoverBackground);
+            border-radius: 4px;
         }
         
         .toc-entry.success {
@@ -315,6 +315,85 @@ export class DashboardPanel {
             color: var(--vscode-descriptionForeground);
             font-style: italic;
             padding: 8px;
+        }
+        
+        /* Tree view styling for collapsible TOC */
+        .toc-tree {
+            /* Tree container */
+        }
+        
+        .toc-parent > .toc-entry-content {
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .toc-entry-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.15s ease-out;
+            flex-shrink: 0;
+            font-size: 10px;
+        }
+        
+        .toc-entry-toggle.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .toc-children {
+            margin-left: 12px;
+            padding-left: 8px;
+            border-left: 1px solid var(--vscode-panel-border);
+            overflow: hidden;
+            max-height: 5000px;
+            transition: max-height 0.25s ease-out, opacity 0.2s ease-out;
+            opacity: 1;
+        }
+        
+        .toc-children.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-left: 0;
+            margin-left: 0;
+            border-left: none;
+            pointer-events: none;
+        }
+        
+        .toc-child {
+            /* Child entries inherit tree indentation from .toc-children */
+        }
+        
+        .toc-entry-content {
+            display: flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .toc-entry-content:hover {
+            background: var(--vscode-list-hoverBackground);
+        }
+        
+        /* Nested level visual indicators */
+        .toc-children .toc-children {
+            border-left-color: var(--vscode-panel-border);
+        }
+        
+        .toc-leaf-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: var(--vscode-descriptionForeground);
         }
         
         /* Main content area */
@@ -651,13 +730,118 @@ export class DashboardPanel {
                 }
             }
         }
+        
+        // Toggle TOC group expand/collapse
+        function toggleTocGroup(id, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const entry = document.querySelector('[data-toc-id="' + id + '"]');
+            if (!entry) return;
+            
+            const children = entry.querySelector('.toc-children');
+            const toggle = entry.querySelector('.toc-entry-toggle');
+            
+            if (children && toggle) {
+                const isCollapsed = children.classList.contains('collapsed');
+                if (isCollapsed) {
+                    children.classList.remove('collapsed');
+                    toggle.classList.add('expanded');
+                } else {
+                    children.classList.add('collapsed');
+                    toggle.classList.remove('expanded');
+                }
+                saveTocState();
+            }
+        }
+        
+        // Save TOC collapse state to webview state
+        function saveTocState() {
+            const state = vscode.getState() || {};
+            const expandedIds = [];
+            document.querySelectorAll('.toc-entry-toggle.expanded').forEach(function(el) {
+                const parent = el.closest('[data-toc-id]');
+                if (parent) expandedIds.push(parent.dataset.tocId);
+            });
+            state.tocExpandedIds = expandedIds;
+            vscode.setState(state);
+        }
+        
+        // Restore TOC collapse state from webview state
+        function restoreTocState() {
+            const state = vscode.getState();
+            if (state && state.tocExpandedIds) {
+                // First collapse all
+                document.querySelectorAll('.toc-children').forEach(function(el) {
+                    el.classList.add('collapsed');
+                });
+                document.querySelectorAll('.toc-entry-toggle').forEach(function(el) {
+                    el.classList.remove('expanded');
+                });
+                // Then expand saved ones
+                state.tocExpandedIds.forEach(function(id) {
+                    const entry = document.querySelector('[data-toc-id="' + id + '"]');
+                    if (entry) {
+                        const children = entry.querySelector('.toc-children');
+                        const toggle = entry.querySelector('.toc-entry-toggle');
+                        if (children) children.classList.remove('collapsed');
+                        if (toggle) toggle.classList.add('expanded');
+                    }
+                });
+            }
+        }
+        
+        // Initialize TOC state on load
+        document.addEventListener('DOMContentLoaded', restoreTocState);
     </script>
 </body>
 </html>`;
     }
 
     /**
+     * Render a single TOC entry (recursive for hierarchical entries)
+     */
+    private _renderTocEntry(entry: TocEntry, depth: number = 0): string {
+        const statusClass = entry.status ? ` ${entry.status}` : '';
+        const hasChildren = entry.children && entry.children.length > 0;
+        const isParent = entry.isParent || hasChildren;
+        const depthClass = depth > 0 ? ' toc-child' : '';
+        const parentClass = isParent ? ' toc-parent' : '';
+        
+        if (isParent && hasChildren) {
+            const collapsedClass = entry.isCollapsed ? ' collapsed' : '';
+            const expandedClass = entry.isCollapsed ? '' : ' expanded';
+            const childrenHtml = entry.children!.map(child => this._renderTocEntry(child, depth + 1)).join('');
+            
+            return `
+                <div class="toc-entry${statusClass}${depthClass}${parentClass}" data-toc-id="${entry.id}">
+                    <div class="toc-entry-content" onclick="toggleTocGroup('${entry.id}', event)">
+                        <span class="toc-entry-toggle${expandedClass}">▶</span>
+                        <span class="toc-icon">${entry.icon || ''}</span>
+                        <span class="toc-title">${this._escapeHtml(entry.title)}</span>
+                    </div>
+                    <div class="toc-children${collapsedClass}">
+                        ${childrenHtml}
+                    </div>
+                </div>
+            `;
+        } else {
+            // Leaf entry - clicking navigates to line
+            return `
+                <div class="toc-entry${statusClass}${depthClass}" data-toc-id="${entry.id}">
+                    <div class="toc-entry-content" onclick="navigateToLine(${entry.lineNumber})" title="Line ${entry.lineNumber}">
+                        <span class="toc-leaf-icon">•</span>
+                        <span class="toc-icon">${entry.icon || ''}</span>
+                        <span class="toc-title">${this._escapeHtml(entry.title)}</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    /**
      * Generate TOC sidebar HTML from TocEntry array
+     * Supports hierarchical tree structure with collapsible groups
      */
     private _generateTocSidebar(entries: TocEntry[]): string {
         if (entries.length === 0) {
@@ -671,17 +855,7 @@ export class DashboardPanel {
             `;
         }
 
-        const entriesHtml = entries.map(entry => {
-            const statusClass = entry.status ? ` ${entry.status}` : '';
-            return `
-                <div class="toc-entry${statusClass}" 
-                     onclick="navigateToLine(${entry.lineNumber})" 
-                     title="Line ${entry.lineNumber}">
-                    <span class="toc-icon">${entry.icon || ''}</span>
-                    <span class="toc-title">${this._escapeHtml(entry.title)}</span>
-                </div>
-            `;
-        }).join('');
+        const entriesHtml = entries.map(entry => this._renderTocEntry(entry, 0)).join('');
 
         return `
         <div class="toc-sidebar" id="tocSidebar">
@@ -814,6 +988,110 @@ export class DashboardPanel {
     </section>`;
     }
 
+    /**
+     * Generate an SVG line chart for geometry optimization data
+     */
+    private _generateLineChart(
+        data: number[], 
+        labels: string[], 
+        title: string, 
+        yLabel: string,
+        color: string = '#4fc3f7'
+    ): string {
+        if (data.length === 0) return '';
+        
+        const width = 500;
+        const height = 200;
+        const padding = { top: 30, right: 20, bottom: 40, left: 70 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        
+        // Calculate min/max with some padding
+        const minVal = Math.min(...data);
+        const maxVal = Math.max(...data);
+        const range = maxVal - minVal || 1;
+        const yMin = minVal - range * 0.1;
+        const yMax = maxVal + range * 0.1;
+        
+        // Generate path points
+        const points = data.map((val, i) => {
+            const x = padding.left + (i / Math.max(data.length - 1, 1)) * chartWidth;
+            const y = padding.top + chartHeight - ((val - yMin) / (yMax - yMin)) * chartHeight;
+            return `${x},${y}`;
+        });
+        
+        // Generate data points circles
+        const circles = data.map((val, i) => {
+            const x = padding.left + (i / Math.max(data.length - 1, 1)) * chartWidth;
+            const y = padding.top + chartHeight - ((val - yMin) / (yMax - yMin)) * chartHeight;
+            return `<circle cx="${x}" cy="${y}" r="3" fill="${color}" />`;
+        }).join('');
+        
+        // Generate Y-axis labels (5 ticks)
+        const yTicks = [];
+        for (let i = 0; i <= 4; i++) {
+            const val = yMin + (yMax - yMin) * (i / 4);
+            const y = padding.top + chartHeight - (i / 4) * chartHeight;
+            const label = Math.abs(val) < 0.01 ? val.toExponential(2) : val.toFixed(6);
+            yTicks.push(`
+                <line x1="${padding.left - 5}" y1="${y}" x2="${padding.left}" y2="${y}" stroke="var(--vscode-foreground)" stroke-opacity="0.5" />
+                <text x="${padding.left - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="var(--vscode-foreground)">${label}</text>
+            `);
+        }
+        
+        // Generate X-axis labels (every 5th point or less for small datasets)
+        const xStep = Math.max(1, Math.floor(data.length / 10));
+        const xTicks = [];
+        for (let i = 0; i < data.length; i += xStep) {
+            const x = padding.left + (i / Math.max(data.length - 1, 1)) * chartWidth;
+            xTicks.push(`
+                <line x1="${x}" y1="${padding.top + chartHeight}" x2="${x}" y2="${padding.top + chartHeight + 5}" stroke="var(--vscode-foreground)" stroke-opacity="0.5" />
+                <text x="${x}" y="${padding.top + chartHeight + 18}" text-anchor="middle" font-size="10" fill="var(--vscode-foreground)">${labels[i] || (i + 1)}</text>
+            `);
+        }
+        // Always show last point
+        if ((data.length - 1) % xStep !== 0) {
+            const i = data.length - 1;
+            const x = padding.left + (i / Math.max(data.length - 1, 1)) * chartWidth;
+            xTicks.push(`
+                <line x1="${x}" y1="${padding.top + chartHeight}" x2="${x}" y2="${padding.top + chartHeight + 5}" stroke="var(--vscode-foreground)" stroke-opacity="0.5" />
+                <text x="${x}" y="${padding.top + chartHeight + 18}" text-anchor="middle" font-size="10" fill="var(--vscode-foreground)">${labels[i] || (i + 1)}</text>
+            `);
+        }
+        
+        return `
+        <svg width="${width}" height="${height}" style="background: var(--vscode-editor-background); border-radius: 4px; margin: 10px 0;">
+            <!-- Title -->
+            <text x="${width / 2}" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--vscode-foreground)">${title}</text>
+            
+            <!-- Y-axis label -->
+            <text x="12" y="${height / 2}" text-anchor="middle" font-size="10" fill="var(--vscode-foreground)" transform="rotate(-90, 12, ${height / 2})">${yLabel}</text>
+            
+            <!-- X-axis label -->
+            <text x="${width / 2}" y="${height - 5}" text-anchor="middle" font-size="10" fill="var(--vscode-foreground)">Iteration</text>
+            
+            <!-- Axes -->
+            <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + chartHeight}" stroke="var(--vscode-foreground)" stroke-opacity="0.3" />
+            <line x1="${padding.left}" y1="${padding.top + chartHeight}" x2="${padding.left + chartWidth}" y2="${padding.top + chartHeight}" stroke="var(--vscode-foreground)" stroke-opacity="0.3" />
+            
+            <!-- Grid lines -->
+            ${[1, 2, 3].map(i => `<line x1="${padding.left}" y1="${padding.top + (i / 4) * chartHeight}" x2="${padding.left + chartWidth}" y2="${padding.top + (i / 4) * chartHeight}" stroke="var(--vscode-foreground)" stroke-opacity="0.1" stroke-dasharray="3,3" />`).join('')}
+            
+            <!-- Y-axis ticks -->
+            ${yTicks.join('')}
+            
+            <!-- X-axis ticks -->
+            ${xTicks.join('')}
+            
+            <!-- Data line -->
+            <polyline fill="none" stroke="${color}" stroke-width="2" points="${points.join(' ')}" />
+            
+            <!-- Data points -->
+            ${circles}
+        </svg>
+        `;
+    }
+
     private _generateOptimizationSection(results: ParsedResults): string {
         if (results.geometrySteps.length === 0) {
             return '';
@@ -821,10 +1099,10 @@ export class DashboardPanel {
 
         const rows = results.geometrySteps.map(step => {
             const deltaEDisplay = step.deltaEnergy !== undefined 
-                ? step.deltaEnergy.toExponential(1) 
+                ? step.deltaEnergy.toFixed(6) 
                 : '-';
             const rmsGradDisplay = step.rmsGradient !== undefined 
-                ? step.rmsGradient.toExponential(1) 
+                ? step.rmsGradient.toFixed(6) 
                 : 'N/A';
             return `
             <tr>
@@ -836,19 +1114,45 @@ export class DashboardPanel {
         `;
         }).join('');
 
+        // Generate charts
+        const energyData = results.geometrySteps
+            .filter(s => s.energy !== undefined)
+            .map(s => s.energy!);
+        const gradientData = results.geometrySteps
+            .filter(s => s.rmsGradient !== undefined)
+            .map(s => s.rmsGradient!);
+        const labels = results.geometrySteps.map(s => s.stepNumber.toString());
+        
+        const energyChart = energyData.length > 1 
+            ? this._generateLineChart(energyData, labels, 'Energy Convergence', 'Energy (Eh)', '#4fc3f7')
+            : '';
+        const gradientChart = gradientData.length > 1 
+            ? this._generateLineChart(gradientData, labels, 'RMS Gradient Convergence', 'RMS Gradient', '#81c784')
+            : '';
+
         return `
     <section>
         <h2>Geometry Optimization</h2>
-        <div class="metric">
-            <div class="metric-label">Status</div>
-            <div class="metric-value"><span class="status ${results.optimizationConverged ? 'success' : 'warning'}">
-                ${results.optimizationConverged ? '✓ Converged' : '⚠ Not Converged'}
-            </span></div>
+        <div class="grid">
+            <div class="metric">
+                <div class="metric-label">Status</div>
+                <div class="metric-value"><span class="status ${results.optimizationConverged ? 'success' : 'warning'}">
+                    ${results.optimizationConverged ? '✓ Converged' : '⚠ Not Converged'}
+                </span></div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Total Steps</div>
+                <div class="metric-value">${results.geometrySteps.length}</div>
+            </div>
         </div>
-        <div class="metric">
-            <div class="metric-label">Total Steps</div>
-            <div class="metric-value">${results.geometrySteps.length}</div>
+        
+        ${energyChart || gradientChart ? `
+        <div class="charts-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin: 16px 0;">
+            ${energyChart}
+            ${gradientChart}
         </div>
+        ` : ''}
+        
         <table>
             <thead>
                 <tr>
