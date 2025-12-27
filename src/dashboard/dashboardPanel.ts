@@ -317,6 +317,64 @@ export class DashboardPanel {
             padding: 8px;
         }
         
+        /* Tree view styling for collapsible TOC */
+        .toc-parent {
+            font-weight: 600;
+        }
+        
+        .toc-parent > .toc-entry-content {
+            cursor: pointer;
+        }
+        
+        .toc-entry-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.15s ease-out;
+            flex-shrink: 0;
+        }
+        
+        .toc-entry-toggle.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .toc-children {
+            overflow: hidden;
+            max-height: 2000px;
+            transition: max-height 0.2s ease-out, opacity 0.15s ease-out;
+            opacity: 1;
+        }
+        
+        .toc-children.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+        
+        .toc-child {
+            padding-left: 20px;
+        }
+        
+        .toc-child .toc-child {
+            padding-left: 36px;
+        }
+        
+        .toc-entry-content {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .toc-entry-content:hover {
+            background: var(--vscode-list-hoverBackground);
+        }
+        
         /* Main content area */
         .main-content {
             flex: 1;
@@ -651,13 +709,117 @@ export class DashboardPanel {
                 }
             }
         }
+        
+        // Toggle TOC group expand/collapse
+        function toggleTocGroup(id, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const entry = document.querySelector('[data-toc-id="' + id + '"]');
+            if (!entry) return;
+            
+            const children = entry.querySelector('.toc-children');
+            const toggle = entry.querySelector('.toc-entry-toggle');
+            
+            if (children && toggle) {
+                const isCollapsed = children.classList.contains('collapsed');
+                if (isCollapsed) {
+                    children.classList.remove('collapsed');
+                    toggle.classList.add('expanded');
+                } else {
+                    children.classList.add('collapsed');
+                    toggle.classList.remove('expanded');
+                }
+                saveTocState();
+            }
+        }
+        
+        // Save TOC collapse state to webview state
+        function saveTocState() {
+            const state = vscode.getState() || {};
+            const expandedIds = [];
+            document.querySelectorAll('.toc-entry-toggle.expanded').forEach(function(el) {
+                const parent = el.closest('[data-toc-id]');
+                if (parent) expandedIds.push(parent.dataset.tocId);
+            });
+            state.tocExpandedIds = expandedIds;
+            vscode.setState(state);
+        }
+        
+        // Restore TOC collapse state from webview state
+        function restoreTocState() {
+            const state = vscode.getState();
+            if (state && state.tocExpandedIds) {
+                // First collapse all
+                document.querySelectorAll('.toc-children').forEach(function(el) {
+                    el.classList.add('collapsed');
+                });
+                document.querySelectorAll('.toc-entry-toggle').forEach(function(el) {
+                    el.classList.remove('expanded');
+                });
+                // Then expand saved ones
+                state.tocExpandedIds.forEach(function(id) {
+                    const entry = document.querySelector('[data-toc-id="' + id + '"]');
+                    if (entry) {
+                        const children = entry.querySelector('.toc-children');
+                        const toggle = entry.querySelector('.toc-entry-toggle');
+                        if (children) children.classList.remove('collapsed');
+                        if (toggle) toggle.classList.add('expanded');
+                    }
+                });
+            }
+        }
+        
+        // Initialize TOC state on load
+        document.addEventListener('DOMContentLoaded', restoreTocState);
     </script>
 </body>
 </html>`;
     }
 
     /**
+     * Render a single TOC entry (recursive for hierarchical entries)
+     */
+    private _renderTocEntry(entry: TocEntry, depth: number = 0): string {
+        const statusClass = entry.status ? ` ${entry.status}` : '';
+        const hasChildren = entry.children && entry.children.length > 0;
+        const isParent = entry.isParent || hasChildren;
+        const depthClass = depth > 0 ? ' toc-child' : '';
+        const parentClass = isParent ? ' toc-parent' : '';
+        
+        if (isParent && hasChildren) {
+            const collapsedClass = entry.isCollapsed ? ' collapsed' : '';
+            const expandedClass = entry.isCollapsed ? '' : ' expanded';
+            const childrenHtml = entry.children!.map(child => this._renderTocEntry(child, depth + 1)).join('');
+            
+            return `
+                <div class="toc-entry${statusClass}${depthClass}${parentClass}" data-toc-id="${entry.id}">
+                    <div class="toc-entry-content" onclick="toggleTocGroup('${entry.id}', event)">
+                        <span class="toc-entry-toggle${expandedClass}">▶</span>
+                        <span class="toc-icon">${entry.icon || ''}</span>
+                        <span class="toc-title">${this._escapeHtml(entry.title)}</span>
+                    </div>
+                    <div class="toc-children${collapsedClass}">
+                        ${childrenHtml}
+                    </div>
+                </div>
+            `;
+        } else {
+            // Leaf entry - clicking navigates to line
+            return `
+                <div class="toc-entry${statusClass}${depthClass}" data-toc-id="${entry.id}">
+                    <div class="toc-entry-content" onclick="navigateToLine(${entry.lineNumber})" title="Line ${entry.lineNumber}">
+                        <span class="toc-icon">${entry.icon || ''}</span>
+                        <span class="toc-title">${this._escapeHtml(entry.title)}</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    /**
      * Generate TOC sidebar HTML from TocEntry array
+     * Supports hierarchical tree structure with collapsible groups
      */
     private _generateTocSidebar(entries: TocEntry[]): string {
         if (entries.length === 0) {
@@ -671,17 +833,7 @@ export class DashboardPanel {
             `;
         }
 
-        const entriesHtml = entries.map(entry => {
-            const statusClass = entry.status ? ` ${entry.status}` : '';
-            return `
-                <div class="toc-entry${statusClass}" 
-                     onclick="navigateToLine(${entry.lineNumber})" 
-                     title="Line ${entry.lineNumber}">
-                    <span class="toc-icon">${entry.icon || ''}</span>
-                    <span class="toc-title">${this._escapeHtml(entry.title)}</span>
-                </div>
-            `;
-        }).join('');
+        const entriesHtml = entries.map(entry => this._renderTocEntry(entry, 0)).join('');
 
         return `
         <div class="toc-sidebar" id="tocSidebar">
