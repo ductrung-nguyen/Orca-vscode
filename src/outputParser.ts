@@ -538,6 +538,7 @@ export function parseTocEntries(content: string): TocEntry[] {
     const altCyclePattern = /-+\s*CYCLE\s+(\d+)\s*-+/i;
     
     // Patterns that belong inside cycles (iteration-related)
+    // These are also checked at top-level for single-point calculations
     const iterationPatterns: TocPattern[] = [
         { id: 'scf-iterations', regex: /SCF ITERATIONS/i, title: 'SCF Iterations', icon: '🔄' },
         { id: 'scf-converged', regex: /SCF CONVERGED/i, title: 'SCF Converged', icon: '✅', status: 'success' },
@@ -547,7 +548,7 @@ export function parseTocEntries(content: string): TocEntry[] {
     
     // Patterns for top-level entries (not grouped under cycles)
     const topLevelPatterns: TocPattern[] = [
-        { id: 'orca-header', regex: /^\s*\*+\s+O\s+R\s+C\s+A\s+\*+/, title: 'ORCA Header', icon: '📋' },
+        { id: 'orca-header', regex: /^\s*\*+\s*O\s+R\s+C\s+A\s*\*+/, title: 'ORCA Header', icon: '📋' },
         { id: 'input-file', regex: /INPUT FILE/i, title: 'Input File', icon: '📝' },
         { id: 'basis-set', regex: /Orbital basis set information/i, title: 'Basis Set Info', icon: '🔬' },
         { id: 'warnings', regex: /^-+\s*WARNINGS\s*-+$/i, title: 'Warnings', icon: '⚠️', status: 'warning' },
@@ -557,7 +558,12 @@ export function parseTocEntries(content: string): TocEntry[] {
         { id: 'thermochemistry', regex: /THERMOCHEMISTRY/i, title: 'Thermochemistry', icon: '🌡️' },
         { id: 'total-run-time', regex: /TOTAL RUN TIME/i, title: 'Total Run Time', icon: '⏱️' },
         { id: 'hurray', regex: /HURRAY/i, title: 'HURRAY', icon: '🎉', status: 'success' },
-        { id: 'aborting', regex: /ABORTING/i, title: 'Aborting', icon: '🚫', status: 'error' }
+        { id: 'aborting', regex: /ABORTING/i, title: 'Aborting', icon: '🚫', status: 'error' },
+        // Also match iteration patterns at top level for single-point calculations
+        { id: 'scf-iterations', regex: /SCF ITERATIONS/i, title: 'SCF Iterations', icon: '🔄' },
+        { id: 'scf-converged', regex: /SCF CONVERGED/i, title: 'SCF Converged', icon: '✅', status: 'success' },
+        { id: 'scf-not-converged', regex: /SCF NOT CONVERGED/i, title: 'SCF Not Converged', icon: '❌', status: 'error' },
+        { id: 'final-energy', regex: /FINAL SINGLE POINT ENERGY/i, title: 'Final Energy', icon: '⚡' },
     ];
 
     // Track where to insert the cycle group in the final entries
