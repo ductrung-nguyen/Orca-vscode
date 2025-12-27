@@ -155,7 +155,7 @@ export function bufferToString(buffer: Buffer, encoding?: FileEncoding): string 
             content = buffer.slice(startOffset).toString('utf16le');
             break;
             
-        case 'utf-16be':
+        case 'utf-16be': {
             // Skip BOM if present
             if (buffer[0] === 0xFE && buffer[1] === 0xFF) {
                 startOffset = 2;
@@ -168,6 +168,7 @@ export function bufferToString(buffer: Buffer, encoding?: FileEncoding): string 
             }
             content = swapped.toString('utf16le');
             break;
+        }
             
         case 'utf-8':
         default:
