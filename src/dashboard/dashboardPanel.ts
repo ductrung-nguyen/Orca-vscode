@@ -361,6 +361,7 @@ export class DashboardPanel {
             padding-left: 0;
             margin-left: 0;
             border-left: none;
+            pointer-events: none;
         }
         
         .toc-child {
