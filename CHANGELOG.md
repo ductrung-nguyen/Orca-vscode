@@ -1,3 +1,18 @@
+# [0.6.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.5.0...v0.6.0) (2025-12-28)
+
+
+### Bug Fixes
+
+* **dashboard:** improve TOC, remove diagnostics, fix convergence display ([afa6e33](https://github.com/ductrung-nguyen/Orca-vscode/commit/afa6e336185b075ece2dfcb3d82d879285e7d4e5))
+* resolve ESLint errors for semantic release ([b83c069](https://github.com/ductrung-nguyen/Orca-vscode/commit/b83c069e3cf68cd21eb0c5e9c3f4cfe9c2be187b))
+
+
+### Features
+
+* **003:** Phase 1 - Vue3 + Vite project setup for webview-ui ([8c814cc](https://github.com/ductrung-nguyen/Orca-vscode/commit/8c814cc592fbcb5f5d751f2db1f79827d0e73e01))
+* enhance TOC visibility toggle and export functionality ([a48b129](https://github.com/ductrung-nguyen/Orca-vscode/commit/a48b129c7831b9344afd5cbfe6f2207eb59131f3))
+* upgrade PrimeVue to version 4 and integrate new diagnostics section ([b1fa0b8](https://github.com/ductrung-nguyen/Orca-vscode/commit/b1fa0b84da2ede57f98d4362295ea01fa1fd0fe7))
+
 # [0.5.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.4.0...v0.5.0) (2025-12-27)
 
 
