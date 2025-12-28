@@ -13,7 +13,7 @@ export class OrcaOutputSymbolProvider implements vscode.DocumentSymbolProvider {
      */
     provideDocumentSymbols(
         document: vscode.TextDocument,
-        token: vscode.CancellationToken
+        _token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.DocumentSymbol[]> {
         const symbols: vscode.DocumentSymbol[] = [];
         const text = document.getText();

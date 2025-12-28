@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
 import { OutputFileWriter } from './outputFileWriter';
-import { parseOrcaOutput, OrcaParseResult } from './outputParser';
+import { parseOrcaOutput } from './outputParser';
 import { setRunningFile } from './orcaCodeLensProvider';
 import { readFileWithEncoding, readFileTail } from './utils/fileEncoding';
 
@@ -223,7 +223,7 @@ export class OrcaRunner {
                 try {
                     await this.outputFileWriter.close();
                     this.outputFileWriter = null;
-                } catch (closeErr) {
+                } catch (_closeErr) {
                     // Ignore errors during cleanup
                 }
             }
