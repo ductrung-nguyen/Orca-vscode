@@ -73,6 +73,17 @@ export interface TocEntry {
  * Comprehensive parsed results from ORCA output
  */
 export interface ParsedResults {
+    // File information (added by dashboard panel)
+    fileName?: string;
+    filePath?: string;
+    
+    // Job information
+    calculationType?: string;
+    method?: string;
+    basis?: string;
+    charge?: number;
+    multiplicity?: number;
+    
     // Basic convergence
     converged: boolean;
     scfFailed: boolean;
@@ -132,6 +143,71 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
         totalRunTime: null,
         tocEntries: []
     };
+
+    // Parse input line for method, basis, and calculation type
+    // Look for lines starting with ! (ignoring leading whitespace and potential line numbers/prefixes)
+    const inputLineMatch = content.match(/(?:^|\n)\s*(?:\|\s*\d+>\s*)?!\s*(.+)$/m);
+    if (inputLineMatch) {
+        const inputLine = inputLineMatch[1].trim().toUpperCase();
+        const keywords = inputLine.split(/\s+/);
+        
+        // Common DFT methods and Wavefunction methods
+        const methods = [
+            'B3LYP', 'PBE', 'PBE0', 'BP86', 'TPSS', 'M06', 'M062X', 'WB97X', 'WB97X-D3', 'WB97M-V',
+            'CAM-B3LYP', 'B97-3C', 'R2SCAN-3C', 'PBEH-3C',
+            'HF', 'RHF', 'UHF', 'ROHF',
+            'MP2', 'RI-MP2', 'DLPNO-MP2',
+            'CCSD', 'CCSD(T)', 'DLPNO-CCSD', 'DLPNO-CCSD(T)',
+            'CASSCF', 'NEVPT2'
+        ];
+        // Common basis sets
+        const basisSets = [
+            'DEF2-SVP', 'DEF2-TZVP', 'DEF2-TZVPP', 'DEF2-QZVP', 'DEF2-QZVPP',
+            'DEF2-SV(P)', 'MA-DEF2-SVP', 'MA-DEF2-TZVP',
+            'CC-PVDZ', 'CC-PVTZ', 'CC-PVQZ', 'CC-PV5Z',
+            'AUG-CC-PVDZ', 'AUG-CC-PVTZ', 'AUG-CC-PVQZ',
+            '6-31G', '6-31G*', '6-31G**', '6-311G', '6-311G*', '6-311G**',
+            'STO-3G', '3-21G', '6-311+G*', '6-311+G**',
+            'PC-1', 'PC-2', 'PC-3', 'PCSSEG-1', 'PCSSEG-2'
+        ];
+        // Calculation types
+        const calcTypes = ['OPT', 'FREQ', 'OPTFREQ', 'SP', 'ENGRAD', 'MD', 'NEB', 'TS', 'GRADIENT', 'NUMFREQ'];
+        
+        for (const kw of keywords) {
+            if (methods.includes(kw) && !result.method) {
+                result.method = kw;
+            }
+            if (basisSets.includes(kw) && !result.basis) {
+                result.basis = kw;
+            }
+            if (calcTypes.includes(kw)) {
+                if (kw === 'OPT') {
+                    result.calculationType = 'Geometry Optimization';
+                } else if (kw === 'OPTFREQ') {
+                    result.calculationType = 'Optimization + Frequencies';
+                } else if (kw === 'FREQ' || kw === 'NUMFREQ') {
+                    result.calculationType = 'Frequency Analysis';
+                } else if (kw === 'SP') {
+                    result.calculationType = 'Single Point';
+                } else if (kw === 'TS' || kw === 'NEB') {
+                    result.calculationType = 'Transition State';
+                } else {
+                    result.calculationType = kw;
+                }
+            }
+        }
+        // Default calculation type
+        if (!result.calculationType) {
+            result.calculationType = 'Single Point';
+        }
+    }
+    
+    // Parse charge and multiplicity from xyz block
+    const chargeMultMatch = content.match(/\*\s*xyz\s+(-?\d+)\s+(\d+)/i);
+    if (chargeMultMatch) {
+        result.charge = parseInt(chargeMultMatch[1], 10);
+        result.multiplicity = parseInt(chargeMultMatch[2], 10);
+    }
 
     // Basic convergence checks
     result.converged = content.includes('HURRAY');
@@ -527,153 +603,188 @@ interface TocPattern {
 export function parseTocEntries(content: string): TocEntry[] {
     const entries: TocEntry[] = [];
     const lines = content.split('\n');
-    
-    // Track iteration-related entries separately for grouping
-    const cycleEntries: Map<number, TocEntry[]> = new Map();
-    let currentCycle = 0;
-    let hasMultipleCycles = false;
-    
+
     // Patterns for cycle detection
     const cyclePattern = /GEOMETRY OPTIMIZATION CYCLE\s+(\d+)/i;
     const altCyclePattern = /-+\s*CYCLE\s+(\d+)\s*-+/i;
-    
-    // Patterns that belong inside cycles (iteration-related)
-    // These are also checked at top-level for single-point calculations
-    const iterationPatterns: TocPattern[] = [
-        { id: 'scf-iterations', regex: /SCF ITERATIONS/i, title: 'SCF Iterations', icon: '🔄' },
-        { id: 'scf-converged', regex: /SCF CONVERGED/i, title: 'SCF Converged', icon: '✅', status: 'success' },
-        { id: 'scf-not-converged', regex: /SCF NOT CONVERGED/i, title: 'SCF Not Converged', icon: '❌', status: 'error' },
-        { id: 'final-energy', regex: /FINAL SINGLE POINT ENERGY/i, title: 'Final Energy', icon: '⚡' },
-    ];
-    
-    // Patterns for top-level entries (not grouped under cycles)
+
+    // Capture optimization cycles with their start lines
+    const cycles: Array<{ cycleNumber: number; startLine: number; startIndex: number }> = [];
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const match = line.match(cyclePattern) || line.match(altCyclePattern);
+        if (match) {
+            const cycleNumber = parseInt(match[1], 10);
+            cycles.push({ cycleNumber, startLine: i + 1, startIndex: i });
+        }
+    }
+
+    const hasCycles = cycles.length > 0;
+
+    // Build cycle ranges to know what line ranges belong to iterations
+    const cycleRanges: Array<{ start: number; end: number }> = [];
+    if (hasCycles) {
+        for (let idx = 0; idx < cycles.length; idx++) {
+            const start = cycles[idx].startIndex;
+            const end = cycles[idx + 1] ? cycles[idx + 1].startIndex - 1 : lines.length - 1;
+            cycleRanges.push({ start, end });
+        }
+    }
+
+    // Helper to check if a line index is inside any cycle
+    const isInsideCycle = (lineIdx: number): boolean => {
+        return cycleRanges.some(range => lineIdx >= range.start && lineIdx <= range.end);
+    };
+
+    // Top-level patterns (professional icons; no emoji)
+    // If cycles exist, skip iteration-specific patterns at top level
+    const iterationSpecificPatterns = ['scf-iterations', 'scf-converged', 'scf-not-converged', 'final-energy'];
     const topLevelPatterns: TocPattern[] = [
-        { id: 'orca-header', regex: /^\s*\*+\s*O\s+R\s+C\s+A\s*\*+/, title: 'ORCA Header', icon: '📋' },
-        { id: 'input-file', regex: /INPUT FILE/i, title: 'Input File', icon: '📝' },
-        { id: 'basis-set', regex: /Orbital basis set information/i, title: 'Basis Set Info', icon: '🔬' },
-        { id: 'warnings', regex: /^-+\s*WARNINGS\s*-+$/i, title: 'Warnings', icon: '⚠️', status: 'warning' },
-        { id: 'geometry-opt', regex: /GEOMETRY OPTIMIZATION|OPTIMIZATION RUN/i, title: 'Geometry Optimization', icon: '📐' },
-        { id: 'opt-converged', regex: /THE OPTIMIZATION HAS CONVERGED/i, title: 'Optimization Converged', icon: '✅', status: 'success' },
-        { id: 'frequencies', regex: /VIBRATIONAL FREQUENCIES/i, title: 'Vibrational Frequencies', icon: '🎵' },
-        { id: 'thermochemistry', regex: /THERMOCHEMISTRY/i, title: 'Thermochemistry', icon: '🌡️' },
-        { id: 'total-run-time', regex: /TOTAL RUN TIME/i, title: 'Total Run Time', icon: '⏱️' },
-        { id: 'hurray', regex: /HURRAY/i, title: 'HURRAY', icon: '🎉', status: 'success' },
-        { id: 'aborting', regex: /ABORTING/i, title: 'Aborting', icon: '🚫', status: 'error' },
-        // Also match iteration patterns at top level for single-point calculations
-        { id: 'scf-iterations', regex: /SCF ITERATIONS/i, title: 'SCF Iterations', icon: '🔄' },
-        { id: 'scf-converged', regex: /SCF CONVERGED/i, title: 'SCF Converged', icon: '✅', status: 'success' },
-        { id: 'scf-not-converged', regex: /SCF NOT CONVERGED/i, title: 'SCF Not Converged', icon: '❌', status: 'error' },
-        { id: 'final-energy', regex: /FINAL SINGLE POINT ENERGY/i, title: 'Final Energy', icon: '⚡' },
+        { id: 'orca-header', regex: /^\s*\*+\s*O\s+R\s+C\s+A\s*\*+/, title: 'ORCA Header', icon: 'pi pi-book' },
+        { id: 'input-file', regex: /INPUT FILE/i, title: 'Input File', icon: 'pi pi-file' },
+        { id: 'basis-set', regex: /Orbital basis set information/i, title: 'Basis Set Info', icon: 'pi pi-sitemap' },
+        { id: 'geometry-opt', regex: /GEOMETRY OPTIMIZATION(?!.*CYCLE)/i, title: 'Geometry Optimization', icon: 'pi pi-folder' },
+        { id: 'opt-converged', regex: /THE OPTIMIZATION HAS CONVERGED/i, title: 'Optimization Converged', icon: 'pi pi-check-circle', status: 'success' },
+        { id: 'frequencies', regex: /VIBRATIONAL FREQUENCIES/i, title: 'Vibrational Frequencies', icon: 'pi pi-wave-pulse' },
+        { id: 'thermochemistry', regex: /THERMOCHEMISTRY/i, title: 'Thermochemistry', icon: 'pi pi-thermometer' },
+        { id: 'total-run-time', regex: /TOTAL RUN TIME/i, title: 'Total Run Time', icon: 'pi pi-clock' },
+        { id: 'hurray', regex: /HURRAY/i, title: 'HURRAY', icon: 'pi pi-check', status: 'success' },
+        { id: 'aborting', regex: /ABORTING/i, title: 'Aborting', icon: 'pi pi-times-circle', status: 'error' },
+        // Only include iteration-specific patterns if no cycles (single-point calculations)
+        { id: 'scf-iterations', regex: /SCF ITERATIONS/i, title: 'SCF Iterations', icon: 'pi pi-refresh' },
+        { id: 'scf-converged', regex: /SCF CONVERGED/i, title: 'SCF Converged', icon: 'pi pi-check-circle', status: 'success' },
+        { id: 'scf-not-converged', regex: /SCF NOT CONVERGED/i, title: 'SCF Not Converged', icon: 'pi pi-times-circle', status: 'error' },
+        { id: 'final-energy', regex: /FINAL SINGLE POINT ENERGY/i, title: 'Final Energy', icon: 'pi pi-bolt' },
     ];
 
-    // Track where to insert the cycle group in the final entries
-    let cycleGroupInsertIndex = -1;
-    
+    // Track where to insert the iterations group (after geometry optimization header if present)
+    let iterationsInsertIndex = -1;
+
+    // Add top-level anchors
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         
-        // Check for cycle markers
-        const cycleMatch = line.match(cyclePattern) || line.match(altCyclePattern);
-        if (cycleMatch) {
-            currentCycle = parseInt(cycleMatch[1], 10);
-            if (currentCycle > 1) {
-                hasMultipleCycles = true;
-            }
-            if (!cycleEntries.has(currentCycle)) {
-                cycleEntries.set(currentCycle, []);
-            }
-            // Mark where cycles should be inserted (after geometry-opt header)
-            if (cycleGroupInsertIndex === -1) {
-                cycleGroupInsertIndex = entries.length;
-            }
+        // Skip cycle header lines - they'll be in the iterations tree
+        if (hasCycles && (cyclePattern.test(line) || altCyclePattern.test(line))) {
             continue;
         }
         
-        // If we're inside a cycle, check for iteration patterns first
-        if (currentCycle > 0) {
-            let matchedIteration = false;
-            for (const pattern of iterationPatterns) {
-                if (pattern.regex.test(line)) {
-                    const cycleChildren = cycleEntries.get(currentCycle) || [];
-                    cycleChildren.push({
-                        id: `${pattern.id}-${i}`,
-                        title: pattern.title,
-                        lineNumber: i + 1,
-                        icon: pattern.icon,
-                        status: pattern.status
-                    });
-                    cycleEntries.set(currentCycle, cycleChildren);
-                    matchedIteration = true;
-                    break;
-                }
-            }
-            if (matchedIteration) continue;
-        }
-        
-        // Check for top-level patterns
         for (const pattern of topLevelPatterns) {
             if (pattern.regex.test(line)) {
-                // If this is the geometry-opt header, mark position for cycle group
-                if (pattern.id === 'geometry-opt' && cycleGroupInsertIndex === -1) {
-                    cycleGroupInsertIndex = entries.length + 1; // Insert after this entry
+                // Skip iteration-specific patterns if they're inside a cycle (will be in the iterations tree)
+                if (hasCycles && iterationSpecificPatterns.includes(pattern.id) && isInsideCycle(i)) {
+                    continue;
                 }
-                entries.push({
+                const entry: TocEntry = {
                     id: `${pattern.id}-${i}`,
                     title: pattern.title,
                     lineNumber: i + 1,
                     icon: pattern.icon,
                     status: pattern.status
-                });
+                };
+                entries.push(entry);
+                if (pattern.id === 'geometry-opt' && iterationsInsertIndex === -1) {
+                    iterationsInsertIndex = entries.length; // insert after this
+                }
                 break;
             }
         }
     }
-    
-    // Build hierarchical structure if we have multiple cycles
-    if (hasMultipleCycles && cycleEntries.size > 0) {
-        const cycleCount = cycleEntries.size;
-        const shouldCollapse = cycleCount > 3;
-        
-        // Create individual cycle entries
-        const cycleChildren: TocEntry[] = [];
-        const sortedCycles = Array.from(cycleEntries.keys()).sort((a, b) => a - b);
-        
-        for (const cycleNum of sortedCycles) {
-            const children = cycleEntries.get(cycleNum) || [];
-            cycleChildren.push({
-                id: `cycle-${cycleNum}`,
-                title: `Cycle ${cycleNum}`,
-                lineNumber: children.length > 0 ? children[0].lineNumber : 0,
-                icon: '🔄',
+
+    // Build "N Iterations" -> "Iteration k" -> [SCF/Final Energy/...] tree
+    if (cycles.length > 0) {
+        const sortedCycles = [...cycles].sort((a, b) => a.cycleNumber - b.cycleNumber);
+
+        // Determine each cycle's end boundary (next cycle start - 1, or end of file)
+        const iterationNodes: TocEntry[] = [];
+        for (let idx = 0; idx < sortedCycles.length; idx++) {
+            const current = sortedCycles[idx];
+            const next = sortedCycles[idx + 1];
+            const start = current.startIndex;
+            const end = next ? next.startIndex - 1 : lines.length - 1;
+
+            const children: TocEntry[] = [];
+
+            const findInRange = (regex: RegExp): number | null => {
+                for (let j = start; j <= end; j++) {
+                    if (regex.test(lines[j])) return j + 1;
+                }
+                return null;
+            };
+
+            const scfIterLine = findInRange(/SCF ITERATIONS/i);
+            if (scfIterLine) {
+                children.push({
+                    id: `iter-${current.cycleNumber}-scf-iterations`,
+                    title: 'SCF Iterations',
+                    lineNumber: scfIterLine,
+                    icon: 'pi pi-refresh'
+                });
+            }
+
+            const scfConvLine = findInRange(/SCF CONVERGED/i);
+            if (scfConvLine) {
+                children.push({
+                    id: `iter-${current.cycleNumber}-scf-converged`,
+                    title: 'SCF Converged',
+                    lineNumber: scfConvLine,
+                    icon: 'pi pi-check-circle',
+                    status: 'success'
+                });
+            }
+
+            const scfFailLine = findInRange(/SCF NOT CONVERGED/i);
+            if (scfFailLine) {
+                children.push({
+                    id: `iter-${current.cycleNumber}-scf-not-converged`,
+                    title: 'SCF Not Converged',
+                    lineNumber: scfFailLine,
+                    icon: 'pi pi-times-circle',
+                    status: 'error'
+                });
+            }
+
+            const finalEnergyLine = findInRange(/FINAL SINGLE POINT ENERGY/i);
+            if (finalEnergyLine) {
+                children.push({
+                    id: `iter-${current.cycleNumber}-final-energy`,
+                    title: 'Final Energy',
+                    lineNumber: finalEnergyLine,
+                    icon: 'pi pi-bolt'
+                });
+            }
+
+            // If we didn't find any sub-anchors, still make the iteration navigable to its start
+            const iterationNode: TocEntry = {
+                id: `iteration-${current.cycleNumber}`,
+                title: `Iteration ${current.cycleNumber}`,
+                lineNumber: current.startLine,
+                icon: 'pi pi-repeat',
                 isParent: children.length > 0,
-                isCollapsed: shouldCollapse,
+                isCollapsed: true,
                 children: children.length > 0 ? children : undefined
-            });
+            };
+
+            iterationNodes.push(iterationNode);
         }
-        
-        // Create parent group entry
+
         const iterationsGroup: TocEntry = {
             id: 'iterations-group',
-            title: `${cycleCount} Iterations`,
-            lineNumber: cycleChildren.length > 0 ? cycleChildren[0].lineNumber : 0,
-            icon: '📐',
+            title: `${iterationNodes.length} Iterations`,
+            lineNumber: iterationNodes[0]?.lineNumber ?? 1,
+            icon: 'pi pi-list',
             isParent: true,
-            isCollapsed: shouldCollapse,
-            children: cycleChildren
+            isCollapsed: iterationNodes.length > 10,
+            children: iterationNodes
         };
-        
-        // Insert the group at the appropriate position
-        if (cycleGroupInsertIndex >= 0 && cycleGroupInsertIndex <= entries.length) {
-            entries.splice(cycleGroupInsertIndex, 0, iterationsGroup);
+
+        // Avoid duplicating old cycle entries: insert our new group near geometry-opt if present.
+        if (iterationsInsertIndex >= 0 && iterationsInsertIndex <= entries.length) {
+            entries.splice(iterationsInsertIndex, 0, iterationsGroup);
         } else {
-            entries.push(iterationsGroup);
+            entries.unshift(iterationsGroup);
         }
-    } else if (cycleEntries.size === 1) {
-        // Single cycle - add entries inline without grouping
-        const children = cycleEntries.get(1) || [];
-        const insertPos = cycleGroupInsertIndex >= 0 ? cycleGroupInsertIndex : entries.length;
-        entries.splice(insertPos, 0, ...children);
     }
-    
+
     return entries;
 }

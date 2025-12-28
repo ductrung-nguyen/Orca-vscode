@@ -1,0 +1,236 @@
+/**
+ * PrimeVue → VS Code Theme Bridge
+ * Maps VS Code CSS variables to PrimeVue design tokens
+ */
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+/* PrimeVue CSS Variable Overrides */
+:root {
+  /* Primary colors */
+  --p-primary-color: var(--vscode-button-background);
+  --p-primary-color-text: var(--vscode-button-foreground);
+  --p-primary-hover-color: var(--vscode-button-hoverBackground);
+
+  /* Surface colors */
+  --p-surface-ground: var(--vscode-editor-background);
+  --p-surface-section: var(--vscode-sideBar-background);
+  --p-surface-card: var(--vscode-editorWidget-background);
+  --p-surface-border: var(--vscode-panel-border);
+
+  /* Text colors */
+  --p-text-color: var(--vscode-foreground);
+  --p-text-muted-color: var(--vscode-descriptionForeground);
+
+  /* State colors */
+  --p-green-500: var(--vscode-testing-iconPassed, #4ec9b0);
+  --p-red-500: var(--vscode-testing-iconFailed, #f14c4c);
+  --p-yellow-500: var(--vscode-editorWarning-foreground, #cca700);
+
+  /* Focus states */
+  --p-focus-ring-color: var(--vscode-focusBorder);
+}
+
+/* DataTable Overrides */
+.p-datatable {
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  font-size: 0.9em;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: var(--vscode-sideBar-background);
+  border-color: var(--vscode-panel-border);
+  color: var(--vscode-foreground);
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: var(--vscode-editor-background);
+  border-color: var(--vscode-panel-border);
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 6px 12px;
+  border-color: var(--vscode-panel-border);
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.p-datatable .p-datatable-tbody > tr.p-highlight {
+  background: var(--vscode-list-activeSelectionBackground);
+  color: var(--vscode-list-activeSelectionForeground);
+}
+
+/* Sortable column header */
+.p-datatable .p-sortable-column:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.p-datatable .p-sortable-column.p-highlight {
+  background: var(--vscode-list-activeSelectionBackground);
+}
+
+/* Tree Overrides */
+.p-tree {
+  background: transparent;
+  color: var(--vscode-foreground);
+  border: none;
+  padding: 0;
+}
+
+.p-tree .p-treenode-content {
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.p-tree .p-treenode-content:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.p-tree .p-treenode-content.p-highlight {
+  background: var(--vscode-list-activeSelectionBackground);
+  color: var(--vscode-list-activeSelectionForeground);
+}
+
+.p-tree .p-treenode-label {
+  font-size: 0.9em;
+}
+
+/* Tag Overrides */
+.p-tag {
+  font-size: 0.75em;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.p-tag.p-tag-success {
+  background: var(--vscode-testing-iconPassed, #4ec9b0);
+  color: var(--vscode-editor-background);
+}
+
+.p-tag.p-tag-warning {
+  background: var(--vscode-editorWarning-foreground, #cca700);
+  color: var(--vscode-editor-background);
+}
+
+.p-tag.p-tag-danger {
+  background: var(--vscode-testing-iconFailed, #f14c4c);
+  color: var(--vscode-editor-background);
+}
+
+.p-tag.p-tag-info {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+/* Panel Overrides */
+.p-panel {
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 4px;
+}
+
+.p-panel .p-panel-header {
+  background: var(--vscode-sideBar-background);
+  border-color: var(--vscode-panel-border);
+  padding: 8px 12px;
+}
+
+.p-panel .p-panel-content {
+  padding: 12px;
+  border-color: var(--vscode-panel-border);
+}
+
+.p-panel .p-panel-toggler {
+  color: var(--vscode-foreground);
+}
+
+.p-panel .p-panel-toggler:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+/* Button Overrides */
+.p-button {
+  background: var(--vscode-button-background);
+  border: 1px solid var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  padding: 6px 12px;
+  font-size: 0.9em;
+}
+
+.p-button:hover {
+  background: var(--vscode-button-hoverBackground);
+  border-color: var(--vscode-button-hoverBackground);
+}
+
+.p-button.p-button-text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--vscode-foreground);
+}
+
+.p-button.p-button-text:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vscode-scrollbarSlider-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-hoverBackground);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-activeBackground);
+}
+
+/* Chart.js Theme Integration */
+canvas {
+  --chart-text-color: var(--vscode-foreground);
+  --chart-grid-color: var(--vscode-panel-border);
+}
+
+/* Utility Classes */
+.text-success {
+  color: var(--vscode-testing-iconPassed, #4ec9b0);
+}
+
+.text-warning {
+  color: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.text-error {
+  color: var(--vscode-testing-iconFailed, #f14c4c);
+}
+
+.text-muted {
+  color: var(--vscode-descriptionForeground);
+}
+
+.font-mono {
+  font-family: var(--vscode-editor-font-family);
+}

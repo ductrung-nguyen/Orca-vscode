@@ -247,10 +247,13 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run build:webview && npm run compile",
     "compile": "tsc -p ./",
     "postcompile": "node -e \"require('fs').cpSync('src/test/fixtures', 'out/test/fixtures', {recursive: true})\"",
     "watch": "tsc -watch -p ./",
+    "build:webview": "cd webview-ui && npm run build",
+    "watch:webview": "cd webview-ui && npm run dev",
+    "watch:all": "concurrently \"npm run watch\" \"npm run watch:webview\"",
     "pretest": "npm run compile && npm run lint",
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
@@ -266,6 +269,7 @@
     "@typescript-eslint/parser": "^8.50.0",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.7.1",
+    "concurrently": "^8.2.0",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "glob": "^11.1.0",
