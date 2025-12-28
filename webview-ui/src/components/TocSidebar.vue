@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
  * TocSidebar - Table of Contents navigation sidebar
- * Uses PrimeVue Tree for hierarchical display with state persistence (F1, F2, F3)
+ * Uses PrimeVue 4 Tree for hierarchical display with state persistence (F1, F2, F3)
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import Tree from 'primevue/tree';
 import type { TreeNode } from 'primevue/treenode';
 import type { TocEntry } from '@/types/ParsedResults';
@@ -25,6 +25,9 @@ const { goToLine } = useVSCodeApi();
 
 // Persisted expanded state (F3)
 const expandedKeys = useWebviewState<Record<string, boolean>>('tocExpandedKeys', {});
+
+// Selection state (required for node-select)
+const selectionKeys = ref<Record<string, boolean>>({});
 
 // Status to icon mapping
 const statusIcons: Record<string, string> = {
@@ -63,11 +66,43 @@ const convertEntry = (entry: TocEntry): TreeNode => {
 
 const treeNodes = computed<TreeNode[]>(() => props.entries.map(convertEntry));
 
-// Handle node click (F2)
-function onNodeClick(event: any) {
-  const node = event.node;
-  if (node.data?.lineNumber) {
-    goToLine(node.data.lineNumber);
+// PrimeVue Tree navigation
+// - Always navigate to lineNumber if present (both leaf and parent nodes)
+// - Parent nodes also toggle expand/collapse
+function onNodeSelect(node: any) {
+  // PrimeVue node-select passes the node directly, not wrapped in event.node
+  if (!node) {
+    console.warn('TOC: No node in select event', node);
+    return;
+  }
+
+  const lineNumber = (node as any).data?.lineNumber;
+  const hasChildren = Array.isArray(node.children) && node.children.length > 0;
+  const nodeKey = typeof node.key === 'string' ? node.key : undefined;
+
+  console.log('TOC: Node selected', {
+    title: node.label,
+    lineNumber,
+    hasChildren,
+    nodeKey
+  });
+
+  // Always navigate if line number exists
+  if (typeof lineNumber === 'number' && lineNumber > 0) {
+    console.log('TOC: Navigating to line', lineNumber);
+    goToLine(lineNumber);
+  } else {
+    console.warn('TOC: No valid line number', lineNumber);
+  }
+
+  // If parent node, also toggle expand/collapse
+  if (hasChildren && nodeKey) {
+    const isExpanded = !!expandedKeys.value[nodeKey];
+    if (isExpanded) {
+      onNodeCollapse(node);
+    } else {
+      onNodeExpand(node);
+    }
   }
 }
 
@@ -98,9 +133,11 @@ function onNodeCollapse(node: TreeNode) {
       <Tree
         v-if="treeNodes.length > 0"
         :value="treeNodes"
+        selectionMode="single"
+        v-model:selectionKeys="selectionKeys"
         v-model:expandedKeys="expandedKeys"
         class="toc-tree"
-        @node-click="onNodeClick"
+        @node-select="onNodeSelect"
         @node-expand="onNodeExpand"
         @node-collapse="onNodeCollapse"
       />
@@ -123,6 +160,21 @@ function onNodeCollapse(node: TreeNode) {
   flex-direction: column;
   border-right: 1px solid var(--vscode-panel-border);
   background: var(--vscode-sideBar-background);
+}
+
+@media (max-width: 768px) {
+  /* Overlay sidebar on small screens so main content stays visible */
+  .toc-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 90;
+    width: 260px;
+    max-width: calc(100vw - 48px);
+    border-right: 1px solid var(--vscode-panel-border);
+  }
 }
 
 .toc-header {
@@ -159,105 +211,59 @@ function onNodeCollapse(node: TreeNode) {
   font-size: 0.9em;
 }
 
-/* PrimeVue Tree overrides - VS Code file tree style */
+/* PrimeVue 4 Tree - Minimal VS Code Theme Integration */
+/* Let PrimeVue handle the tree structure, just override colors */
 :deep(.p-tree) {
   background: transparent;
   border: none;
-  padding: 0;
+  padding: 0.25rem;
+  color: var(--vscode-foreground);
 }
 
-:deep(.p-tree-container) {
-  padding: 0;
-  margin: 0;
+:deep(.p-tree-node-content) {
+  padding: 0.375rem 0.5rem;
+  border-radius: 4px;
+  gap: 0.5rem;
 }
 
-:deep(.p-treenode) {
-  padding: 0;
+:deep(.p-tree-node-content:hover) {
+  background: var(--vscode-list-hoverBackground);
 }
 
-/* Remove white background from tree nodes - make it like VS Code explorer */
-:deep(.p-treenode-content) {
-  padding: 2px 8px;
-  border-radius: 0;
-  cursor: pointer;
-  transition: background-color 0.1s ease;
-  display: flex;
-  align-items: center;
-  background: transparent !important;
-}
-
-:deep(.p-treenode-content:hover) {
-  background: var(--vscode-list-hoverBackground) !important;
-}
-
-:deep(.p-treenode-content.p-highlight) {
-  background: var(--vscode-list-activeSelectionBackground) !important;
+:deep(.p-tree-node-content.p-selected) {
+  background: var(--vscode-list-activeSelectionBackground);
   color: var(--vscode-list-activeSelectionForeground);
 }
 
-:deep(.p-treenode-label) {
-  font-size: 0.85em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
+:deep(.p-tree-node-label) {
   color: var(--vscode-foreground);
 }
 
-/* Tree indentation lines - VS Code style */
-:deep(.p-treenode-children) {
-  padding-left: 12px;
-  margin-left: 7px;
-  border-left: 1px solid var(--vscode-tree-indentGuidesStroke, rgba(255,255,255,0.1));
-}
-
-:deep(.p-tree-toggler) {
-  width: 16px;
-  height: 16px;
-  margin-right: 2px;
+:deep(.p-tree-node-toggle-button) {
   color: var(--vscode-foreground);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  opacity: 0.7;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
-:deep(.p-tree-toggler:hover) {
-  opacity: 1;
-  background: transparent;
+:deep(.p-tree-node-toggle-button:hover) {
+  background: var(--vscode-toolbar-hoverBackground);
 }
 
-/* Chevron icons for tree toggle */
-:deep(.p-tree-toggler-icon) {
-  font-size: 0.7em;
-}
-
-:deep(.p-treenode-icon) {
-  margin-right: 6px;
-  font-size: 0.85em;
-  width: 1em;
-  text-align: center;
-  flex-shrink: 0;
-  opacity: 0.9;
-}
-
-/* Leaf nodes without toggle should align properly */
-:deep(.p-treenode-leaf > .p-treenode-content) {
-  padding-left: 26px;
+:deep(.p-tree-node-icon) {
+  color: var(--vscode-symbolIcon-fileForeground, var(--vscode-foreground));
 }
 
 /* Status color classes */
 :deep(.text-success) {
-  color: var(--vscode-testing-iconPassed, #4ec9b0);
+  color: var(--vscode-testing-iconPassed, #4ec9b0) !important;
 }
 
 :deep(.text-warning) {
-  color: var(--vscode-editorWarning-foreground, #cca700);
+  color: var(--vscode-editorWarning-foreground, #cca700) !important;
 }
 
 :deep(.text-error) {
-  color: var(--vscode-testing-iconFailed, #f14c4c);
+  color: var(--vscode-testing-iconFailed, #f14c4c) !important;
 }
 
 .toc-empty {

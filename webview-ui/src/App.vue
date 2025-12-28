@@ -13,6 +13,7 @@ import { useWebviewState } from '@/composables/useWebviewState';
 // Section Components
 import TocSidebar from './components/TocSidebar.vue';
 import SummarySection from './components/SummarySection.vue';
+import DiagnosticsSection from './components/DiagnosticsSection.vue';
 import EnergySection from './components/EnergySection.vue';
 import ScfSection from './components/ScfSection.vue';
 import OptimizationSection from './components/OptimizationSection.vue';
@@ -65,6 +66,10 @@ const hasTiming = computed(() => {
 const hasToc = computed(() => {
   const result = (data.value?.tocEntries?.length ?? 0) > 0;
   return result;
+});
+const hasDiagnostics = computed(() => {
+  const warnings = data.value?.warnings?.length ?? 0;
+  return warnings > 0;
 });
 
 // Scroll position restore + message listener
@@ -217,6 +222,12 @@ const toggleToc = () => {
         <!-- Summary Section -->
         <SummarySection v-if="data" :data="data" />
 
+        <!-- Diagnostics Section (Warnings) -->
+        <DiagnosticsSection
+          v-if="hasDiagnostics && data"
+          :warnings="data.warnings || []"
+        />
+
         <!-- Energy Section -->
         <EnergySection
           v-if="data"
@@ -305,7 +316,6 @@ const toggleToc = () => {
   padding: 0.5rem !important;
   width: 2rem !important;
   height: 2rem !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .toc-toggle-btn-floating:hover {
@@ -398,10 +408,6 @@ const toggleToc = () => {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  #orca-dashboard.has-toc {
-    flex-direction: column;
-  }
-
   #orca-dashboard.has-toc .toc-toggle-btn-floating {
     left: 12px; /* Reset position on mobile */
   }

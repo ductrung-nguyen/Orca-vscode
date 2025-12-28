@@ -6,80 +6,70 @@
 import { ref, computed } from 'vue';
 import Panel from 'primevue/panel';
 import type { DiagnosticMessage } from '@/types/ParsedResults';
+import { useVSCodeApi } from '@/composables/useVSCodeApi';
 
 interface Props {
   warnings: DiagnosticMessage[];
-  errors: DiagnosticMessage[];
 }
 
 const props = defineProps<Props>();
 
+// VS Code API for navigation
+const { goToLine } = useVSCodeApi();
+
 // Panel collapse state
 const isCollapsed = ref(false);
 
+// Navigate to line in output file
+const navigateToLine = (lineNumber?: number) => {
+  if (lineNumber) {
+    goToLine(lineNumber);
+  }
+};
+
 // Check if we have any diagnostics
-const hasDiagnostics = computed(() => props.warnings.length > 0 || props.errors.length > 0);
-const totalCount = computed(() => props.warnings.length + props.errors.length);
+const hasDiagnostics = computed(() => props.warnings.length > 0);
+const totalCount = computed(() => props.warnings.length);
 
 // Panel header text
 const headerText = computed(() => {
-  const parts: string[] = [];
-  if (props.errors.length > 0) {
-    parts.push(`${props.errors.length} error${props.errors.length > 1 ? 's' : ''}`);
-  }
-  if (props.warnings.length > 0) {
-    parts.push(`${props.warnings.length} warning${props.warnings.length > 1 ? 's' : ''}`);
-  }
-  return `Diagnostics (${parts.join(', ')})`;
-});
-
-// Severity for panel styling
-const panelSeverity = computed(() => {
-  if (props.errors.length > 0) return 'error';
-  return 'warning';
+  return `Warnings (${props.warnings.length})`;
 });
 </script>
 
 <template>
-  <section v-if="hasDiagnostics" class="diagnostics-section" aria-label="Diagnostics">
+  <section v-if="hasDiagnostics" class="diagnostics-section" aria-label="Warnings">
     <Panel
       :header="headerText"
       toggleable
       :collapsed="isCollapsed"
       @update:collapsed="isCollapsed = $event"
-      :class="['diagnostics-panel', `severity-${panelSeverity}`]"
+      class="diagnostics-panel"
     >
       <template #header>
         <div class="panel-header">
-          <i :class="panelSeverity === 'error' ? 'pi pi-times-circle' : 'pi pi-exclamation-triangle'" />
+          <i class="pi pi-exclamation-triangle" />
           <span class="header-text">{{ headerText }}</span>
         </div>
       </template>
 
-      <!-- Errors Section -->
-      <div v-if="errors.length > 0" class="diagnostic-group errors">
-        <h4 class="group-title">
-          <i class="pi pi-times-circle" />
-          Errors
-        </h4>
-        <ul class="diagnostic-list">
-          <li v-for="(error, index) in errors" :key="`error-${index}`" class="diagnostic-item error">
-            <span class="message">{{ error.message }}</span>
-            <span v-if="error.lineNumber" class="line-ref">Line {{ error.lineNumber }}</span>
-          </li>
-        </ul>
-      </div>
-
       <!-- Warnings Section -->
       <div v-if="warnings.length > 0" class="diagnostic-group warnings">
-        <h4 class="group-title">
-          <i class="pi pi-exclamation-triangle" />
-          Warnings
-        </h4>
         <ul class="diagnostic-list">
           <li v-for="(warning, index) in warnings" :key="`warning-${index}`" class="diagnostic-item warning">
             <span class="message">{{ warning.message }}</span>
-            <span v-if="warning.lineNumber" class="line-ref">Line {{ warning.lineNumber }}</span>
+            <span 
+              v-if="warning.lineNumber" 
+              class="line-ref clickable" 
+              @click="navigateToLine(warning.lineNumber)"
+              @keydown.enter="navigateToLine(warning.lineNumber)"
+              tabindex="0"
+              role="button"
+              :aria-label="`Go to line ${warning.lineNumber}`"
+            >
+              <i class="pi pi-arrow-right" />
+              Line {{ warning.lineNumber }}
+            </span>
           </li>
         </ul>
       </div>
@@ -191,5 +181,37 @@ const panelSeverity = computed(() => {
   font-size: 0.85em;
   color: var(--vscode-descriptionForeground);
   font-family: var(--vscode-editor-font-family);
+}
+
+.line-ref.clickable {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--vscode-textLink-foreground);
+  transition: all 0.2s ease;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: transparent;
+}
+
+.line-ref.clickable:hover {
+  color: var(--vscode-textLink-activeForeground);
+  background: var(--vscode-list-hoverBackground);
+  text-decoration: underline;
+}
+
+.line-ref.clickable:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+.line-ref.clickable i {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+.line-ref.clickable:hover i {
+  opacity: 1;
 }
 </style>

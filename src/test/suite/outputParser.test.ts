@@ -481,10 +481,10 @@ Line 6`;
         const freqEntry = entries.find(e => e.title === 'Vibrational Frequencies');
         const thermoEntry = entries.find(e => e.title === 'Thermochemistry');
         
-        assert.strictEqual(headerEntry?.icon, '📋', 'ORCA Header should have 📋 icon');
-        assert.strictEqual(scfEntry?.icon, '🔄', 'SCF Iterations should have 🔄 icon');
-        assert.strictEqual(freqEntry?.icon, '🎵', 'Vibrational Frequencies should have 🎵 icon');
-        assert.strictEqual(thermoEntry?.icon, '🌡️', 'Thermochemistry should have 🌡️ icon');
+        assert.strictEqual(headerEntry?.icon, 'pi pi-book', 'ORCA Header should have pi pi-book icon');
+        assert.strictEqual(scfEntry?.icon, 'pi pi-refresh', 'SCF Iterations should have pi pi-refresh icon');
+        assert.strictEqual(freqEntry?.icon, 'pi pi-wave-pulse', 'Vibrational Frequencies should have pi pi-wave-pulse icon');
+        assert.strictEqual(thermoEntry?.icon, 'pi pi-thermometer', 'Thermochemistry should have pi pi-thermometer icon');
     });
 
     test('should set success status for converged sections', () => {
