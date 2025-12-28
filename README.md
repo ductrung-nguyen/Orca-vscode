@@ -96,6 +96,16 @@ Computational chemists using ORCA face a **fragmented workflow**:
 - **Smart Diagnostics**: Warnings and errors collected with line numbers
 - **Scroll Preservation**: Dashboard context maintained during TOC navigation
 
+### 📈 Interactive Results Dashboard
+
+The extension now features a modern, responsive dashboard built with **Vue 3** and **PrimeVue**, offering a superior data visualization experience:
+
+- **Responsive Layout**: Adapts seamlessly to different window sizes and split views.
+- **Interactive Charts**: Zoomable and pannable energy/gradient plots powered by **Chart.js**.
+- **Advanced Tables**: Sortable, filterable, and resizable data tables for geometry coordinates and frequencies.
+- **Theme Support**: Fully integrated with VS Code's Dark and Light themes.
+- **Live Updates**: Dashboard automatically refreshes as the calculation progresses.
+
 ---
 
 ## 🛠️ Installation

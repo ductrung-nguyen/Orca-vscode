@@ -6,6 +6,9 @@ import { createApp } from 'vue';
 import PrimeVue from 'primevue/config';
 import App from './App.vue';
 
+// Import PrimeIcons
+import 'primeicons/primeicons.css';
+
 // Import custom CSS (includes PrimeVue variable overrides)
 import './styles/primevue-vscode.css';
 
@@ -18,13 +21,7 @@ app.use(PrimeVue, {
   inputStyle: 'outlined'
 });
 
-// Inject initial data from extension (passed via window.initialData)
-declare global {
-  interface Window {
-    initialData?: unknown;
-  }
-}
-
+// Initial data is accessed via window.initialData in App.vue
 app.provide('initialData', window.initialData);
 
 // Mount the application
