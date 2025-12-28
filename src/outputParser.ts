@@ -73,6 +73,17 @@ export interface TocEntry {
  * Comprehensive parsed results from ORCA output
  */
 export interface ParsedResults {
+    // File information (added by dashboard panel)
+    fileName?: string;
+    filePath?: string;
+    
+    // Job information
+    calculationType?: string;
+    method?: string;
+    basis?: string;
+    charge?: number;
+    multiplicity?: number;
+    
     // Basic convergence
     converged: boolean;
     scfFailed: boolean;
@@ -132,6 +143,71 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
         totalRunTime: null,
         tocEntries: []
     };
+
+    // Parse input line for method, basis, and calculation type
+    // Look for lines starting with ! (ignoring leading whitespace and potential line numbers/prefixes)
+    const inputLineMatch = content.match(/(?:^|\n)\s*(?:\|\s*\d+>\s*)?!\s*(.+)$/m);
+    if (inputLineMatch) {
+        const inputLine = inputLineMatch[1].trim().toUpperCase();
+        const keywords = inputLine.split(/\s+/);
+        
+        // Common DFT methods and Wavefunction methods
+        const methods = [
+            'B3LYP', 'PBE', 'PBE0', 'BP86', 'TPSS', 'M06', 'M062X', 'WB97X', 'WB97X-D3', 'WB97M-V',
+            'CAM-B3LYP', 'B97-3C', 'R2SCAN-3C', 'PBEH-3C',
+            'HF', 'RHF', 'UHF', 'ROHF',
+            'MP2', 'RI-MP2', 'DLPNO-MP2',
+            'CCSD', 'CCSD(T)', 'DLPNO-CCSD', 'DLPNO-CCSD(T)',
+            'CASSCF', 'NEVPT2'
+        ];
+        // Common basis sets
+        const basisSets = [
+            'DEF2-SVP', 'DEF2-TZVP', 'DEF2-TZVPP', 'DEF2-QZVP', 'DEF2-QZVPP',
+            'DEF2-SV(P)', 'MA-DEF2-SVP', 'MA-DEF2-TZVP',
+            'CC-PVDZ', 'CC-PVTZ', 'CC-PVQZ', 'CC-PV5Z',
+            'AUG-CC-PVDZ', 'AUG-CC-PVTZ', 'AUG-CC-PVQZ',
+            '6-31G', '6-31G*', '6-31G**', '6-311G', '6-311G*', '6-311G**',
+            'STO-3G', '3-21G', '6-311+G*', '6-311+G**',
+            'PC-1', 'PC-2', 'PC-3', 'PCSSEG-1', 'PCSSEG-2'
+        ];
+        // Calculation types
+        const calcTypes = ['OPT', 'FREQ', 'OPTFREQ', 'SP', 'ENGRAD', 'MD', 'NEB', 'TS', 'GRADIENT', 'NUMFREQ'];
+        
+        for (const kw of keywords) {
+            if (methods.includes(kw) && !result.method) {
+                result.method = kw;
+            }
+            if (basisSets.includes(kw) && !result.basis) {
+                result.basis = kw;
+            }
+            if (calcTypes.includes(kw)) {
+                if (kw === 'OPT') {
+                    result.calculationType = 'Geometry Optimization';
+                } else if (kw === 'OPTFREQ') {
+                    result.calculationType = 'Optimization + Frequencies';
+                } else if (kw === 'FREQ' || kw === 'NUMFREQ') {
+                    result.calculationType = 'Frequency Analysis';
+                } else if (kw === 'SP') {
+                    result.calculationType = 'Single Point';
+                } else if (kw === 'TS' || kw === 'NEB') {
+                    result.calculationType = 'Transition State';
+                } else {
+                    result.calculationType = kw;
+                }
+            }
+        }
+        // Default calculation type
+        if (!result.calculationType) {
+            result.calculationType = 'Single Point';
+        }
+    }
+    
+    // Parse charge and multiplicity from xyz block
+    const chargeMultMatch = content.match(/\*\s*xyz\s+(-?\d+)\s+(\d+)/i);
+    if (chargeMultMatch) {
+        result.charge = parseInt(chargeMultMatch[1], 10);
+        result.multiplicity = parseInt(chargeMultMatch[2], 10);
+    }
 
     // Basic convergence checks
     result.converged = content.includes('HURRAY');
