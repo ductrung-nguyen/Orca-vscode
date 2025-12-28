@@ -51,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install webview-ui dependencies
+        run: cd webview-ui && npm ci
+
       - name: Compile TypeScript
         run: npm run compile
 
