@@ -208,18 +208,31 @@ const createChart = async () => {
               const value = Number(tickValue);
               // Only use scientific notation for very small numbers
               if (Math.abs(value) < 0.0001 && value !== 0) {
-                return value.toExponential(2);
+                return value.toExponential(4);
               }
-              // For large numbers, use locale formatting (e.g., 1,000,000)
-              if (Math.abs(value) >= 1000) {
-                return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+              
+              // Calculate minimum decimals needed to distinguish all tick values
+              const tickValues = (this as any).ticks.map((t: any) => Number(t.value));
+              let decimals = 0;
+              let maxDecimals = 10; // Safety limit
+              
+              // Find minimum decimals where all values are distinct when formatted
+              while (decimals <= maxDecimals) {
+                const formatted = tickValues.map((v: number) => v.toFixed(decimals));
+                const uniqueValues = new Set(formatted);
+                if (uniqueValues.size === tickValues.length) {
+                  break;
+                }
+                decimals++;
               }
-              // For integers, don't show decimals
-              if (Number.isInteger(value)) {
-                return value.toString();
-              }
-              // For normal decimals
-              return value.toFixed(4);
+              
+              // Use at least 3 decimals for better precision, up to 6 max for readability
+              const finalDecimals = Math.min(Math.max(decimals, 3), 6);
+              
+              return value.toLocaleString(undefined, { 
+                minimumFractionDigits: finalDecimals,
+                maximumFractionDigits: finalDecimals 
+              });
             }
           },
           grid: { color: colors.grid }
