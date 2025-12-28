@@ -5,6 +5,7 @@
  */
 import { computed, ref } from 'vue';
 import Tree from 'primevue/tree';
+import Button from 'primevue/button';
 import type { TreeNode } from 'primevue/treenode';
 import type { TocEntry } from '@/types/ParsedResults';
 import { useVSCodeApi } from '@/composables/useVSCodeApi';
@@ -20,6 +21,10 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   title: 'Contents'
 });
+
+const emit = defineEmits<{
+  close: [];
+}>();
 
 const { goToLine } = useVSCodeApi();
 
@@ -126,7 +131,18 @@ function onNodeCollapse(node: TreeNode) {
   <aside class="toc-sidebar">
     <div class="toc-header">
       <span class="toc-title">{{ title }}</span>
-      <span class="toc-count">{{ entries.length }}</span>
+      <div class="toc-header-actions">
+        <span class="toc-count">{{ entries.length }}</span>
+        <Button
+          icon="pi pi-times"
+          text
+          rounded
+          size="small"
+          @click="emit('close')"
+          aria-label="Close Table of Contents"
+          class="toc-close-btn"
+        />
+      </div>
     </div>
 
     <div class="toc-content">
@@ -181,7 +197,7 @@ function onNodeCollapse(node: TreeNode) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 12px 12px 12px 16px;
   border-bottom: 1px solid var(--vscode-panel-border);
 }
 
@@ -193,12 +209,29 @@ function onNodeCollapse(node: TreeNode) {
   color: var(--vscode-sideBarSectionHeader-foreground);
 }
 
+.toc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .toc-count {
   font-size: 0.75em;
   padding: 2px 6px;
   border-radius: 10px;
   background: var(--vscode-badge-background);
   color: var(--vscode-badge-foreground);
+}
+
+.toc-close-btn {
+  color: var(--vscode-foreground) !important;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.toc-close-btn:hover {
+  opacity: 1;
+  background: var(--vscode-list-hoverBackground) !important;
 }
 
 .toc-content {
@@ -218,6 +251,18 @@ function onNodeCollapse(node: TreeNode) {
   border: none;
   padding: 0.25rem;
   color: var(--vscode-foreground);
+  
+  /* Override PrimeVue design tokens with VS Code theme */
+  --p-tree-node-hover-background: var(--vscode-list-hoverBackground);
+  --p-tree-node-selected-background: var(--vscode-list-activeSelectionBackground);
+  --p-tree-node-color: var(--vscode-foreground);
+  --p-tree-node-hover-color: var(--vscode-foreground);
+  --p-tree-node-selected-color: var(--vscode-list-activeSelectionForeground);
+  --p-tree-node-icon-color: var(--vscode-symbolIcon-fileForeground, var(--vscode-foreground));
+  --p-tree-node-icon-hover-color: var(--vscode-foreground);
+  --p-tree-node-icon-selected-color: var(--vscode-list-activeSelectionForeground);
+  --p-tree-node-toggle-button-hover-background: var(--vscode-toolbar-hoverBackground);
+  --p-tree-node-focus-ring-color: var(--vscode-focusBorder);
 }
 
 :deep(.p-tree-node-content) {
@@ -226,31 +271,11 @@ function onNodeCollapse(node: TreeNode) {
   gap: 0.5rem;
 }
 
-:deep(.p-tree-node-content:hover) {
-  background: var(--vscode-list-hoverBackground);
-}
-
+/* Enhanced selected state with border and bold text */
 :deep(.p-tree-node-content.p-selected) {
-  background: var(--vscode-list-activeSelectionBackground);
-  color: var(--vscode-list-activeSelectionForeground);
-}
-
-:deep(.p-tree-node-label) {
-  color: var(--vscode-foreground);
-}
-
-:deep(.p-tree-node-toggle-button) {
-  color: var(--vscode-foreground);
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-:deep(.p-tree-node-toggle-button:hover) {
-  background: var(--vscode-toolbar-hoverBackground);
-}
-
-:deep(.p-tree-node-icon) {
-  color: var(--vscode-symbolIcon-fileForeground, var(--vscode-foreground));
+  font-weight: 500;
+  border-left: 3px solid var(--vscode-button-background);
+  padding-left: calc(0.5rem - 3px); /* Adjust for border */
 }
 
 /* Status color classes */

@@ -75,6 +75,37 @@ const canvasId = `chart-${Math.random().toString(36).substring(2, 11)}`;
 // Key for forcing canvas re-creation when data changes
 const canvasKey = ref(0);
 
+// Export chart as PNG image
+const exportAsPNG = (fileNamePrefix?: string) => {
+  if (!chartInstance) return;
+  const url = chartInstance.toBase64Image();
+  const link = document.createElement('a');
+  const baseName = props.title?.replace(/[^a-z0-9_-]/gi, '_').toLowerCase() || 'chart';
+  const fullName = fileNamePrefix ? `${fileNamePrefix}_${baseName}` : baseName;
+  link.download = `${fullName}.png`;
+  link.href = url;
+  link.click();
+};
+
+// Export data as CSV
+const exportAsCSV = () => {
+  let csv = 'X,';
+  csv += props.datasets.map(ds => ds.label).join(',') + '\n';
+  
+  for (let i = 0; i < props.labels.length; i++) {
+    csv += props.labels[i] + ',';
+    csv += props.datasets.map(ds => ds.data[i] ?? '').join(',') + '\n';
+  }
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `${props.title || 'data'}.csv`;
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 // VS Code theme colors (computed from CSS variables)
 const getThemeColors = () => {
   const style = getComputedStyle(document.documentElement);
@@ -266,6 +297,12 @@ watch(
 onUnmounted(() => {
   destroyChart();
   window.removeEventListener('message', handleMessage);
+});
+
+// Expose methods for parent components
+defineExpose({
+  exportAsPNG,
+  exportAsCSV
 });
 
 // Handle theme changes
