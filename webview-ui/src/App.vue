@@ -138,15 +138,15 @@ const toggleToc = () => {
 
 <template>
   <div id="orca-dashboard" :class="{ 'has-toc': hasToc && isTocVisible }">
-    <!-- TOC Toggle Button - Always visible when TOC data exists -->
+    <!-- TOC Toggle Button - Only visible when TOC is hidden -->
     <Button
-      v-if="hasToc"
-      :icon="isTocVisible ? 'pi pi-times' : 'pi pi-bars'"
+      v-if="hasToc && !isTocVisible"
+      icon="pi pi-bars"
       text
       rounded
       size="small"
       @click="toggleToc"
-      :aria-label="isTocVisible ? 'Hide Table of Contents' : 'Show Table of Contents'"
+      aria-label="Show Table of Contents"
       class="toc-toggle-btn-floating"
     />
 
@@ -155,6 +155,7 @@ const toggleToc = () => {
       v-if="hasToc && data && isTocVisible"
       :entries="data.tocEntries"
       title="Contents"
+      @close="toggleToc"
     />
 
     <!-- Main Content -->
@@ -240,6 +241,7 @@ const toggleToc = () => {
         <ScfSection
           v-if="hasScfData && data"
           :iterations="data.scfIterations"
+          :file-name="data.fileName"
         />
 
         <!-- Optimization Section -->
@@ -247,6 +249,7 @@ const toggleToc = () => {
           v-if="hasOptData && data"
           :cycles="data.geometrySteps"
           :converged="data.optimizationConverged"
+          :file-name="data.fileName"
         />
 
         <!-- Frequency Section -->
@@ -320,11 +323,6 @@ const toggleToc = () => {
 
 .toc-toggle-btn-floating:hover {
   background: var(--vscode-list-hoverBackground) !important;
-}
-
-/* When TOC is visible, position the button relative to it */
-#orca-dashboard.has-toc .toc-toggle-btn-floating {
-  left: 272px; /* 260px TOC width + 12px margin */
 }
 
 .dashboard-title {

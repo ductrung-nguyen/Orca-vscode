@@ -3,9 +3,10 @@
  * OptimizationSection - Geometry optimization cycles with dual convergence charts (F9, F10, F11)
  * Features sortable columns (N3) and resizable columns (N4)
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import LineChart from './shared/LineChart.vue';
 import type { GeometryStep } from '@/types/ParsedResults';
@@ -13,12 +14,46 @@ import type { GeometryStep } from '@/types/ParsedResults';
 interface Props {
   cycles: GeometryStep[];
   converged: boolean;
+  fileName?: string;
 }
 
 const props = defineProps<Props>();
 
+// Refs for chart components
+const energyChartRef = ref<InstanceType<typeof LineChart> | null>(null);
+const gradientChartRef = ref<InstanceType<typeof LineChart> | null>(null);
+const stepChartRef = ref<InstanceType<typeof LineChart> | null>(null);
+
 // Check if we have data
 const hasCycles = computed(() => props.cycles.length > 0);
+
+// Normalize filename for downloads (remove .out extension, sanitize)
+const normalizedFileName = computed(() => {
+  if (!props.fileName) return 'orca';
+  return props.fileName.replace(/\.out$/i, '').replace(/[^a-z0-9_-]/gi, '_');
+});
+
+// Export table data as CSV
+const exportTableCSV = () => {
+  let csv = 'Step,Energy (Hartree),ΔE (Hartree),Max Gradient,RMS Gradient,Max Step,RMS Step,Converged\n';
+  props.cycles.forEach(row => {
+    csv += `${row.stepNumber},${row.energy},${row.deltaEnergy ?? ''},${row.maxGradient},${row.rmsGradient},${row.maxStep},${row.rmsStep},${row.converged}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `${normalizedFileName.value}_optimization-cycles.csv`;
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+// Export chart with filename prefix
+const exportChart = () => {
+  if (!energyChartRef.value) return;
+  energyChartRef.value.exportAsPNG(normalizedFileName.value);
+};
 
 // Format small numbers with scientific notation
 const formatNumber = (value: number | undefined, precision: number = 6) => {
@@ -100,7 +135,19 @@ const rowClass = (data: GeometryStep) => {
       <!-- Charts Row - Energy and Gradient -->
       <div class="charts-row">
         <div class="chart-container">
+          <div class="chart-header">
+            <Button
+              icon="pi pi-download"
+              text
+              rounded
+              size="small"
+              @click="energyChartRef?.exportAsPNG(normalizedFileName)"
+              title="Download chart as PNG"
+              class="chart-export-btn"
+            />
+          </div>
           <LineChart
+            ref="energyChartRef"
             :labels="energyLabels"
             :datasets="energyDatasets"
             title="Energy Convergence"
@@ -110,7 +157,19 @@ const rowClass = (data: GeometryStep) => {
           />
         </div>
         <div class="chart-container">
+          <div class="chart-header">
+            <Button
+              icon="pi pi-download"
+              text
+              rounded
+              size="small"
+              @click="gradientChartRef?.exportAsPNG(normalizedFileName)"
+              title="Download chart as PNG"
+              class="chart-export-btn"
+            />
+          </div>
           <LineChart
+            ref="gradientChartRef"
             :labels="energyLabels"
             :datasets="gradientDatasets"
             title="Gradient Convergence"
@@ -125,7 +184,19 @@ const rowClass = (data: GeometryStep) => {
       <!-- Charts Row - Step sizes -->
       <div class="charts-row single">
         <div class="chart-container">
+          <div class="chart-header">
+            <Button
+              icon="pi pi-download"
+              text
+              rounded
+              size="small"
+              @click="stepChartRef?.exportAsPNG(normalizedFileName)"
+              title="Download chart as PNG"
+              class="chart-export-btn"
+            />
+          </div>
           <LineChart
+            ref="stepChartRef"
             :labels="energyLabels"
             :datasets="stepDatasets"
             title="Step Size"
@@ -138,8 +209,20 @@ const rowClass = (data: GeometryStep) => {
       </div>
 
       <!-- Data Table -->
-      <DataTable
-        :value="cycles"
+      <div class="table-container">
+        <div class="table-header">
+          <h3 class="table-title">Optimization Data</h3>
+          <Button
+            icon="pi pi-download"
+            label="Export CSV"
+            text
+            size="small"
+            @click="exportTableCSV"
+            title="Export table data as CSV"
+          />
+        </div>
+        <DataTable
+          :value="cycles"
         :row-class="rowClass"
         striped-rows
         responsive-layout="scroll"
@@ -189,6 +272,7 @@ const rowClass = (data: GeometryStep) => {
           </template>
         </Column>
       </DataTable>
+      </div>
     </div>
 
     <div v-else class="no-data">
@@ -228,6 +312,50 @@ const rowClass = (data: GeometryStep) => {
 
 .status-tag {
   margin-left: 8px;
+}
+
+.chart-container {
+  position: relative;
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.chart-header {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.chart-export-btn {
+  background: var(--vscode-editor-background) !important;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.chart-export-btn:hover {
+  opacity: 1;
+}
+
+.table-container {
+  margin-top: 16px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px 0;
+}
+
+.table-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0;
+  color: var(--vscode-foreground);
 }
 
 .charts-row {

@@ -3,20 +3,54 @@
  * ScfSection - SCF iterations table with energy convergence chart (F7, F8)
  * Features sortable columns (N3) and resizable columns (N4)
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Button from 'primevue/button';
 import LineChart from './shared/LineChart.vue';
 import type { ScfIteration } from '@/types/ParsedResults';
 
 interface Props {
   iterations: ScfIteration[];
+  fileName?: string;
 }
 
 const props = defineProps<Props>();
 
+// Refs for chart components
+const energyChartRef = ref<InstanceType<typeof LineChart> | null>(null);
+const deltaEChartRef = ref<InstanceType<typeof LineChart> | null>(null);
+
 // Check if we have data
 const hasIterations = computed(() => props.iterations.length > 0);
+
+// Normalize filename for downloads (remove .out extension, sanitize)
+const normalizedFileName = computed(() => {
+  if (!props.fileName) return 'orca';
+  return props.fileName.replace(/\.out$/i, '').replace(/[^a-z0-9_-]/gi, '_');
+});
+
+// Export table data as CSV
+const exportTableCSV = () => {
+  let csv = 'Iteration,Energy (Hartree),ΔE (Hartree),Max Density Change,RMS Density Change\n';
+  props.iterations.forEach(row => {
+    csv += `${row.iteration},${row.energy},${row.deltaE},${row.maxDensityChange},${row.rmsDensityChange}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `${normalizedFileName.value}_scf-iterations.csv`;
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+// Export chart with filename prefix
+const exportChart = () => {
+  if (!energyChartRef.value) return;
+  energyChartRef.value.exportAsPNG(normalizedFileName.value);
+};
 
 // Format small numbers with scientific notation
 const formatNumber = (value: number, precision: number = 6) => {
@@ -67,7 +101,19 @@ const rowClass = (data: ScfIteration) => {
       <!-- Charts Row -->
       <div class="charts-row">
         <div class="chart-container">
+          <div class="chart-header">
+            <Button
+              icon="pi pi-download"
+              text
+              rounded
+              size="small"
+              @click="energyChartRef?.exportAsPNG(normalizedFileName)"
+              title="Download chart as PNG"
+              class="chart-export-btn"
+            />
+          </div>
           <LineChart
+            ref="energyChartRef"
             :labels="chartLabels"
             :datasets="chartDatasets"
             title="SCF Energy Convergence"
@@ -77,7 +123,19 @@ const rowClass = (data: ScfIteration) => {
           />
         </div>
         <div class="chart-container">
+          <div class="chart-header">
+            <Button
+              icon="pi pi-download"
+              text
+              rounded
+              size="small"
+              @click="deltaEChartRef?.exportAsPNG(normalizedFileName)"
+              title="Download chart as PNG"
+              class="chart-export-btn"
+            />
+          </div>
           <LineChart
+            ref="deltaEChartRef"
             :labels="chartLabels"
             :datasets="deltaEDatasets"
             title="Energy Change (|ΔE|)"
@@ -90,8 +148,20 @@ const rowClass = (data: ScfIteration) => {
       </div>
 
       <!-- Data Table -->
-      <DataTable
-        :value="iterations"
+      <div class="table-container">
+        <div class="table-header">
+          <h3 class="table-title">Iteration Data</h3>
+          <Button
+            icon="pi pi-download"
+            label="Export CSV"
+            text
+            size="small"
+            @click="exportTableCSV"
+            title="Export table data as CSV"
+          />
+        </div>
+        <DataTable
+          :value="iterations"
         :row-class="rowClass"
         striped-rows
         responsive-layout="scroll"
@@ -124,6 +194,7 @@ const rowClass = (data: ScfIteration) => {
           </template>
         </Column>
       </DataTable>
+      </div>
     </div>
 
     <div v-else class="no-data">
@@ -158,6 +229,50 @@ const rowClass = (data: ScfIteration) => {
   font-weight: 400;
   font-size: 0.85em;
   color: var(--vscode-descriptionForeground);
+}
+
+.chart-container {
+  position: relative;
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.chart-header {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.chart-export-btn {
+  background: var(--vscode-editor-background) !important;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.chart-export-btn:hover {
+  opacity: 1;
+}
+
+.table-container {
+  margin-top: 16px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px 0;
+}
+
+.table-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0;
+  color: var(--vscode-foreground);
 }
 
 .charts-row {
