@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -60,11 +59,13 @@ export class OutputFileWriter {
 
             // Wait for the stream to be ready
             await new Promise<void>((resolve, reject) => {
-                this.writeStream!.once('open', () => {
-                    this.isOpen = true;
-                    resolve();
-                });
-                this.writeStream!.once('error', reject);
+                if (this.writeStream) {
+                    this.writeStream.once('open', () => {
+                        this.isOpen = true;
+                        resolve();
+                    });
+                    this.writeStream.once('error', reject);
+                }
             });
         } catch (error) {
             throw new Error(`Failed to open output file: ${error}`);
@@ -82,7 +83,11 @@ export class OutputFileWriter {
         }
 
         return new Promise((resolve, reject) => {
-            const canContinue = this.writeStream!.write(data, 'utf8', (error) => {
+            if (!this.writeStream) {
+                reject(new Error('Write stream is not available'));
+                return;
+            }
+            const canContinue = this.writeStream.write(data, 'utf8', (error) => {
                 if (error) {
                     reject(new Error(`Failed to write to output file: ${error}`));
                 } else {
@@ -91,8 +96,8 @@ export class OutputFileWriter {
             });
 
             // Handle backpressure
-            if (!canContinue) {
-                this.writeStream!.once('drain', resolve);
+            if (!canContinue && this.writeStream) {
+                this.writeStream.once('drain', resolve);
             }
         });
     }
@@ -119,7 +124,11 @@ export class OutputFileWriter {
         }
 
         return new Promise((resolve, reject) => {
-            this.writeStream!.end((error?: Error) => {
+            if (!this.writeStream) {
+                resolve();
+                return;
+            }
+            this.writeStream.end((error?: Error) => {
                 if (error) {
                     reject(new Error(`Failed to close output file: ${error}`));
                 } else {
@@ -155,8 +164,8 @@ export class OutputFileWriter {
         }
 
         return new Promise((resolve, reject) => {
-            // Cast to any to access internal file descriptor
-            const fd = (this.writeStream as any).fd;
+            // Cast to access internal file descriptor
+            const fd = (this.writeStream as unknown as { fd?: number }).fd;
             if (fd !== undefined) {
                 fs.fsync(fd, (error) => {
                     if (error) {
