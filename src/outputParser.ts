@@ -153,9 +153,10 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
         
         // Common DFT methods and Wavefunction methods
         const methods = [
-            'B3LYP', 'PBE', 'PBE0', 'BP86', 'TPSS', 'M06', 'M062X', 'WB97X', 'WB97X-D3', 'WB97M-V',
-            'CAM-B3LYP', 'B97-3C', 'R2SCAN-3C', 'PBEH-3C',
-            'HF', 'RHF', 'UHF', 'ROHF',
+            'B3LYP', 'B3LYP-D3', 'PBE', 'PBE0', 'BP86', 'BLYP', 'TPSS', 'TPSS0', 'TPSSH',
+            'M06', 'M06L', 'M062X', 'M06-2X', 'WB97', 'WB97X', 'WB97X-D', 'WB97X-D3', 'WB97M-V',
+            'CAM-B3LYP', 'B97', 'B97-D', 'B97D', 'B97-3C', 'R2SCAN', 'R2SCAN0', 'R2SCAN50', 'R2SCAN-3C',
+            'RSCAN', 'SCAN', 'SCANFUNC', 'PBEH-3C', 'HF', 'HFS', 'RHF', 'UHF', 'ROHF', 'VWN5',
             'MP2', 'RI-MP2', 'DLPNO-MP2',
             'CCSD', 'CCSD(T)', 'DLPNO-CCSD', 'DLPNO-CCSD(T)',
             'CASSCF', 'NEVPT2'
@@ -166,12 +167,22 @@ export function parseOrcaOutputEnhanced(content: string): ParsedResults {
             'DEF2-SV(P)', 'MA-DEF2-SVP', 'MA-DEF2-TZVP',
             'CC-PVDZ', 'CC-PVTZ', 'CC-PVQZ', 'CC-PV5Z',
             'AUG-CC-PVDZ', 'AUG-CC-PVTZ', 'AUG-CC-PVQZ',
-            '6-31G', '6-31G*', '6-31G**', '6-311G', '6-311G*', '6-311G**',
-            'STO-3G', '3-21G', '6-311+G*', '6-311+G**',
+            '6-31G', '6-31G*', '6-31G**', '6-31G(D)', '6-311G', '6-311G*', '6-311G**',
+            '6-311+G*', '6-311+G**', '6-311+G(D,P)',
+            'STO-3G', '3-21G', 'LANL2DZ', 'SDD',
             'PC-1', 'PC-2', 'PC-3', 'PCSSEG-1', 'PCSSEG-2'
         ];
         // Calculation types
         const calcTypes = ['OPT', 'FREQ', 'OPTFREQ', 'SP', 'ENGRAD', 'MD', 'NEB', 'TS', 'GRADIENT', 'NUMFREQ'];
+        
+        // Handle multi-token methods (e.g., "B3LYP D3")
+        for (let i = 0; i < keywords.length - 1; i++) {
+            const twoToken = keywords[i] + ' ' + keywords[i + 1];
+            if (twoToken === 'B3LYP D3' && !result.method) {
+                result.method = 'B3LYP-D3';
+                break;
+            }
+        }
         
         for (const kw of keywords) {
             if (methods.includes(kw) && !result.method) {
