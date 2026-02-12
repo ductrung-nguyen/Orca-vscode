@@ -110,8 +110,9 @@ export abstract class BaseAutoInstaller {
       });
 
       // Timeout handling
+      let timeoutHandle: NodeJS.Timeout | undefined;
       if (options?.timeout) {
-        setTimeout(() => {
+        timeoutHandle = setTimeout(() => {
           childProcess.kill("SIGTERM");
           reject(
             this.createError(
@@ -124,6 +125,19 @@ export abstract class BaseAutoInstaller {
           );
         }, options.timeout);
       }
+
+      // Clear timeout on process completion/error
+      childProcess.on("close", () => {
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+        }
+      });
+
+      childProcess.on("error", () => {
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+        }
+      });
     });
   }
 
