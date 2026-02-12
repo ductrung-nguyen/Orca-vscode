@@ -122,8 +122,11 @@ export enum Platform {
  */
 export enum InstallationMethod {
   Conda = "conda",
+  /** @deprecated Homebrew's orca is Plotly Orca, not ORCA quantum chemistry */
   Homebrew = "homebrew",
+  /** @deprecated Linux apt's orca is GNOME Orca screen reader, not ORCA quantum chemistry */
   Apt = "apt",
+  /** @deprecated Not implemented */
   Yum = "yum",
   Manual = "manual",
   PackageManager = "package-manager", // generic fallback
