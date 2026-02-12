@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.6.0...v0.7.0) (2026-02-12)
+
+
+### Features
+
+* **input:** expand functionals and basis sets for Input Creation ([ac1e1c7](https://github.com/ductrung-nguyen/Orca-vscode/commit/ac1e1c7fe7941aa6eee56d5ce7f82e8eb53195a6)), closes [#17](https://github.com/ductrung-nguyen/Orca-vscode/issues/17)
+
 # [0.6.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.5.0...v0.6.0) (2025-12-28)
 
 
