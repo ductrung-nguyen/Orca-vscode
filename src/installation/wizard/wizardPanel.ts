@@ -3,561 +3,580 @@
  * Manages the interactive installation wizard UI
  */
 
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as os from 'os';
-import { OrcaDetector } from '../detector';
-import { OrcaValidator } from '../validator';
-import { WizardState, Platform, InstallationMethod } from '../types';
-import { LinuxInstaller } from '../strategies/linuxInstaller';
-import { MacOSInstaller } from '../strategies/macosInstaller';
-import { WindowsInstaller } from '../strategies/windowsInstaller';
-import { BaseAutoInstaller } from '../autoInstallers/baseAutoInstaller';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
+import * as os from "os";
+import { OrcaDetector } from "../detector";
+import { OrcaValidator } from "../validator";
+import { WizardState, Platform, InstallationMethod } from "../types";
+import { LinuxInstaller } from "../strategies/linuxInstaller";
+import { MacOSInstaller } from "../strategies/macosInstaller";
+import { WindowsInstaller } from "../strategies/windowsInstaller";
+import { BaseAutoInstaller } from "../autoInstallers/baseAutoInstaller";
 
 /**
  * Message types sent from extension to webview
  */
 export enum MessageToWebview {
-    Initialize = 'initialize',
-    DetectionResults = 'detectionResults',
-    ValidationResults = 'validationResults',
-    InstallationSteps = 'installationSteps',
-    RestoreState = 'restoreState',
-    Error = 'error',
-    ProgressUpdate = 'progressUpdate',
-    OutputLine = 'outputLine',
-    InstallationError = 'installationError',
-    InstallationComplete = 'installationComplete'
+  Initialize = "initialize",
+  DetectionResults = "detectionResults",
+  ValidationResults = "validationResults",
+  InstallationSteps = "installationSteps",
+  RestoreState = "restoreState",
+  Error = "error",
+  ProgressUpdate = "progressUpdate",
+  OutputLine = "outputLine",
+  InstallationError = "installationError",
+  InstallationComplete = "installationComplete",
 }
 
 /**
  * Message types sent from webview to extension
  */
 export enum MessageFromWebview {
-    Ready = 'ready',
-    StartDetection = 'startDetection',
-    ValidatePath = 'validatePath',
-    GetInstallationSteps = 'getInstallationSteps',
-    SaveConfiguration = 'saveConfiguration',
-    SaveState = 'saveState',
-    Complete = 'complete',
-    Cancel = 'cancel',
-    OpenExternal = 'openExternal',
-    BrowseForBinary = 'browseForBinary',
-    StartAutomatedInstallation = 'startAutomatedInstallation',
-    CancelInstallation = 'cancelInstallation',
-    RetryInstallation = 'retryInstallation',
-    OpenSettings = 'openSettings',
-    RunTestJob = 'runTestJob'
+  Ready = "ready",
+  StartDetection = "startDetection",
+  ValidatePath = "validatePath",
+  GetInstallationSteps = "getInstallationSteps",
+  SaveConfiguration = "saveConfiguration",
+  SaveState = "saveState",
+  Complete = "complete",
+  Cancel = "cancel",
+  OpenExternal = "openExternal",
+  BrowseForBinary = "browseForBinary",
+  StartAutomatedInstallation = "startAutomatedInstallation",
+  CancelInstallation = "cancelInstallation",
+  RetryInstallation = "retryInstallation",
+  OpenSettings = "openSettings",
+  RunTestJob = "runTestJob",
 }
 
 /**
  * Message payload interface
  */
 interface Message {
-    type: string;
-    payload?: Record<string, unknown> | { path?: string; url?: string; method?: InstallationMethod } | undefined;
+  type: string;
+  payload?:
+    | Record<string, unknown>
+    | { path?: string; url?: string; method?: InstallationMethod }
+    | undefined;
 }
 
 /**
  * Manages the ORCA installation wizard webview panel
  */
 export class WizardPanel {
-    /** Singleton instance */
-    private static currentPanel: WizardPanel | undefined;
-    
-    /** VS Code webview panel */
-    private readonly panel: vscode.WebviewPanel;
-    
-    /** Extension context */
-    private readonly context: vscode.ExtensionContext;
-    
-    /** Detector instance */
-    private readonly detector: OrcaDetector;
-    
-    /** Validator instance */
-    private readonly validator: OrcaValidator;
-    
-    /** Disposables for cleanup */
-    private disposables: vscode.Disposable[] = [];
-    
-    /** Current platform */
-    private readonly platform: Platform;
-    
-    /**
-     * Create or show the wizard panel
-     */
-    public static createOrShow(context: vscode.ExtensionContext): void {
-        const column = vscode.window.activeTextEditor
-            ? vscode.window.activeTextEditor.viewColumn
-            : undefined;
-        
-        // If we already have a panel, show it
-        if (WizardPanel.currentPanel) {
-            WizardPanel.currentPanel.panel.reveal(column);
-            return;
-        }
-        
-        // Otherwise, create a new panel
-        const panel = vscode.window.createWebviewPanel(
-            'orcaInstallationWizard',
-            'ORCA Installation Wizard',
-            column || vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [
-                    vscode.Uri.file(path.join(context.extensionPath, 'src', 'installation', 'wizard'))
-                ]
-            }
-        );
-        
-        WizardPanel.currentPanel = new WizardPanel(panel, context);
+  /** Singleton instance */
+  private static currentPanel: WizardPanel | undefined;
+
+  /** VS Code webview panel */
+  private readonly panel: vscode.WebviewPanel;
+
+  /** Extension context */
+  private readonly context: vscode.ExtensionContext;
+
+  /** Detector instance */
+  private readonly detector: OrcaDetector;
+
+  /** Validator instance */
+  private readonly validator: OrcaValidator;
+
+  /** Disposables for cleanup */
+  private disposables: vscode.Disposable[] = [];
+
+  /** Current platform */
+  private readonly platform: Platform;
+
+  /**
+   * Create or show the wizard panel
+   */
+  public static createOrShow(context: vscode.ExtensionContext): void {
+    const column = vscode.window.activeTextEditor
+      ? vscode.window.activeTextEditor.viewColumn
+      : undefined;
+
+    // If we already have a panel, show it
+    if (WizardPanel.currentPanel) {
+      WizardPanel.currentPanel.panel.reveal(column);
+      return;
     }
-    
-    /**
-     * Private constructor (use createOrShow)
-     */
-    private constructor(
-        panel: vscode.WebviewPanel,
-        context: vscode.ExtensionContext
-    ) {
-        this.panel = panel;
-        this.context = context;
-        this.detector = new OrcaDetector();
-        this.validator = new OrcaValidator(context);
-        this.platform = os.platform() as Platform;
-        
-        // Set the webview's initial html content
-        this.panel.webview.html = this.getHtmlContent();
-        
-        // Set icon
-        const iconPath = path.join(context.extensionPath, 'images', 'icon.png');
-        if (fs.existsSync(iconPath)) {
-            this.panel.iconPath = vscode.Uri.file(iconPath);
+
+    // Otherwise, create a new panel
+    const panel = vscode.window.createWebviewPanel(
+      "orcaInstallationWizard",
+      "ORCA Installation Wizard",
+      column || vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [
+          vscode.Uri.file(
+            path.join(context.extensionPath, "src", "installation", "wizard"),
+          ),
+        ],
+      },
+    );
+
+    WizardPanel.currentPanel = new WizardPanel(panel, context);
+  }
+
+  /**
+   * Private constructor (use createOrShow)
+   */
+  private constructor(
+    panel: vscode.WebviewPanel,
+    context: vscode.ExtensionContext,
+  ) {
+    this.panel = panel;
+    this.context = context;
+    this.detector = new OrcaDetector();
+    this.validator = new OrcaValidator(context);
+    this.platform = os.platform() as Platform;
+
+    // Set the webview's initial html content
+    this.panel.webview.html = this.getHtmlContent();
+
+    // Set icon
+    const iconPath = path.join(context.extensionPath, "images", "icon.png");
+    if (fs.existsSync(iconPath)) {
+      this.panel.iconPath = vscode.Uri.file(iconPath);
+    }
+
+    // Listen for panel disposal
+    this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
+
+    // Handle messages from the webview
+    this.panel.webview.onDidReceiveMessage(
+      (message) => this.handleWebviewMessage(message),
+      null,
+      this.disposables,
+    );
+
+    // Update content when view state changes
+    this.panel.onDidChangeViewState(
+      (_e) => {
+        if (this.panel.visible) {
+          // Panel became visible
+          this.restoreState();
         }
-        
-        // Listen for panel disposal
-        this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
-        
-        // Handle messages from the webview
-        this.panel.webview.onDidReceiveMessage(
-            message => this.handleWebviewMessage(message),
-            null,
-            this.disposables
-        );
-        
-        // Update content when view state changes
-        this.panel.onDidChangeViewState(
-            _e => {
-                if (this.panel.visible) {
-                    // Panel became visible
-                    this.restoreState();
-                }
+      },
+      null,
+      this.disposables,
+    );
+  }
+
+  /**
+   * Handle messages from webview
+   */
+  private async handleWebviewMessage(message: Message): Promise<void> {
+    try {
+      switch (message.type) {
+        case MessageFromWebview.Ready:
+          await this.handleReady();
+          break;
+
+        case MessageFromWebview.StartDetection:
+          await this.handleDetection();
+          break;
+
+        case MessageFromWebview.ValidatePath:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "path" in message.payload
+          ) {
+            await this.handleValidation(message.payload.path as string);
+          }
+          break;
+
+        case MessageFromWebview.GetInstallationSteps:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "method" in message.payload
+          ) {
+            await this.handleGetInstallationSteps(
+              message.payload.method as InstallationMethod,
+            );
+          }
+          break;
+
+        case MessageFromWebview.SaveConfiguration:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "path" in message.payload
+          ) {
+            await this.handleSaveConfiguration(message.payload.path as string);
+          }
+          break;
+
+        case MessageFromWebview.SaveState:
+          if (message.payload) {
+            await this.handleSaveState(message.payload as WizardState);
+          }
+          break;
+
+        case MessageFromWebview.Complete:
+          await this.handleComplete();
+          break;
+
+        case MessageFromWebview.Cancel:
+          this.dispose();
+          break;
+
+        case MessageFromWebview.OpenExternal:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "url" in message.payload
+          ) {
+            await vscode.env.openExternal(
+              vscode.Uri.parse(message.payload.url as string),
+            );
+          }
+          break;
+
+        case MessageFromWebview.BrowseForBinary:
+          await this.handleBrowseForBinary();
+          break;
+
+        case MessageFromWebview.StartAutomatedInstallation:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "method" in message.payload
+          ) {
+            await this.handleStartAutomatedInstallation(
+              message.payload.method as InstallationMethod,
+            );
+          }
+          break;
+
+        case MessageFromWebview.CancelInstallation:
+          await this.handleCancelInstallation();
+          break;
+
+        case MessageFromWebview.RetryInstallation:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "method" in message.payload
+          ) {
+            await this.handleStartAutomatedInstallation(
+              message.payload.method as InstallationMethod,
+            );
+          }
+          break;
+
+        case MessageFromWebview.OpenSettings:
+          await this.handleOpenSettings();
+          break;
+
+        case MessageFromWebview.RunTestJob:
+          await this.handleRunTestJob();
+          break;
+      }
+    } catch (error) {
+      this.sendMessage({
+        type: MessageToWebview.Error,
+        payload: { message: (error as Error).message },
+      });
+    }
+  }
+
+  /**
+   * Handle ready message
+   */
+  private async handleReady(): Promise<void> {
+    await this.restoreState();
+  }
+
+  /**
+   * Handle detection
+   */
+  private async handleDetection(): Promise<void> {
+    const installations = await this.detector.detectInstallations();
+
+    this.sendMessage({
+      type: MessageToWebview.DetectionResults,
+      payload: { installations },
+    });
+  }
+
+  /**
+   * Handle validation
+   */
+  private async handleValidation(binaryPath: string): Promise<void> {
+    const result = await this.validator.validateInstallation(binaryPath);
+
+    this.sendMessage({
+      type: MessageToWebview.ValidationResults,
+      payload: result,
+    });
+  }
+
+  /**
+   * Handle get installation steps
+   */
+  private async handleGetInstallationSteps(
+    method: InstallationMethod,
+  ): Promise<void> {
+    let installer;
+
+    switch (this.platform) {
+      case Platform.Linux:
+        installer = new LinuxInstaller();
+        break;
+      case Platform.MacOS:
+        installer = new MacOSInstaller();
+        break;
+      case Platform.Windows:
+        installer = new WindowsInstaller();
+        break;
+      default:
+        throw new Error("Unsupported platform");
+    }
+
+    const steps = installer.getInstallationSteps(method);
+    const prerequisites = await installer.checkPrerequisites();
+
+    this.sendMessage({
+      type: MessageToWebview.InstallationSteps,
+      payload: { steps, prerequisites },
+    });
+  }
+
+  /**
+   * Handle save configuration
+   */
+  private async handleSaveConfiguration(binaryPath: string): Promise<void> {
+    const config = vscode.workspace.getConfiguration("orca");
+    await config.update(
+      "binaryPath",
+      binaryPath,
+      vscode.ConfigurationTarget.Global,
+    );
+
+    vscode.window.showInformationMessage(
+      `ORCA binary path configured: ${binaryPath}`,
+    );
+  }
+
+  /**
+   * Handle save state
+   */
+  private async handleSaveState(state: WizardState): Promise<void> {
+    await this.context.globalState.update("orcaWizardState", {
+      ...state,
+      timestamp: Date.now(),
+    });
+  }
+
+  /**
+   * Handle completion
+   */
+  private async handleComplete(): Promise<void> {
+    // Mark wizard as completed
+    const config = vscode.workspace.getConfiguration("orca");
+    await config.update(
+      "installationWizardCompleted",
+      true,
+      vscode.ConfigurationTarget.Global,
+    );
+
+    // Clear saved state
+    await this.context.globalState.update("orcaWizardState", undefined);
+
+    vscode.window.showInformationMessage(
+      "ORCA installation wizard completed successfully!",
+    );
+
+    this.dispose();
+  }
+
+  /**
+   * Handle browse for binary
+   */
+  private async handleBrowseForBinary(): Promise<void> {
+    const options: vscode.OpenDialogOptions = {
+      canSelectMany: false,
+      openLabel: "Select ORCA Binary",
+      filters:
+        this.platform === Platform.Windows ? { Executables: ["exe"] } : {},
+    };
+
+    const fileUri = await vscode.window.showOpenDialog(options);
+
+    if (fileUri && fileUri[0]) {
+      const binaryPath = fileUri[0].fsPath;
+
+      // Send the selected path back to webview
+      this.sendMessage({
+        type: "binaryPathSelected",
+        payload: { path: binaryPath },
+      });
+    }
+  }
+
+  /**
+   * Handle automated installation start
+   *
+   * NOTE: Only Conda is supported for automated ORCA installation.
+   * Homebrew's "orca" cask is Plotly Orca (chart generator), not ORCA quantum chemistry.
+   * Linux apt's "orca" package is GNOME Orca (screen reader), not ORCA quantum chemistry.
+   * ORCA quantum chemistry must be installed via Conda or manually from the ORCA forum.
+   */
+  private async handleStartAutomatedInstallation(
+    method: InstallationMethod,
+  ): Promise<void> {
+    try {
+      // Only Conda supports ORCA quantum chemistry installation
+      if (method !== InstallationMethod.Conda) {
+        this.sendMessage({
+          type: MessageToWebview.InstallationError,
+          payload: {
+            error: {
+              message: `Automated installation is only available via Conda`,
+              remediation: [
+                "Use Conda for automated installation",
+                "Download ORCA manually from the ORCA forum (https://orcaforum.kofo.mpg.de)",
+                'Note: Homebrew "orca" is Plotly Orca (chart generator), not ORCA quantum chemistry',
+                'Note: Linux apt "orca" is GNOME Orca (screen reader), not ORCA quantum chemistry',
+              ],
+              canRetry: false,
+              details:
+                "ORCA quantum chemistry is only available via Conda or manual download",
             },
-            null,
-            this.disposables
-        );
-    }
-    
-    /**
-     * Handle messages from webview
-     */
-    private async handleWebviewMessage(message: Message): Promise<void> {
-        try {
-            switch (message.type) {
-                case MessageFromWebview.Ready:
-                    await this.handleReady();
-                    break;
-                    
-                case MessageFromWebview.StartDetection:
-                    await this.handleDetection();
-                    break;
-                    
-                case MessageFromWebview.ValidatePath:
-                    if (message.payload && typeof message.payload === 'object' && 'path' in message.payload) {
-                        await this.handleValidation(message.payload.path as string);
-                    }
-                    break;
-                    
-                case MessageFromWebview.GetInstallationSteps:
-                    if (message.payload && typeof message.payload === 'object' && 'method' in message.payload) {
-                        await this.handleGetInstallationSteps(message.payload.method as InstallationMethod);
-                    }
-                    break;
-                    
-                case MessageFromWebview.SaveConfiguration:
-                    if (message.payload && typeof message.payload === 'object' && 'path' in message.payload) {
-                        await this.handleSaveConfiguration(message.payload.path as string);
-                    }
-                    break;
-                    
-                case MessageFromWebview.SaveState:
-                    if (message.payload) {
-                        await this.handleSaveState(message.payload as WizardState);
-                    }
-                    break;
-                    
-                case MessageFromWebview.Complete:
-                    await this.handleComplete();
-                    break;
-                    
-                case MessageFromWebview.Cancel:
-                    this.dispose();
-                    break;
-                    
-                case MessageFromWebview.OpenExternal:
-                    if (message.payload && typeof message.payload === 'object' && 'url' in message.payload) {
-                        await vscode.env.openExternal(vscode.Uri.parse(message.payload.url as string));
-                    }
-                    break;
-                    
-                case MessageFromWebview.BrowseForBinary:
-                    await this.handleBrowseForBinary();
-                    break;
-                    
-                case MessageFromWebview.StartAutomatedInstallation:
-                    if (message.payload && typeof message.payload === 'object' && 'method' in message.payload) {
-                        await this.handleStartAutomatedInstallation(message.payload.method as InstallationMethod);
-                    }
-                    break;
-                    
-                case MessageFromWebview.CancelInstallation:
-                    await this.handleCancelInstallation();
-                    break;
-                    
-                case MessageFromWebview.RetryInstallation:
-                    if (message.payload && typeof message.payload === 'object' && 'method' in message.payload) {
-                        await this.handleStartAutomatedInstallation(message.payload.method as InstallationMethod);
-                    }
-                    break;
-                    
-                case MessageFromWebview.OpenSettings:
-                    await this.handleOpenSettings();
-                    break;
-                    
-                case MessageFromWebview.RunTestJob:
-                    await this.handleRunTestJob();
-                    break;
-            }
-        } catch (error) {
-            this.sendMessage({
-                type: MessageToWebview.Error,
-                payload: { message: (error as Error).message }
-            });
-        }
-    }
-    
-    /**
-     * Handle ready message
-     */
-    private async handleReady(): Promise<void> {
-        await this.restoreState();
-    }
-    
-    /**
-     * Handle detection
-     */
-    private async handleDetection(): Promise<void> {
+          },
+        });
+        return;
+      }
+
+      // Import auto-installers dynamically
+      const { CondaAutoInstaller } =
+        await import("../autoInstallers/condaAutoInstaller");
+      const { ProgressMonitor } = await import("../progressMonitor");
+
+      const installer: BaseAutoInstaller = new CondaAutoInstaller();
+
+      // Check if installer can run
+      const canInstall = await installer.canInstall();
+      if (!canInstall) {
+        this.sendMessage({
+          type: MessageToWebview.InstallationError,
+          payload: {
+            error: {
+              message: "Conda is not available on this system",
+              remediation: [
+                "Install Conda (Anaconda or Miniconda) from https://conda.io",
+                "Switch to manual installation from ORCA forum",
+                "Check if Conda is in your system PATH",
+              ],
+              canRetry: false,
+              details: "Conda executable not found in PATH",
+            },
+          },
+        });
+        return;
+      }
+
+      // Create progress monitor
+      const progressMonitor = new ProgressMonitor(this.panel.webview);
+
+      // Install with progress callbacks
+      const result = await installer.install(
+        (percentage: number, message: string) => {
+          progressMonitor.updateProgress(percentage, message);
+        },
+      );
+
+      if (result.success && result.binaryPath) {
+        // Validate the installation
         const installations = await this.detector.detectInstallations();
-        
-        this.sendMessage({
-            type: MessageToWebview.DetectionResults,
-            payload: { installations }
-        });
-    }
-    
-    /**
-     * Handle validation
-     */
-    private async handleValidation(binaryPath: string): Promise<void> {
-        const result = await this.validator.validateInstallation(binaryPath);
-        
-        this.sendMessage({
-            type: MessageToWebview.ValidationResults,
-            payload: result
-        });
-    }
-    
-    /**
-     * Handle get installation steps
-     */
-    private async handleGetInstallationSteps(method: InstallationMethod): Promise<void> {
-        let installer;
-        
-        switch (this.platform) {
-            case Platform.Linux:
-                installer = new LinuxInstaller();
-                break;
-            case Platform.MacOS:
-                installer = new MacOSInstaller();
-                break;
-            case Platform.Windows:
-                installer = new WindowsInstaller();
-                break;
-            default:
-                throw new Error('Unsupported platform');
-        }
-        
-        const steps = installer.getInstallationSteps(method);
-        const prerequisites = await installer.checkPrerequisites();
-        
-        this.sendMessage({
-            type: MessageToWebview.InstallationSteps,
-            payload: { steps, prerequisites }
-        });
-    }
-    
-    /**
-     * Handle save configuration
-     */
-    private async handleSaveConfiguration(binaryPath: string): Promise<void> {
-        const config = vscode.workspace.getConfiguration('orca');
-        await config.update('binaryPath', binaryPath, vscode.ConfigurationTarget.Global);
-        
-        vscode.window.showInformationMessage(`ORCA binary path configured: ${binaryPath}`);
-    }
-    
-    /**
-     * Handle save state
-     */
-    private async handleSaveState(state: WizardState): Promise<void> {
-        await this.context.globalState.update('orcaWizardState', {
-            ...state,
-            timestamp: Date.now()
-        });
-    }
-    
-    /**
-     * Handle completion
-     */
-    private async handleComplete(): Promise<void> {
-        // Mark wizard as completed
-        const config = vscode.workspace.getConfiguration('orca');
-        await config.update('installationWizardCompleted', true, vscode.ConfigurationTarget.Global);
-        
-        // Clear saved state
-        await this.context.globalState.update('orcaWizardState', undefined);
-        
-        vscode.window.showInformationMessage('ORCA installation wizard completed successfully!');
-        
-        this.dispose();
-    }
-    
-    /**
-     * Handle browse for binary
-     */
-    private async handleBrowseForBinary(): Promise<void> {
-        const options: vscode.OpenDialogOptions = {
-            canSelectMany: false,
-            openLabel: 'Select ORCA Binary',
-            filters: this.platform === Platform.Windows
-                ? { 'Executables': ['exe'] }
-                : {}
-        };
-        
-        const fileUri = await vscode.window.showOpenDialog(options);
-        
-        if (fileUri && fileUri[0]) {
-            const binaryPath = fileUri[0].fsPath;
-            
-            // Send the selected path back to webview
-            this.sendMessage({
-                type: 'binaryPathSelected',
-                payload: { path: binaryPath }
-            });
-        }
-    }
-    
-    /**
-     * Handle automated installation start
-     */
-    private async handleStartAutomatedInstallation(method: InstallationMethod): Promise<void> {
-        try {
-            // Import auto-installers dynamically
-            const { CondaAutoInstaller } = await import('../autoInstallers/condaAutoInstaller');
-            const { BrewAutoInstaller } = await import('../autoInstallers/brewAutoInstaller');
-            const { AptAutoInstaller } = await import('../autoInstallers/aptAutoInstaller');
-            const { ProgressMonitor } = await import('../progressMonitor');
-            
-            // Note: Homebrew and Apt installers are implemented and functional, but not yet
-            // exposed in the wizard HTML UI (which currently only offers conda/manual options).
-            // These branches are ready for when the UI is enhanced with platform-specific detection.
-            let installer: BaseAutoInstaller;
-            switch (method) {
-                case InstallationMethod.Conda:
-                    installer = new CondaAutoInstaller();
-                    break;
-                case InstallationMethod.Homebrew:
-                    installer = new BrewAutoInstaller();
-                    break;
-                case InstallationMethod.Apt:
-                    installer = new AptAutoInstaller();
-                    break;
-                default:
-                    this.sendMessage({
-                        type: MessageToWebview.Error,
-                        payload: { message: `Automated installation not yet supported for method: ${method}` }
-                    });
-                    return;
-            }
-            
-            // Check if installer can run
-            const canInstall = await installer.canInstall();
-            if (!canInstall) {
-                let message: string;
-                let remediation: string[];
-                let details: string;
+        const validInstall = installations.find(
+          (i) => i.isValid && i.path === result.binaryPath,
+        );
 
-                switch (method) {
-                    case InstallationMethod.Conda:
-                        message = 'Conda is not available on this system';
-                        remediation = [
-                            'Install Conda (Anaconda or Miniconda) from https://conda.io',
-                            'Switch to manual installation',
-                            'Check if Conda is in your system PATH'
-                        ];
-                        details = 'Conda executable not found in PATH';
-                        break;
-                    case InstallationMethod.Homebrew:
-                        message = 'Homebrew is not available on this system';
-                        remediation = [
-                            'Install Homebrew from https://brew.sh/',
-                            'Switch to manual installation',
-                            'Check if the "brew" executable is in your system PATH'
-                        ];
-                        details = 'Homebrew (brew) executable not found in PATH';
-                        break;
-                    case InstallationMethod.Apt:
-                        message = 'Apt is not available on this system';
-                        remediation = [
-                            'Ensure you are running on a Debian-based Linux distribution with apt available',
-                            'Install apt or required apt tools using your distribution\'s package manager',
-                            'Switch to manual installation',
-                            'Check if the "apt" executable is in your system PATH'
-                        ];
-                        details = 'Apt executable not found in PATH';
-                        break;
-                    default:
-                        message = 'Required tools for the selected installation method are not available on this system';
-                        remediation = [
-                            'Install the required tooling for the selected method',
-                            'Switch to manual installation',
-                            'Check that the required executables are in your system PATH'
-                        ];
-                        details = 'Prerequisites for the selected installation method are missing';
-                        break;
-                }
+        if (validInstall) {
+          // Save configuration
+          await this.handleSaveConfiguration(result.binaryPath);
 
-                this.sendMessage({
-                    type: MessageToWebview.InstallationError,
-                    payload: {
-                        error: {
-                            message,
-                            remediation,
-                            canRetry: false,
-                            details
-                        }
-                    }
-                });
-                return;
-            }
-            
-            // Create progress monitor
-            const progressMonitor = new ProgressMonitor(this.panel.webview);
-            
-            // TODO: Wire installer stdout/stderr streaming into webview log
-            // Currently the installer output is not streamed to the UI in real-time.
-            // To implement: modify installer.install() to accept outputCallback parameter
-            // and call progressMonitor.streamOutput(outputLine) for each line.
-            
-            // Install with progress callbacks
-            const result = await installer.install((percentage: number, message: string) => {
-                // ProgressMonitor calculates elapsed/estimated time internally
-                progressMonitor.updateProgress(percentage, message);
-            });
-            
-            if (result.success && result.binaryPath) {
-                // Validate the installation
-                const installations = await this.detector.detectInstallations();
-                const validInstall = installations.find(i => i.isValid && i.path === result.binaryPath);
-                
-                if (validInstall) {
-                    // Save configuration
-                    await this.handleSaveConfiguration(result.binaryPath);
-                    
-                    // Send completion message
-                    this.sendMessage({
-                        type: MessageToWebview.InstallationComplete,
-                        payload: {
-                            result: {
-                                success: true,
-                                binaryPath: result.binaryPath,
-                                version: result.version,
-                                duration: result.duration,
-                                method: method
-                            }
-                        }
-                    });
-                } else {
-                    throw new Error('Installation completed but ORCA validation failed');
-                }
-            } else {
-                throw new Error(result.error || 'Installation failed');
-            }
-        } catch (error) {
-            const errorMessage = (error as Error).message;
-            this.sendMessage({
-                type: MessageToWebview.InstallationError,
-                payload: {
-                    error: {
-                        message: errorMessage,
-                        remediation: [
-                            'Check your internet connection',
-                            'Verify you have sufficient disk space (2GB required)',
-                            'Try manual installation',
-                            'Check the error log for details'
-                        ],
-                        canRetry: true,
-                        details: (error as Error).stack || errorMessage
-                    }
-                }
-            });
+          // Send completion message
+          this.sendMessage({
+            type: MessageToWebview.InstallationComplete,
+            payload: {
+              result: {
+                success: true,
+                binaryPath: result.binaryPath,
+                version: result.version,
+                duration: result.duration,
+                method: method,
+              },
+            },
+          });
+        } else {
+          throw new Error("Installation completed but ORCA validation failed");
         }
+      } else {
+        throw new Error(result.error || "Installation failed");
+      }
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      this.sendMessage({
+        type: MessageToWebview.InstallationError,
+        payload: {
+          error: {
+            message: errorMessage,
+            remediation: [
+              "Check your internet connection",
+              "Verify you have sufficient disk space (2GB required)",
+              "Try manual installation from ORCA forum",
+              "Check the error log for details",
+            ],
+            canRetry: true,
+            details: errorMessage,
+          },
+        },
+      });
     }
-    
-    /**
-     * Installation cancellation tracker
-     */
-    private installationCancelled: boolean = false;
-    
-    /**
-     * Handle installation cancellation
-     * 
-     * TODO: This currently only sets a flag but doesn't terminate the running install process.
-     * To properly implement: Use AbortController/cancellation token pattern and keep a reference
-     * to the active ChildProcess so it can be killed and cleaned up on cancel.
-     */
-    private async handleCancelInstallation(): Promise<void> {
-        this.installationCancelled = true;
-        vscode.window.showWarningMessage('Installation cancelled by user');
-        // The installer should check this flag and stop gracefully
-    }
-    
-    /**
-     * Handle open settings
-     */
-    private async handleOpenSettings(): Promise<void> {
-        await vscode.commands.executeCommand('workbench.action.openSettings', 'orca');
-    }
-    
-    /**
-     * Handle run test job
-     */
-    private async handleRunTestJob(): Promise<void> {
-        // Create a simple test input file
-        const testInput = `# Simple ORCA Test Job
+  }
+
+  /**
+   * Installation cancellation tracker
+   */
+  private installationCancelled: boolean = false;
+
+  /**
+   * Handle installation cancellation
+   *
+   * TODO: This currently only sets a flag but doesn't terminate the running install process.
+   * To properly implement: Use AbortController/cancellation token pattern and keep a reference
+   * to the active ChildProcess so it can be killed and cleaned up on cancel.
+   */
+  private async handleCancelInstallation(): Promise<void> {
+    this.installationCancelled = true;
+    vscode.window.showWarningMessage("Installation cancelled by user");
+    // The installer should check this flag and stop gracefully
+  }
+
+  /**
+   * Handle open settings
+   */
+  private async handleOpenSettings(): Promise<void> {
+    await vscode.commands.executeCommand(
+      "workbench.action.openSettings",
+      "orca",
+    );
+  }
+
+  /**
+   * Handle run test job
+   */
+  private async handleRunTestJob(): Promise<void> {
+    // Create a simple test input file
+    const testInput = `# Simple ORCA Test Job
 ! HF def2-SVP
 
 * xyz 0 1
@@ -565,81 +584,104 @@ export class WizardPanel {
   H 0 0 0.74
 *
 `;
-        
-        // Create new untitled document
-        const doc = await vscode.workspace.openTextDocument({
-            content: testInput,
-            language: 'orca'
+
+    // Create new untitled document
+    const doc = await vscode.workspace.openTextDocument({
+      content: testInput,
+      language: "orca",
+    });
+
+    await vscode.window.showTextDocument(doc);
+    vscode.window.showInformationMessage(
+      "Test job created. Press F5 to run ORCA calculation.",
+    );
+  }
+
+  /**
+   * Restore wizard state from storage
+   */
+  private async restoreState(): Promise<void> {
+    const savedState =
+      this.context.globalState.get<WizardState>("orcaWizardState");
+
+    if (savedState) {
+      // Check if state is expired (7 days)
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      if (savedState.timestamp < sevenDaysAgo) {
+        // State expired, clear it
+        await this.context.globalState.update("orcaWizardState", undefined);
+        this.sendMessage({
+          type: MessageToWebview.Initialize,
+          payload: { platform: this.platform },
         });
-        
-        await vscode.window.showTextDocument(doc);
-        vscode.window.showInformationMessage('Test job created. Press F5 to run ORCA calculation.');
+      } else {
+        // Restore state
+        this.sendMessage({
+          type: MessageToWebview.RestoreState,
+          payload: savedState,
+        });
+      }
+    } else {
+      // No saved state, initialize fresh
+      this.sendMessage({
+        type: MessageToWebview.Initialize,
+        payload: { platform: this.platform },
+      });
     }
-    
-    /**
-     * Restore wizard state from storage
-     */
-    private async restoreState(): Promise<void> {
-        const savedState = this.context.globalState.get<WizardState>('orcaWizardState');
-        
-        if (savedState) {
-            // Check if state is expired (7 days)
-            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            if (savedState.timestamp < sevenDaysAgo) {
-                // State expired, clear it
-                await this.context.globalState.update('orcaWizardState', undefined);
-                this.sendMessage({ type: MessageToWebview.Initialize, payload: { platform: this.platform } });
-            } else {
-                // Restore state
-                this.sendMessage({
-                    type: MessageToWebview.RestoreState,
-                    payload: savedState
-                });
-            }
-        } else {
-            // No saved state, initialize fresh
-            this.sendMessage({ type: MessageToWebview.Initialize, payload: { platform: this.platform } });
-        }
+  }
+
+  /**
+   * Send message to webview
+   */
+  private sendMessage(message: { type: string; payload?: unknown }): void {
+    this.panel.webview.postMessage(message);
+  }
+
+  /**
+   * Get HTML content for webview
+   */
+  private getHtmlContent(): string {
+    // Try to load from external HTML file first
+    const htmlPath = path.join(
+      this.context.extensionPath,
+      "src",
+      "installation",
+      "wizard",
+      "wizard.html",
+    );
+
+    if (fs.existsSync(htmlPath)) {
+      let html = fs.readFileSync(htmlPath, "utf-8");
+
+      // Replace placeholders with webview URIs
+      const scriptUri = this.panel.webview.asWebviewUri(
+        vscode.Uri.file(
+          path.join(
+            this.context.extensionPath,
+            "src",
+            "installation",
+            "wizard",
+            "wizard.js",
+          ),
+        ),
+      );
+
+      html = html.replace("{{scriptUri}}", scriptUri.toString());
+
+      return html;
     }
-    
-    /**
-     * Send message to webview
-     */
-    private sendMessage(message: { type: string; payload?: unknown }): void {
-        this.panel.webview.postMessage(message);
-    }
-    
-    /**
-     * Get HTML content for webview
-     */
-    private getHtmlContent(): string {
-        // Try to load from external HTML file first
-        const htmlPath = path.join(this.context.extensionPath, 'src', 'installation', 'wizard', 'wizard.html');
-        
-        if (fs.existsSync(htmlPath)) {
-            let html = fs.readFileSync(htmlPath, 'utf-8');
-            
-            // Replace placeholders with webview URIs
-            const scriptUri = this.panel.webview.asWebviewUri(
-                vscode.Uri.file(path.join(this.context.extensionPath, 'src', 'installation', 'wizard', 'wizard.js'))
-            );
-            
-            html = html.replace('{{scriptUri}}', scriptUri.toString());
-            
-            return html;
-        }
-        
-        // Fallback to inline HTML
-        return this.getInlineHtml();
-    }
-    
-    /**
-     * Get inline HTML (fallback)
-     */
-    private getInlineHtml(): string {
-        const nonce = this.getNonce();
-        
-        return `<!DOCTYPE html>
+
+    // Fallback to inline HTML
+    return this.getInlineHtml();
+  }
+
+  /**
+   * Get inline HTML (fallback)
+   */
+  private getInlineHtml(): string {
+    const nonce = this.getNonce();
+
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1651,33 +1693,34 @@ export class WizardPanel {
     </script>
 </body>
 </html>`;
+  }
+
+  /**
+   * Generate nonce for CSP
+   */
+  private getNonce(): string {
+    let text = "";
+    const possible =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 32; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
-    
-    /**
-     * Generate nonce for CSP
-     */
-    private getNonce(): string {
-        let text = '';
-        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < 32; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-        return text;
+    return text;
+  }
+
+  /**
+   * Dispose of the panel
+   */
+  public dispose(): void {
+    WizardPanel.currentPanel = undefined;
+
+    this.panel.dispose();
+
+    while (this.disposables.length) {
+      const disposable = this.disposables.pop();
+      if (disposable) {
+        disposable.dispose();
+      }
     }
-    
-    /**
-     * Dispose of the panel
-     */
-    public dispose(): void {
-        WizardPanel.currentPanel = undefined;
-        
-        this.panel.dispose();
-        
-        while (this.disposables.length) {
-            const disposable = this.disposables.pop();
-            if (disposable) {
-                disposable.dispose();
-            }
-        }
-    }
+  }
 }

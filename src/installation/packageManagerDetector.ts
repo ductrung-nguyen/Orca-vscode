@@ -1,6 +1,12 @@
 /**
- * Package manager detection and priority utilities
- * Detects available package managers and ranks them by suitability
+ * Package Manager Detector
+ *
+ * IMPORTANT: For ORCA quantum chemistry installation, only Conda is valid.
+ * - Homebrew's "orca" cask is Plotly Orca (chart generator)
+ * - Linux apt's "orca" package is GNOME Orca (screen reader)
+ *
+ * This detector is kept for general package manager detection,
+ * but should NOT be used to offer Homebrew/apt as ORCA installation options.
  */
 
 import * as os from "os";
@@ -32,41 +38,41 @@ export class PackageManagerDetector {
 
     // Platform-specific package managers
     switch (this.platform) {
-            case Platform.MacOS: {
-                const brewInfo = await this.checkHomebrew();
-                if (brewInfo.available) {
-                    managers.push(brewInfo);
-                }
-                break;
-            }
-                
-            case Platform.Linux: {
-                // Check apt (Debian/Ubuntu)
-                const aptInfo = await this.checkApt();
-                if (aptInfo.available) {
-                    managers.push(aptInfo);
-                }
-                
-                // Check yum (RHEL/CentOS)
-                const yumInfo = await this.checkYum();
-                if (yumInfo.available) {
-                    managers.push(yumInfo);
-                }
-                break;
-            }
-                
-            case Platform.Windows: {
-                // Check winget (Windows 11+)
-                const wingetInfo = await this.checkWinget();
-                if (wingetInfo.available) {
-                    managers.push(wingetInfo);
-                }
-                break;
-            }
+      case Platform.MacOS: {
+        const brewInfo = await this.checkHomebrew();
+        if (brewInfo.available) {
+          managers.push(brewInfo);
         }
-        
-        // Sort by priority (lower number = higher priority)
-        return managers.sort((a, b) => a.priority - b.priority);
+        break;
+      }
+
+      case Platform.Linux: {
+        // Check apt (Debian/Ubuntu)
+        const aptInfo = await this.checkApt();
+        if (aptInfo.available) {
+          managers.push(aptInfo);
+        }
+
+        // Check yum (RHEL/CentOS)
+        const yumInfo = await this.checkYum();
+        if (yumInfo.available) {
+          managers.push(yumInfo);
+        }
+        break;
+      }
+
+      case Platform.Windows: {
+        // Check winget (Windows 11+)
+        const wingetInfo = await this.checkWinget();
+        if (wingetInfo.available) {
+          managers.push(wingetInfo);
+        }
+        break;
+      }
+    }
+
+    // Sort by priority (lower number = higher priority)
+    return managers.sort((a, b) => a.priority - b.priority);
   }
 
   /**

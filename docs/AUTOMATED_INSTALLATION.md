@@ -8,76 +8,49 @@ The automated installation feature transforms the ORCA installation wizard from 
 
 ## Supported Installation Methods
 
-### 1. Conda (All Platforms) - Recommended ✅
+### Automated Installation
 
-**Priority:** P0 (Must Have)  
+#### Conda (All Platforms) - **ONLY** Automated Method ✅
+
 **Platforms:** macOS, Windows, Linux  
 **Requirements:** Conda (Anaconda or Miniconda) installed
 
 **Installation command:**
+
 ```bash
 conda install -c conda-forge orca
 ```
 
 **Advantages:**
+
 - Cross-platform support
 - Automated dependency management
 - No sudo/admin privileges required
 - Version management built-in
+- **Only package manager that has ORCA quantum chemistry software**
 
 **Limitations:**
+
 - Requires Conda to be pre-installed
 - Larger initial download (includes dependencies)
 
-### 2. Homebrew (macOS Only) ✅
+### Manual Installation
 
-**Priority:** P1 (Should Have)  
-**Platforms:** macOS only  
-**Requirements:** Homebrew installed
-
-**Installation command:**
-```bash
-brew install orca
-```
-
-**Note:** ORCA may not be available in official Homebrew repositories. This implementation assumes a hypothetical Homebrew formula or tap exists.
-
-**Advantages:**
-- Native macOS package manager
-- Fast installation (pre-compiled binaries)
-- Automatic PATH configuration
-
-**Limitations:**
-- macOS only
-- ORCA availability depends on community formulas
-
-### 3. Apt (Debian/Ubuntu Linux) ✅
-
-**Priority:** P2 (Nice to Have)  
-**Platforms:** Debian, Ubuntu, and derivatives  
-**Requirements:** apt package manager, sudo privileges
-
-**Installation command:**
-```bash
-sudo apt update
-sudo apt install orca
-```
-
-**Advantages:**
-- Native package manager for Debian/Ubuntu
-- System-wide installation
-
-**Limitations:**
-- Requires sudo privileges (interactive password prompt)
-- ORCA may not be in default repositories
-- Platform-specific (Linux only)
-
-### 4. Manual Installation
-
-**Priority:** P0 (Must Have - Fallback)  
-**Platforms:** All  
+**Platforms:** All
 
 Step-by-step instructions for downloading from ORCA forum and manual setup. This is the fallback when automated methods are unavailable or fail.
+
+**Download:** Register at https://orcaforum.kofo.mpg.de and download directly from the ORCA forum.
+
+### ❌ NOT Supported (Different Software!)
+
+**IMPORTANT:** These package managers have packages named "orca" but they are DIFFERENT software:
+
+- ❌ **Homebrew** (`brew install --cask orca`) - This installs **Plotly Orca** (chart image generator), NOT ORCA quantum chemistry
+- ❌ **apt** (`apt install orca`) - This installs **GNOME Orca** (screen reader for accessibility), NOT ORCA quantum chemistry
+- ❌ **yum/dnf** - ORCA quantum chemistry is not available in Linux distribution repositories
+
+**Why this matters:** Installing the wrong "orca" package will not give you ORCA quantum chemistry software. Always use Conda or manual download from the ORCA forum.
 
 ## Architecture
 
@@ -97,12 +70,14 @@ BaseAutoInstaller (abstract)
 Located: `src/installation/autoInstallers/baseAutoInstaller.ts`
 
 Provides common functionality:
+
 - Command execution utilities
 - Binary verification
 - Version detection
 - Common helper methods
 
 Abstract methods (must be implemented by subclasses):
+
 - `canInstall(): Promise<boolean>` - Check if installer can run
 - `install(onProgress?: ProgressCallback): Promise<InstallationResult>` - Execute installation
 - `getEstimatedTime(): number` - Return estimated duration in seconds
@@ -112,6 +87,7 @@ Abstract methods (must be implemented by subclasses):
 Located: `src/installation/autoInstallers/condaAutoInstaller.ts`
 
 Implements Conda-based installation:
+
 - Conda availability detection
 - Package installation with progress parsing
 - Cancellation support
@@ -122,6 +98,7 @@ Implements Conda-based installation:
 Located: `src/installation/autoInstallers/brewAutoInstaller.ts`
 
 Implements Homebrew-based installation:
+
 - macOS platform detection
 - Homebrew availability check
 - Tap management (if needed)
@@ -132,6 +109,7 @@ Implements Homebrew-based installation:
 Located: `src/installation/autoInstallers/aptAutoInstaller.ts`
 
 Implements apt-based installation:
+
 - Linux platform detection
 - Package availability check
 - **Interactive sudo handling via integrated terminal**
@@ -145,6 +123,7 @@ The apt installer uses VS Code's integrated terminal to handle sudo password pro
 Located: `src/installation/progressMonitor.ts`
 
 Provides real-time progress updates to the wizard UI:
+
 - Progress percentage updates
 - Status message updates
 - Elapsed/remaining time estimates
@@ -155,12 +134,14 @@ Provides real-time progress updates to the wizard UI:
 Located: `src/installation/installationError.ts`
 
 Comprehensive error handling system:
+
 - Error pattern matching (network, disk space, permissions, etc.)
 - User-friendly error messages
 - Actionable remediation steps
 - Retry eligibility detection
 
 Error types supported:
+
 - `NetworkError` - Connection timeouts, DNS failures
 - `DiskSpaceError` - Insufficient storage
 - `PermissionError` - Access denied, EACCES
@@ -176,6 +157,7 @@ Error types supported:
 Located: `src/installation/installationError.ts`
 
 Implements exponential backoff retry logic:
+
 - Configurable max retries (default: 3)
 - Exponential delay calculation
 - Retry eligibility checks
@@ -186,6 +168,7 @@ Implements exponential backoff retry logic:
 ### Message Flow
 
 **Extension → Webview:**
+
 - `initialize` - Initialize wizard with state
 - `detectionResults` - ORCA installations found
 - `progressUpdate` - Installation progress (0-100%)
@@ -195,6 +178,7 @@ Implements exponential backoff retry logic:
 - `error` - General error
 
 **Webview → Extension:**
+
 - `ready` - Webview loaded
 - `startAutomatedInstallation` - Begin installation (with method)
 - `cancelInstallation` - Cancel ongoing installation
@@ -215,27 +199,27 @@ Implements exponential backoff retry logic:
 ### From Extension Code
 
 ```typescript
-import { CondaAutoInstaller } from './autoInstallers/condaAutoInstaller';
-import { ProgressMonitor } from './progressMonitor';
+import { CondaAutoInstaller } from "./autoInstallers/condaAutoInstaller";
+import { ProgressMonitor } from "./progressMonitor";
 
 // Create installer
 const installer = new CondaAutoInstaller();
 
 // Check availability
 if (await installer.canInstall()) {
-    // Install with progress callback
-    const result = await installer.install((percentage, message) => {
-        console.log(`${percentage}% - ${message}`);
-    });
-    
-    if (result.success) {
-        console.log(`ORCA installed at: ${result.binaryPath}`);
-        console.log(`Version: ${result.version}`);
-        console.log(`Duration: ${result.duration}s`);
-    } else {
-        console.error(`Installation failed: ${result.error}`);
-        console.error(`Remediation:`, result.details?.remediation);
-    }
+  // Install with progress callback
+  const result = await installer.install((percentage, message) => {
+    console.log(`${percentage}% - ${message}`);
+  });
+
+  if (result.success) {
+    console.log(`ORCA installed at: ${result.binaryPath}`);
+    console.log(`Version: ${result.version}`);
+    console.log(`Duration: ${result.duration}s`);
+  } else {
+    console.error(`Installation failed: ${result.error}`);
+    console.error(`Remediation:`, result.details?.remediation);
+  }
 }
 ```
 
@@ -283,14 +267,13 @@ const error = InstallationErrorHandler.parseError(
 const strategy = new RetryStrategy(3, 1000, 30000);
 
 const result = await strategy.executeWithRetry(
-    async () => {
-        return await installer.install();
-    },
-    (error) => {
-        // Only retry network/timeout errors
-        return error.type === 'network-error' || 
-               error.type === 'timeout-error';
-    }
+  async () => {
+    return await installer.install();
+  },
+  (error) => {
+    // Only retry network/timeout errors
+    return error.type === "network-error" || error.type === "timeout-error";
+  },
 );
 ```
 
@@ -307,6 +290,7 @@ Located: `src/installation/__tests__/`
 - `progressMonitor.test.ts` - Progress tracking (existing)
 
 Run tests:
+
 ```bash
 npm test
 ```
@@ -316,6 +300,7 @@ npm test
 Integration tests require actual package managers and are platform-specific.
 
 **TODO:** Implement integration tests for:
+
 - Conda flow on macOS
 - Conda flow on Windows
 - Error handling scenarios
@@ -342,12 +327,12 @@ Integration tests require actual package managers and are platform-specific.
 
 ### Installation Times (Estimated)
 
-| Method   | Platform      | Time    | Notes                          |
-|----------|---------------|---------|--------------------------------|
-| Conda    | All           | 3-5 min | Depends on network speed       |
-| Homebrew | macOS         | 2-4 min | Pre-compiled binaries          |
-| Apt      | Linux         | 5-10 min | May need compilation           |
-| Manual   | All           | 10-20 min | User-dependent                 |
+| Method   | Platform | Time      | Notes                    |
+| -------- | -------- | --------- | ------------------------ |
+| Conda    | All      | 3-5 min   | Depends on network speed |
+| Homebrew | macOS    | 2-4 min   | Pre-compiled binaries    |
+| Apt      | Linux    | 5-10 min  | May need compilation     |
+| Manual   | All      | 10-20 min | User-dependent           |
 
 ### Progress Accuracy
 
