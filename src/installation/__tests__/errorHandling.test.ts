@@ -1,6 +1,10 @@
 /**
- * Tests for Installation Error Handling System
- */
+ * Tests for Installation Error Handling System * 
+ * TODO: These tests use Jest APIs (expect, toBe, rejects.toThrow) but the project uses
+ * Mocha (TDD UI) with assert. Convert to suite/test pattern and locate under src/test/suite/
+ * before running with `npm test`.
+ * 
+ * The current tests document the expected error handling behavior. */
 
 import {
     InstallationErrorHandler,

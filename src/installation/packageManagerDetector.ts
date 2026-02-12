@@ -190,7 +190,7 @@ export class PackageManagerDetector {
   private async commandExists(command: string): Promise<boolean> {
     return new Promise((resolve) => {
       const checkCmd = this.platform === Platform.Windows ? "where" : "which";
-      const process = spawn(checkCmd, [command], { shell: true });
+      const process = spawn(checkCmd, [command], { shell: false });
 
       const timeout = setTimeout(() => {
         process.kill("SIGTERM");

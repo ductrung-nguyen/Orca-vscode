@@ -61,6 +61,7 @@ export class ProgressMonitor {
   private webview: vscode.Webview;
   private startTime: number;
   private lastPercentage: number = 0;
+  private lastMessage: string = "";
 
   constructor(webview: vscode.Webview) {
     this.webview = webview;
@@ -76,12 +77,13 @@ export class ProgressMonitor {
     // Validate percentage
     percentage = Math.max(0, Math.min(100, percentage));
 
-    // Only send update if percentage changed or message is different
-    if (percentage === this.lastPercentage && message === "") {
+    // Only send update if percentage changed or message changed
+    if (percentage === this.lastPercentage && message === this.lastMessage) {
       return;
     }
 
     this.lastPercentage = percentage;
+    this.lastMessage = message;
 
     const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
 

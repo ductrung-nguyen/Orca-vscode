@@ -1,9 +1,14 @@
 /**
  * Tests for Homebrew Auto-Installer
+ * 
+ * TODO: These tests assume Jest (jest.mock, jest.spyOn, expect) but the project uses
+ * Mocha (TDD). Tests also stub non-existent methods. Convert to Mocha+assert style
+ * matching the actual implementation and place under src/test/suite/.
+ * 
+ * The current tests document expected Homebrew installer behavior.
  */
 
 import { BrewAutoInstaller } from '../autoInstallers/brewAutoInstaller';
-import { Platform } from '../types';
 import * as os from 'os';
 
 // Mock child_process
