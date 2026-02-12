@@ -2,7 +2,7 @@
   "Single Point Energy Calculation": {
     "prefix": "sp",
     "body": [
-      "! ${1|B3LYP,PBE0,wB97X-D3,M06-2X,HF,MP2|} ${2|def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,6-31G*|} ${3|TightSCF,VeryTightSCF|}",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} ${3|TightSCF,VeryTightSCF|}",
       "",
       "* xyz ${4:0} ${5:1}",
       "${6:  C  0.0  0.0  0.0}",
@@ -14,7 +14,7 @@
   "Geometry Optimization": {
     "prefix": "opt",
     "body": [
-      "! ${1|B3LYP,PBE0,wB97X-D3,M06-2X|} ${2|def2-SVP,def2-TZVP,def2-QZVP|} Opt ${3|TightOpt,VeryTightOpt|} ${4|TightSCF,VeryTightSCF|}",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} Opt ${3|TightOpt,VeryTightOpt|} ${4|TightSCF,VeryTightSCF|}",
       "",
       "* xyz ${5:0} ${6:1}",
       "${7:  C  0.0  0.0  0.0}",
@@ -26,7 +26,7 @@
   "Frequency Calculation": {
     "prefix": "freq",
     "body": [
-      "! ${1|B3LYP,PBE0,wB97X-D3,M06-2X|} ${2|def2-SVP,def2-TZVP,def2-QZVP|} Freq ${3|TightSCF,VeryTightSCF|}",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} Freq ${3|TightSCF,VeryTightSCF|}",
       "",
       "* xyz ${4:0} ${5:1}",
       "${6:  C  0.0  0.0  0.0}",
@@ -38,7 +38,7 @@
   "Optimization + Frequency": {
     "prefix": "optfreq",
     "body": [
-      "! ${1|B3LYP,PBE0,wB97X-D3,M06-2X|} ${2|def2-SVP,def2-TZVP|} Opt Freq ${3|TightSCF,VeryTightSCF|}",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} Opt Freq ${3|TightSCF,VeryTightSCF|}",
       "",
       "* xyz ${4:0} ${5:1}",
       "${6:  C  0.0  0.0  0.0}",
@@ -50,7 +50,7 @@
   "Transition State Optimization": {
     "prefix": "ts",
     "body": [
-      "! ${1|B3LYP,PBE0,wB97X-D3|} ${2|def2-SVP,def2-TZVP|} OptTS Freq ${3|TightSCF,VeryTightSCF|}",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} OptTS Freq ${3|TightSCF,VeryTightSCF|}",
       "",
       "%geom",
       "  Calc_Hess true",
@@ -67,7 +67,7 @@
   "Solvent (CPCM)": {
     "prefix": "cpcm",
     "body": [
-      "! ${1|B3LYP,PBE0,wB97X-D3|} ${2|def2-SVP,def2-TZVP|} CPCM",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} CPCM",
       "",
       "%cpcm",
       "  smd true",
@@ -141,7 +141,7 @@
   "NEB Calculation": {
     "prefix": "neb",
     "body": [
-      "! ${1|B3LYP,PBE0|} ${2|def2-SVP,def2-TZVP|} NEB-TS",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} NEB-TS",
       "",
       "%neb",
       "  NImages ${3:8}",
@@ -170,7 +170,7 @@
   "TDDFT Calculation": {
     "prefix": "tddft",
     "body": [
-      "! ${1|B3LYP,CAM-B3LYP,PBE0|} ${2|def2-SVP,def2-TZVP|} ${3|TightSCF,VeryTightSCF|}",
+      "! ${1|B3LYP,B3LYP D3,CAM-B3LYP,wB97X-D,wB97X-D3,wB97M-V,M06,M06-2X,TPSSh,HFS,VWN5,PBE,BLYP,BP86,B97D,M06L,SCANfunc,RSCAN,R2SCAN,PBE0,B97,TPSS0,r2SCAN0,r2SCAN50,wB97,wB97X,HF,MP2,RI-MP2,DLPNO-MP2,CCSD,CCSD(T),CASSCF,NEVPT2|} ${2|6-31G(d),6-31G*,6-311G,6-311+G(d\\,P),def2-SVP,def2-TZVP,def2-QZVP,cc-pVDZ,cc-pVTZ,aug-cc-pVTZ,LANL2DZ,SDD,pc-1,pc-2|} ${3|TightSCF,VeryTightSCF|}",
       "",
       "%tddft",
       "  NRoots ${4:10}",
