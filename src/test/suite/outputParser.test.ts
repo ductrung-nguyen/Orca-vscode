@@ -514,4 +514,74 @@ Line 6`;
         assert.ok(Array.isArray(result.tocEntries), 'tocEntries should be an array');
         assert.ok(result.tocEntries.length > 0, 'tocEntries should not be empty for valid content');
     });
+
+    test('should extract method from input line - M06-2X', () => {
+        const content = `
+                         INPUT FILE
+                         ==========
+    ! M06-2X def2-SVP
+
+            FINAL SINGLE POINT ENERGY      -76.123456789
+        `;
+
+        const result = parseOrcaOutputEnhanced(content);
+        assert.strictEqual(result.method, 'M06-2X', 'Should extract M06-2X method');
+        assert.strictEqual(result.basis, 'DEF2-SVP', 'Should extract def2-SVP basis');
+    });
+
+    test('should extract method from input line - B97D', () => {
+        const content = `
+                         INPUT FILE
+                         ==========
+    ! B97D cc-pVTZ
+
+            FINAL SINGLE POINT ENERGY      -76.123456789
+        `;
+
+        const result = parseOrcaOutputEnhanced(content);
+        assert.strictEqual(result.method, 'B97D', 'Should extract B97D method');
+        assert.strictEqual(result.basis, 'CC-PVTZ', 'Should extract cc-pVTZ basis');
+    });
+
+    test('should extract method from input line - SCANfunc', () => {
+        const content = `
+                         INPUT FILE
+                         ==========
+    ! SCANfunc def2-TZVP
+
+            FINAL SINGLE POINT ENERGY      -76.123456789
+        `;
+
+        const result = parseOrcaOutputEnhanced(content);
+        assert.strictEqual(result.method, 'SCANFUNC', 'Should extract SCANfunc method');
+        assert.strictEqual(result.basis, 'DEF2-TZVP', 'Should extract def2-TZVP basis');
+    });
+
+    test('should extract method from input line - B3LYP D3 (multi-token)', () => {
+        const content = `
+                         INPUT FILE
+                         ==========
+    ! B3LYP D3 6-311+G(d,P)
+
+            FINAL SINGLE POINT ENERGY      -76.123456789
+        `;
+
+        const result = parseOrcaOutputEnhanced(content);
+        assert.strictEqual(result.method, 'B3LYP-D3', 'Should extract B3LYP D3 method as B3LYP-D3');
+        assert.strictEqual(result.basis, '6-311+G(D,P)', 'Should extract 6-311+G(d,P) basis');
+    });
+
+    test('should extract basis set with parentheses - 6-311+G(d,P)', () => {
+        const content = `
+                         INPUT FILE
+                         ==========
+    ! PBE0 6-311+G(d,P)
+
+            FINAL SINGLE POINT ENERGY      -76.123456789
+        `;
+
+        const result = parseOrcaOutputEnhanced(content);
+        assert.strictEqual(result.method, 'PBE0', 'Should extract PBE0 method');
+        assert.strictEqual(result.basis, '6-311+G(D,P)', 'Should extract 6-311+G(d,P) basis with parentheses');
+    });
 });
