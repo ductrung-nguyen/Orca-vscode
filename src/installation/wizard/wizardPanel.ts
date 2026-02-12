@@ -13,6 +13,7 @@ import { WizardState, Platform, InstallationMethod } from '../types';
 import { LinuxInstaller } from '../strategies/linuxInstaller';
 import { MacOSInstaller } from '../strategies/macosInstaller';
 import { WindowsInstaller } from '../strategies/windowsInstaller';
+import { BaseAutoInstaller } from '../autoInstallers/baseAutoInstaller';
 
 /**
  * Message types sent from extension to webview
@@ -380,7 +381,10 @@ export class WizardPanel {
             const { AptAutoInstaller } = await import('../autoInstallers/aptAutoInstaller');
             const { ProgressMonitor } = await import('../progressMonitor');
             
-            let installer;
+            // Note: Homebrew and Apt installers are implemented and functional, but not yet
+            // exposed in the wizard HTML UI (which currently only offers conda/manual options).
+            // These branches are ready for when the UI is enhanced with platform-specific detection.
+            let installer: BaseAutoInstaller;
             switch (method) {
                 case InstallationMethod.Conda:
                     installer = new CondaAutoInstaller();
@@ -402,18 +406,58 @@ export class WizardPanel {
             // Check if installer can run
             const canInstall = await installer.canInstall();
             if (!canInstall) {
+                let message: string;
+                let remediation: string[];
+                let details: string;
+
+                switch (method) {
+                    case InstallationMethod.Conda:
+                        message = 'Conda is not available on this system';
+                        remediation = [
+                            'Install Conda (Anaconda or Miniconda) from https://conda.io',
+                            'Switch to manual installation',
+                            'Check if Conda is in your system PATH'
+                        ];
+                        details = 'Conda executable not found in PATH';
+                        break;
+                    case InstallationMethod.Homebrew:
+                        message = 'Homebrew is not available on this system';
+                        remediation = [
+                            'Install Homebrew from https://brew.sh/',
+                            'Switch to manual installation',
+                            'Check if the "brew" executable is in your system PATH'
+                        ];
+                        details = 'Homebrew (brew) executable not found in PATH';
+                        break;
+                    case InstallationMethod.Apt:
+                        message = 'Apt is not available on this system';
+                        remediation = [
+                            'Ensure you are running on a Debian-based Linux distribution with apt available',
+                            'Install apt or required apt tools using your distribution\'s package manager',
+                            'Switch to manual installation',
+                            'Check if the "apt" executable is in your system PATH'
+                        ];
+                        details = 'Apt executable not found in PATH';
+                        break;
+                    default:
+                        message = 'Required tools for the selected installation method are not available on this system';
+                        remediation = [
+                            'Install the required tooling for the selected method',
+                            'Switch to manual installation',
+                            'Check that the required executables are in your system PATH'
+                        ];
+                        details = 'Prerequisites for the selected installation method are missing';
+                        break;
+                }
+
                 this.sendMessage({
                     type: MessageToWebview.InstallationError,
                     payload: {
                         error: {
-                            message: 'Conda is not available on this system',
-                            remediation: [
-                                'Install Conda (Anaconda or Miniconda) from https://conda.io',
-                                'Switch to manual installation',
-                                'Check if Conda is in your system PATH'
-                            ],
+                            message,
+                            remediation,
                             canRetry: false,
-                            details: 'Conda executable not found in PATH'
+                            details
                         }
                     }
                 });
@@ -422,7 +466,11 @@ export class WizardPanel {
             
             // Create progress monitor
             const progressMonitor = new ProgressMonitor(this.panel.webview);
-            const startTime = Date.now();
+            
+            // TODO: Wire installer stdout/stderr streaming into webview log
+            // Currently the installer output is not streamed to the UI in real-time.
+            // To implement: modify installer.install() to accept outputCallback parameter
+            // and call progressMonitor.streamOutput(outputLine) for each line.
             
             // Install with progress callbacks
             const result = await installer.install((percentage: number, message: string) => {
@@ -486,6 +534,10 @@ export class WizardPanel {
     
     /**
      * Handle installation cancellation
+     * 
+     * TODO: This currently only sets a flag but doesn't terminate the running install process.
+     * To properly implement: Use AbortController/cancellation token pattern and keep a reference
+     * to the active ChildProcess so it can be killed and cleaned up on cancel.
      */
     private async handleCancelInstallation(): Promise<void> {
         this.installationCancelled = true;
@@ -1001,7 +1053,10 @@ export class WizardPanel {
                 document.querySelectorAll('.external-link').forEach(function(link) {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
-                        openExternal(this.getAttribute('data-url'));
+                        var url = this.getAttribute('data-url');
+                        if (typeof url === 'string' && url.trim() !== '') {
+                            openExternal(url);
+                        }
                     });
                 });
                 
@@ -1300,16 +1355,39 @@ export class WizardPanel {
                 const errorOutputEl = document.getElementById('error-output');
                 
                 if (messageEl) {
-                    messageEl.innerHTML = '<p><strong>Error:</strong> ' + (payload.error.message || 'Unknown error') + '</p>';
+                    // Clear any existing content
+                    messageEl.innerHTML = '';
+
+                    const p = document.createElement('p');
+                    const strong = document.createElement('strong');
+                    strong.textContent = 'Error:';
+                    p.appendChild(strong);
+
+                    const messageText = payload.error && payload.error.message
+                        ? payload.error.message
+                        : 'Unknown error';
+                    p.appendChild(document.createTextNode(' ' + messageText));
+
+                    messageEl.appendChild(p);
                 }
                 
                 if (remediationEl && payload.error.remediation) {
-                    let html = '<p><strong>Possible Solutions:</strong></p><ol>';
+                    // Clear any existing content
+                    remediationEl.innerHTML = '';
+
+                    const titleParagraph = document.createElement('p');
+                    const titleStrong = document.createElement('strong');
+                    titleStrong.textContent = 'Possible Solutions:';
+                    titleParagraph.appendChild(titleStrong);
+                    remediationEl.appendChild(titleParagraph);
+
+                    const list = document.createElement('ol');
                     payload.error.remediation.forEach(function(step) {
-                        html += '<li>' + step + '</li>';
+                        const li = document.createElement('li');
+                        li.textContent = step;
+                        list.appendChild(li);
                     });
-                    html += '</ol>';
-                    remediationEl.innerHTML = html;
+                    remediationEl.appendChild(list);
                 }
                 
                 if (errorOutputEl && payload.error.details) {

@@ -10,7 +10,6 @@ import {
   Platform,
   ProgressCallback,
   AutoInstallResult,
-  PackageManager,
 } from "../types";
 
 /**
@@ -80,7 +79,7 @@ export class CondaAutoInstaller extends BaseAutoInstaller {
 
       // Step 3: Execute installation
       progressCallback(15, "Starting ORCA installation via Conda...");
-      const result = await this.executeCondaInstall(progressCallback);
+      await this.executeCondaInstall(progressCallback);
 
       // Step 4: Verify installation
       progressCallback(95, "Verifying installation...");
@@ -175,11 +174,26 @@ export class CondaAutoInstaller extends BaseAutoInstaller {
 
       // Handle errors
       childProcess.on("error", (error: Error) => {
+        clearTimeout(timeoutHandle);
         reject(error);
       });
 
+      // Handle completion
+      childProcess.on("close", (code: number | null) => {
+        clearTimeout(timeoutHandle);
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(
+              `Conda installation failed with exit code ${code}\nLast output: ${lastOutput}`,
+            ),
+          );
+        }
+      });
+
       // Timeout after 10 minutes
-      setTimeout(() => {
+      const timeoutHandle = setTimeout(() => {
         childProcess.kill("SIGTERM");
         reject(new Error("Installation timed out after 10 minutes"));
       }, 600000);

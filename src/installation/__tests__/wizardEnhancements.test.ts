@@ -1,9 +1,13 @@
 /**
  * Tests for Wizard UI Enhancements - Automated Installation
+ * 
+ * TODO: These tests use Mocha BDD (describe/it) but the project uses Mocha TDD (suite/test).
+ * Move to src/test/suite/ and convert to suite/test pattern before running with `npm test`.
+ * 
+ * The current tests document acceptance criteria and planned test coverage.
  */
 
 import * as assert from 'assert';
-import * as vscode from 'vscode';
 import * as sinon from 'sinon';
 
 describe('Wizard UI Enhancements', () => {
