@@ -13,7 +13,6 @@ import { WizardState, Platform, InstallationMethod } from "../types";
 import { LinuxInstaller } from "../strategies/linuxInstaller";
 import { MacOSInstaller } from "../strategies/macosInstaller";
 import { WindowsInstaller } from "../strategies/windowsInstaller";
-import { BaseAutoInstaller } from "../autoInstallers/baseAutoInstaller";
 
 /**
  * Message types sent from extension to webview
@@ -422,125 +421,28 @@ export class WizardPanel {
 
   /**
    * Handle automated installation start
-   *
-   * NOTE: Only Conda is supported for automated ORCA installation.
-   * Homebrew's "orca" cask is Plotly Orca (chart generator), not ORCA quantum chemistry.
-   * Linux apt's "orca" package is GNOME Orca (screen reader), not ORCA quantum chemistry.
-   * ORCA quantum chemistry must be installed via Conda or manually from the ORCA forum.
+   * @deprecated Automated installation not available - ORCA requires manual download
    */
   private async handleStartAutomatedInstallation(
-    method: InstallationMethod,
+    _method: InstallationMethod,
   ): Promise<void> {
-    try {
-      // Only Conda supports ORCA quantum chemistry installation
-      if (method !== InstallationMethod.Conda) {
-        this.sendMessage({
-          type: MessageToWebview.InstallationError,
-          payload: {
-            error: {
-              message: `Automated installation is only available via Conda`,
-              remediation: [
-                "Use Conda for automated installation",
-                "Download ORCA manually from the ORCA forum (https://orcaforum.kofo.mpg.de)",
-                'Note: Homebrew "orca" is Plotly Orca (chart generator), not ORCA quantum chemistry',
-                'Note: Linux apt "orca" is GNOME Orca (screen reader), not ORCA quantum chemistry',
-              ],
-              canRetry: false,
-              details:
-                "ORCA quantum chemistry is only available via Conda or manual download",
-            },
-          },
-        });
-        return;
-      }
-
-      // Import auto-installers dynamically
-      const { CondaAutoInstaller } =
-        await import("../autoInstallers/condaAutoInstaller");
-      const { ProgressMonitor } = await import("../progressMonitor");
-
-      const installer: BaseAutoInstaller = new CondaAutoInstaller();
-
-      // Check if installer can run
-      const canInstall = await installer.canInstall();
-      if (!canInstall) {
-        this.sendMessage({
-          type: MessageToWebview.InstallationError,
-          payload: {
-            error: {
-              message: "Conda is not available on this system",
-              remediation: [
-                "Install Conda (Anaconda or Miniconda) from https://conda.io",
-                "Switch to manual installation from ORCA forum",
-                "Check if Conda is in your system PATH",
-              ],
-              canRetry: false,
-              details: "Conda executable not found in PATH",
-            },
-          },
-        });
-        return;
-      }
-
-      // Create progress monitor
-      const progressMonitor = new ProgressMonitor(this.panel.webview);
-
-      // Install with progress callbacks
-      const result = await installer.install(
-        (percentage: number, message: string) => {
-          progressMonitor.updateProgress(percentage, message);
+    // Redirect to manual installation
+    this.sendMessage({
+      type: MessageToWebview.InstallationError,
+      payload: {
+        error: {
+          message: "Please download ORCA from the ORCA Forum",
+          remediation: [
+            "1. Register at https://orcaforum.kofo.mpg.de",
+            "2. Download ORCA after account approval",
+            "3. Run the installer",
+            "4. Return here to configure the path",
+          ],
+          canRetry: false,
+          details: "ORCA is free for academic use.",
         },
-      );
-
-      if (result.success && result.binaryPath) {
-        // Validate the installation
-        const installations = await this.detector.detectInstallations();
-        const validInstall = installations.find(
-          (i) => i.isValid && i.path === result.binaryPath,
-        );
-
-        if (validInstall) {
-          // Save configuration
-          await this.handleSaveConfiguration(result.binaryPath);
-
-          // Send completion message
-          this.sendMessage({
-            type: MessageToWebview.InstallationComplete,
-            payload: {
-              result: {
-                success: true,
-                binaryPath: result.binaryPath,
-                version: result.version,
-                duration: result.duration,
-                method: method,
-              },
-            },
-          });
-        } else {
-          throw new Error("Installation completed but ORCA validation failed");
-        }
-      } else {
-        throw new Error(result.error || "Installation failed");
-      }
-    } catch (error) {
-      const errorMessage = (error as Error).message;
-      this.sendMessage({
-        type: MessageToWebview.InstallationError,
-        payload: {
-          error: {
-            message: errorMessage,
-            remediation: [
-              "Check your internet connection",
-              "Verify you have sufficient disk space (2GB required)",
-              "Try manual installation from ORCA forum",
-              "Check the error log for details",
-            ],
-            canRetry: true,
-            details: errorMessage,
-          },
-        },
-      });
-    }
+      },
+    });
   }
 
   /**
@@ -852,17 +754,27 @@ export class WizardPanel {
             </div>
             
             <div class="step" id="step-3">
-                <h2>Installation Method</h2>
-                <p>Select your installation method:</p>
-                <div id="installation-methods">
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="radio" name="install-method" value="conda" checked>
-                        Conda (Recommended) - Easiest installation with dependency management
-                    </label>
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="radio" name="install-method" value="manual">
-                        Manual Installation - Download from ORCA forum
-                    </label>
+                <h2>Download ORCA</h2>
+                <p>ORCA is available free for academic use. Follow these steps to download:</p>
+                
+                <div style="margin: 20px 0;">
+                    <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                        <p style="margin: 0 0 10px 0;"><strong>Step 1:</strong> Register on the ORCA Forum</p>
+                        <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">Create an account (academic email recommended). Account approval may take up to 24 hours.</p>
+                        <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de" style="margin-top: 10px;">Open ORCA Forum →</button>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                        <p style="margin: 0 0 10px 0;"><strong>Step 2:</strong> Download ORCA for your platform</p>
+                        <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">After logging in, download the installer for your operating system.</p>
+                        <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de/app.php/dlext/" style="margin-top: 10px;">Go to Downloads →</button>
+                    </div>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                        <p style="margin: 0 0 10px 0;"><strong>Step 3:</strong> Run the installer</p>
+                        <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">Follow the installation instructions for your platform. After installation, click "Next" to configure VS-ORCA.</p>
+                        <button class="external-link-btn" data-url="https://www.faccts.de/docs/orca/6.1/manual/contents/quickstartguide/installation.html" style="margin-top: 10px;">View Installation Guide →</button>
+                    </div>
                 </div>
             </div>
             
@@ -1102,6 +1014,17 @@ export class WizardPanel {
                     });
                 });
                 
+                // Add event listeners to external link buttons
+                document.querySelectorAll('.external-link-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var url = this.getAttribute('data-url');
+                        if (typeof url === 'string' && url.trim() !== '') {
+                            openExternal(url);
+                        }
+                    });
+                });
+                
                 console.log('[ORCA Wizard] Wizard initialized successfully');
                 
                 // Notify extension that webview is ready
@@ -1131,24 +1054,11 @@ export class WizardPanel {
                 
                 // Handle special navigation flows
                 if (currentStep === 3) {
-                    // Installation method selection
-                    const methodRadio = document.querySelector('input[name="install-method"]:checked');
-                    const method = methodRadio ? methodRadio.value : 'conda';
-                    
-                    if (method === 'conda') {
-                        // Start automated installation
-                        console.log('[ORCA Wizard] Starting automated Conda installation');
-                        showStep('step-auto-install');
-                        vscode.postMessage({ type: 'startAutomatedInstallation', payload: { method: 'conda' } });
-                        return;
-                    } else {
-                        // Manual installation - go to instructions
-                        currentStep = 4;
-                    }
+                    // After download instructions, go to path configuration
+                    currentStep = 5;
                 } else if (currentStep === 4) {
-                    // After installation instructions, go back to detection
-                    console.log('[ORCA Wizard] After installation instructions, going to detection');
-                    currentStep = 2;
+                    // Legacy step - skip to path configuration
+                    currentStep = 5;
                 } else {
                     currentStep++;
                 }
@@ -1161,10 +1071,6 @@ export class WizardPanel {
                     // Auto-start detection on step 2
                     console.log('[ORCA Wizard] Auto-starting detection');
                     setTimeout(startDetection, 500);
-                } else if (currentStep === 4) {
-                    // Load installation instructions on step 4
-                    console.log('[ORCA Wizard] Loading installation instructions');
-                    loadInstallationInstructions();
                 }
                 
                 vscode.postMessage({ type: 'saveState', payload: { currentStep } });

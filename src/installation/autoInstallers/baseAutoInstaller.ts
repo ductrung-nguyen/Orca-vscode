@@ -1,6 +1,6 @@
 /**
- * Base abstract class for automated ORCA installers
- * Provides common functionality and defines the contract for platform-specific installers
+ * Base abstract class for automated installers
+ * @deprecated Not used - ORCA requires manual installation from orcaforum.kofo.mpg.de
  */
 
 import { spawn, ChildProcess } from "child_process";
@@ -15,8 +15,7 @@ import {
 } from "../types";
 
 /**
- * Abstract base class for automated installers
- * Subclasses implement specific package manager installation logic
+ * @deprecated Not used
  */
 export abstract class BaseAutoInstaller {
   protected platform: Platform;

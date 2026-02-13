@@ -1,6 +1,6 @@
 /**
- * Conda-based automated ORCA installer
- * Implements automated installation via conda-forge channel
+ * Conda-based installer
+ * @deprecated Not used - ORCA requires manual installation from orcaforum.kofo.mpg.de
  */
 
 import * as os from "os";
@@ -13,8 +13,7 @@ import {
 } from "../types";
 
 /**
- * Automated installer using Conda package manager
- * Cross-platform support (macOS, Windows, Linux)
+ * @deprecated Not used
  */
 export class CondaAutoInstaller extends BaseAutoInstaller {
   constructor() {
