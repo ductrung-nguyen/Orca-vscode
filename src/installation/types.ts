@@ -121,29 +121,38 @@ export enum Platform {
  * Installation method type
  */
 export enum InstallationMethod {
+  /** @deprecated Not supported */
   Conda = "conda",
-  /** @deprecated Homebrew's orca is Plotly Orca, not ORCA quantum chemistry */
+  /** @deprecated Not supported */
   Homebrew = "homebrew",
-  /** @deprecated Linux apt's orca is GNOME Orca screen reader, not ORCA quantum chemistry */
+  /** @deprecated Not supported */
   Apt = "apt",
-  /** @deprecated Not implemented */
+  /** @deprecated Not supported */
   Yum = "yum",
+  /** Manual installation from ORCA Forum */
   Manual = "manual",
-  PackageManager = "package-manager", // generic fallback
+  /** @deprecated Not supported */
+  PackageManager = "package-manager",
 }
 
 // ============================================================================
-// Automated Installation Types (Added for automated installation feature)
+// Automated Installation Types (kept for compatibility)
 // ============================================================================
 
 /**
- * Supported package managers for automated installation
+ * Package manager enum (kept for compatibility)
+ * @deprecated No package manager provides ORCA quantum chemistry
  */
 export enum PackageManager {
+  /** @deprecated */
   Conda = "conda",
+  /** @deprecated */
   Homebrew = "brew",
+  /** @deprecated */
   Apt = "apt",
+  /** @deprecated */
   Yum = "yum",
+  /** @deprecated */
   Winget = "winget",
 }
 
