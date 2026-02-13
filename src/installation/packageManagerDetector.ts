@@ -1,12 +1,6 @@
 /**
- * Package Manager Detector
- *
- * IMPORTANT: For ORCA quantum chemistry installation, only Conda is valid.
- * - Homebrew's "orca" cask is Plotly Orca (chart generator)
- * - Linux apt's "orca" package is GNOME Orca (screen reader)
- *
- * This detector is kept for general package manager detection,
- * but should NOT be used to offer Homebrew/apt as ORCA installation options.
+ * Package manager detection and priority utilities
+ * Detects available package managers and ranks them by suitability
  */
 
 import * as os from "os";
@@ -15,6 +9,15 @@ import { Platform, PackageManager, PackageManagerInfo } from "./types";
 
 /**
  * Detects and prioritizes package managers on the system
+ *
+ * NOTE: While this class detects multiple package managers (Homebrew, Apt, Yum),
+ * only Conda should be used for automated ORCA installation. Other package managers
+ * have "orca" packages that are NOT the ORCA quantum chemistry software:
+ * - Homebrew: "orca" cask is Plotly Orca (chart rendering)
+ * - Apt: "orca" package is GNOME Orca (screen reader)
+ * - Yum: No official ORCA package available
+ *
+ * Only Conda (conda-forge channel) provides the correct ORCA quantum chemistry package.
  */
 export class PackageManagerDetector {
   private platform: Platform;
@@ -100,6 +103,9 @@ export class PackageManagerDetector {
 
   /**
    * Check if Homebrew is available (macOS)
+   *
+   * NOTE: Homebrew's "orca" cask is Plotly Orca (chart generator), NOT ORCA quantum chemistry.
+   * Do NOT use Homebrew for automated ORCA installation.
    */
   private async checkHomebrew(): Promise<PackageManagerInfo> {
     const available = await this.commandExists("brew");
@@ -123,6 +129,9 @@ export class PackageManagerDetector {
 
   /**
    * Check if apt is available (Debian/Ubuntu)
+   *
+   * NOTE: Apt's "orca" package is GNOME Orca (screen reader), NOT ORCA quantum chemistry.
+   * Do NOT use Apt for automated ORCA installation.
    */
   private async checkApt(): Promise<PackageManagerInfo> {
     const available = await this.commandExists("apt");
@@ -146,6 +155,9 @@ export class PackageManagerDetector {
 
   /**
    * Check if yum is available (RHEL/CentOS)
+   *
+   * NOTE: Yum does not have an official ORCA quantum chemistry package.
+   * Do NOT use Yum for automated ORCA installation.
    */
   private async checkYum(): Promise<PackageManagerInfo> {
     const available = await this.commandExists("yum");
