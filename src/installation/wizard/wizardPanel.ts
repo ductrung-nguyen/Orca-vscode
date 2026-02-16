@@ -695,48 +695,29 @@ export class WizardPanel {
         
         <div id="wizard-content">
             <div class="step active" id="step-0">
-                <h2>Welcome</h2>
-                <p>This wizard will guide you through the process of installing and configuring ORCA computational chemistry software.</p>
-                <p><strong>What this wizard does:</strong></p>
+                <h2>Welcome to ORCA Installation</h2>
+                <p>This wizard will help you install and configure <strong>ORCA computational chemistry software</strong>.</p>
+                
+                <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                    <p><strong>📚 About ORCA:</strong></p>
+                    <p style="margin: 10px 0; font-size: 0.95em;">ORCA is a powerful computational chemistry program used by researchers worldwide. It's <strong>free for academic use</strong>.</p>
+                    <p style="margin: 10px 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">• Developed by the Max Planck Institute<br>• Used for quantum chemistry calculations<br>• Requires registration on ORCA Forum to download</p>
+                </div>
+                
+                <p><strong>What you'll do in this wizard:</strong></p>
                 <ul>
-                    <li>Detects existing ORCA installations on your system</li>
-                    <li>Provides step-by-step installation instructions</li>
-                    <li>Validates your installation</li>
-                    <li>Configures VS-ORCA to use your ORCA installation</li>
+                    <li>Check if ORCA is already installed (optional)</li>
+                    <li>Download ORCA from the official website</li>
+                    <li>Install ORCA on your computer</li>
+                    <li>Configure VS Code to use ORCA</li>
                 </ul>
+                
+                <div style="margin-top: 20px; padding: 10px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                    <p style="font-size: 0.9em; margin: 0;">⏱️ <strong>Time needed:</strong> 10-15 minutes (plus account approval time)</p>
+                </div>
             </div>
             
             <div class="step" id="step-1">
-                <h2>📄 ORCA License Agreement</h2>
-                <p>ORCA is available free of charge for academic use only.</p>
-                <div class="warning">
-                    <p><strong>Important:</strong> By proceeding, you acknowledge that:</p>
-                    <ul>
-                        <li>You are affiliated with an academic institution</li>
-                        <li>ORCA is free for academic use at academic institutions</li>
-                        <li>Commercial use requires a separate license</li>
-                        <li>You must register on the ORCA forum to download (for manual installation)</li>
-                        <li>You will cite ORCA in your publications</li>
-                    </ul>
-                </div>
-                <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
-                    <p><strong>Required Citation:</strong></p>
-                    <p style="font-size: 0.9em; font-family: var(--vscode-editor-font-family);">
-                        Neese, F. (2012) The ORCA program system, Wiley Interdiscip. Rev.: Comput. Mol. Sci., 2, 73-78.
-                    </p>
-                    <p style="margin-top: 10px;">
-                        <a href="#" class="external-link" data-url="https://orcaforum.kofo.mpg.de">ORCA Forum</a> • 
-                        <a href="#" class="external-link" data-url="https://www.faccts.de/orca/">ORCA Website</a> • 
-                        <a href="#" class="external-link" data-url="https://www.faccts.de/docs/orca/6.0/manual/">Documentation</a>
-                    </p>
-                </div>
-                <label style="display: block; margin-top: 20px;">
-                    <input type="checkbox" id="license-agree" onchange="updateLicenseButton()">
-                    <strong>I acknowledge and accept these license terms</strong>
-                </label>
-            </div>
-            
-            <div class="step" id="step-2">
                 <h2>Detection Results</h2>
                 <p>Scanning your system for existing ORCA <strong>computational chemistry</strong> installations...</p>
                 <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">
@@ -750,48 +731,239 @@ export class WizardPanel {
                 </div>
             </div>
             
+            <div class="step" id="step-2">
+                <h2>📥 Download and Install ORCA</h2>
+                <p style="font-size: 1.05em; margin-bottom: 20px;">Follow these steps carefully. Don't worry if you're new to this - we'll guide you through everything!</p>
+                
+                <!-- Step 1: Register -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-button-background);">
+                    <h3 style="margin-top: 0;">🔐 Step 1: Create an ORCA Forum Account</h3>
+                    <p style="margin: 10px 0;"><strong>Why?</strong> You need an account to download ORCA. It's free!</p>
+                    
+                    <ol style="line-height: 1.8;">
+                        <li><strong>Click the button below</strong> to open the ORCA Forum website<br>
+                            <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de" style="margin: 10px 0;">🌐 Open ORCA Forum</button>
+                        </li>
+                        <li>Click <strong>"Register"</strong> (usually at the top right of the page)</li>
+                        <li>Fill in the registration form:
+                            <ul style="font-size: 0.9em; color: var(--vscode-descriptionForeground); line-height: 1.6;">
+                                <li>Use your <strong>academic email</strong> if possible (e.g., .edu, .ac.uk)</li>
+                                <li>Choose a username and password</li>
+                                <li>Select your institution/affiliation</li>
+                            </ul>
+                        </li>
+                        <li><strong>Submit and wait for approval</strong> (can take a few hours to 24 hours)</li>
+                        <li>Check your email for approval notification</li>
+                    </ol>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <p style="margin: 0; font-size: 0.9em;">💡 <strong>Tip:</strong> Complete the next steps while waiting for account approval!</p>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Download -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-button-background);">
+                    <h3 style="margin-top: 0;">⬇️ Step 2: Download ORCA</h3>
+                    <p style="margin: 10px 0;"><strong>After your account is approved</strong>, follow these steps:</p>
+                    
+                    <ol style="line-height: 1.8;">
+                        <li><strong>Log in</strong> to the ORCA Forum with your new account</li>
+                        <li><strong>Click the button below</strong> to go to the Downloads section<br>
+                            <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de/app.php/dlext/" style="margin: 10px 0;">📦 Go to Downloads</button>
+                        </li>
+                        <li><strong>Find the right version</strong> for your computer:
+                            <ul style="font-size: 0.9em; color: var(--vscode-descriptionForeground); line-height: 1.6;">
+                                <li><strong>Windows:</strong> Look for "orca_6_X_X_windows.zip" or similar</li>
+                                <li><strong>macOS:</strong> Look for "orca_6_X_X_macos.tar.xz" or similar</li>
+                                <li><strong>Linux:</strong> Look for "orca_6_X_X_linux.tar.xz" or similar</li>
+                            </ul>
+                        </li>
+                        <li><strong>Click the download link</strong> and save the file to your Downloads folder</li>
+                        <li><strong>Wait for download to complete</strong> (file is large, ~1-2 GB)</li>
+                    </ol>
+                </div>
+                
+                <!-- Step 3: Install -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-button-background);">
+                    <h3 style="margin-top: 0;">🔧 Step 3: Install ORCA</h3>
+                    <p style="margin: 10px 0;">Installation differs by operating system. <strong>Choose your system below:</strong></p>
+                    
+                    <!-- Windows Instructions -->
+                    <details style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <summary style="cursor: pointer; font-weight: bold; font-size: 1.05em;">🪟 Windows Installation</summary>
+                        <div style="margin-top: 15px;">
+                            <ol style="line-height: 1.8;">
+                                <li><strong>Extract the zip file:</strong>
+                                    <ul style="font-size: 0.9em; line-height: 1.6;">
+                                        <li>Right-click the downloaded zip file</li>
+                                        <li>Select "Extract All..."</li>
+                                        <li>Choose a location (recommended: <code>C:\orca</code>)</li>
+                                        <li>Click "Extract"</li>
+                                    </ul>
+                                </li>
+                                <li><strong>The ORCA program is now at:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">C:\orca\orca.exe</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
+                                </li>
+                                <li><strong>(Optional) Add to System PATH:</strong>
+                                    <ul style="font-size: 0.9em; line-height: 1.6;">
+                                        <li>Press <kbd>Win + X</kbd> and select "System"</li>
+                                        <li>Click "Advanced system settings"</li>
+                                        <li>Click "Environment Variables"</li>
+                                        <li>Under "System variables", find and select "Path"</li>
+                                        <li>Click "Edit" → "New"</li>
+                                        <li>Add: <code>C:\orca</code></li>
+                                        <li>Click "OK" on all dialogs</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    
+                    <!-- macOS Instructions -->
+                    <details style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <summary style="cursor: pointer; font-weight: bold; font-size: 1.05em;">🍎 macOS Installation</summary>
+                        <div style="margin-top: 15px;">
+                            <ol style="line-height: 1.8;">
+                                <li><strong>Extract the archive:</strong>
+                                    <ul style="font-size: 0.9em; line-height: 1.6;">
+                                        <li>Double-click the downloaded .tar.xz file (or .dmg if available)</li>
+                                        <li>It will extract automatically</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Move ORCA to Applications folder:</strong>
+                                    <p style="font-size: 0.9em; margin: 10px 0;">Open Terminal (Applications → Utilities → Terminal) and run these commands:</p>
+                                    <div class="code-block" style="margin: 10px 0;">cd ~/Downloads
+sudo mv orca_6* /Applications/orca
+cd /Applications/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">💡 You'll need to enter your Mac password when prompted</p>
+                                </li>
+                                <li><strong>Make ORCA executable:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">sudo chmod +x /Applications/orca/orca</div>
+                                </li>
+                                <li><strong>The ORCA program is now at:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">/Applications/orca/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    
+                    <!-- Linux Instructions -->
+                    <details style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <summary style="cursor: pointer; font-weight: bold; font-size: 1.05em;">🐧 Linux Installation</summary>
+                        <div style="margin-top: 15px;">
+                            <ol style="line-height: 1.8;">
+                                <li><strong>Extract the archive:</strong>
+                                    <p style="font-size: 0.9em; margin: 10px 0;">Open Terminal and run:</p>
+                                    <div class="code-block" style="margin: 10px 0;">cd ~/Downloads
+tar -xf orca_6*.tar.xz</div>
+                                </li>
+                                <li><strong>Move ORCA to /opt:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">sudo mv orca_6* /opt/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">💡 You may need to enter your password</p>
+                                </li>
+                                <li><strong>Make ORCA executable:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">sudo chmod +x /opt/orca/orca</div>
+                                </li>
+                                <li><strong>(Optional) Add to PATH:</strong>
+                                    <p style="font-size: 0.9em; margin: 10px 0;">Add this line to your ~/.bashrc or ~/.zshrc:</p>
+                                    <div class="code-block" style="margin: 10px 0;">export PATH="/opt/orca:$PATH"</div>
+                                    <p style="font-size: 0.9em;">Then run: <code>source ~/.bashrc</code> (or <code>source ~/.zshrc</code>)</p>
+                                </li>
+                                <li><strong>The ORCA program is now at:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">/opt/orca/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                </div>
+                
+                <!-- Step 4: Verify -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-testing-iconPassed);">
+                    <h3 style="margin-top: 0;">✅ Step 4: Verify Installation (Optional but Recommended)</h3>
+                    <p style="margin: 10px 0;">Let's make sure ORCA is installed correctly!</p>
+                    
+                    <ol style="line-height: 1.8;">
+                        <li><strong>Open Terminal/Command Prompt:</strong>
+                            <ul style="font-size: 0.9em; line-height: 1.6;">
+                                <li><strong>Windows:</strong> Press <kbd>Win + R</kbd>, type <code>cmd</code>, press Enter</li>
+                                <li><strong>macOS:</strong> Applications → Utilities → Terminal</li>
+                                <li><strong>Linux:</strong> Use your terminal emulator</li>
+                            </ul>
+                        </li>
+                        <li><strong>Navigate to ORCA directory:</strong>
+                            <div class="code-block" style="margin: 10px 0;"># Windows:
+cd C:\orca
+
+# macOS:
+cd /Applications/orca
+
+# Linux:
+cd /opt/orca</div>
+                        </li>
+                        <li><strong>Run ORCA version check:</strong>
+                            <div class="code-block" style="margin: 10px 0;"># Windows:
+orca.exe --version
+
+# macOS/Linux:
+./orca --version</div>
+                        </li>
+                        <li><strong>You should see output like:</strong>
+                            <div class="code-block" style="margin: 10px 0; color: var(--vscode-testing-iconPassed);">Program Version 6.0.0 - RELEASE</div>
+                            <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">If you see this, ORCA is installed correctly! 🎉</p>
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="success" style="margin-top: 20px;">
+                    <p style="margin: 0;"><strong>✨ Ready for the next step!</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em;">Once ORCA is installed, click "Next" to configure VS Code to use it.</p>
+                </div>
+            </div>
+            
             <div class="step" id="step-3">
-                <h2>Download ORCA</h2>
-                <p>ORCA is available free for academic use. Follow these steps to download:</p>
+                <h2>🎯 Configure VS Code to Use ORCA</h2>
+                <p>Now we need to tell VS Code where to find the ORCA program you just installed.</p>
+                
+                <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                    <p style="margin: 0 0 10px 0;"><strong>📂 What path should you enter?</strong></p>
+                    <p style="margin: 5px 0; font-size: 0.9em;">Enter the <strong>full path</strong> to the ORCA executable file:</p>
+                    <ul style="font-size: 0.9em; line-height: 1.8; color: var(--vscode-descriptionForeground);">
+                        <li><strong>Windows:</strong> <code>C:\orca\orca.exe</code></li>
+                        <li><strong>macOS:</strong> <code>/Applications/orca/orca</code></li>
+                        <li><strong>Linux:</strong> <code>/opt/orca/orca</code></li>
+                    </ul>
+                    <p style="margin: 10px 0 0 0; font-size: 0.85em; color: var(--vscode-descriptionForeground);">💡 If you installed ORCA in a different location, use that path instead.</p>
+                </div>
                 
                 <div style="margin: 20px 0;">
-                    <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
-                        <p style="margin: 0 0 10px 0;"><strong>Step 1:</strong> Register on the ORCA Forum</p>
-                        <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">Create an account (academic email recommended). Account approval may take up to 24 hours.</p>
-                        <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de" style="margin-top: 10px;">Open ORCA Forum →</button>
-                    </div>
-                    
-                    <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
-                        <p style="margin: 0 0 10px 0;"><strong>Step 2:</strong> Download ORCA for your platform</p>
-                        <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">After logging in, download the installer for your operating system.</p>
-                        <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de/app.php/dlext/" style="margin-top: 10px;">Go to Downloads →</button>
-                    </div>
-                    
-                    <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
-                        <p style="margin: 0 0 10px 0;"><strong>Step 3:</strong> Run the installer</p>
-                        <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">Follow the installation instructions for your platform. After installation, click "Next" to configure VS-ORCA.</p>
-                        <button class="external-link-btn" data-url="https://www.faccts.de/docs/orca/6.1/manual/contents/quickstartguide/installation.html" style="margin-top: 10px;">View Installation Guide →</button>
-                    </div>
+                    <label for="binary-path" style="display: block; margin-bottom: 8px; font-weight: bold;">ORCA Executable Path:</label>
+                    <input type="text" id="binary-path" placeholder="Enter the full path to orca executable" style="width: 70%; padding: 10px; font-family: var(--vscode-editor-font-family);">
+                    <button id="browse-btn" style="margin-left: 10px; padding: 10px 16px;">📁 Browse...</button>
                 </div>
-            </div>
-            
-            <div class="step" id="step-5">
-                <h2>Path Configuration</h2>
-                <p>Provide the path to your ORCA binary:</p>
-                <div style="margin: 20px 0;">
-                    <input type="text" id="binary-path" placeholder="/path/to/orca" style="width: 70%; padding: 8px;">
-                    <button id="browse-btn" style="margin-left: 10px;">Browse</button>
-                </div>
-                <button id="validate-btn">Validate Path</button>
+                
+                <button id="validate-btn" style="padding: 10px 20px; font-size: 1em;">✓ Validate and Test Path</button>
+                
                 <div id="validation-output" style="margin-top: 20px;"></div>
+                
+                <div style="margin-top: 30px; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                    <p style="margin: 0; font-size: 0.9em;"><strong>Need help?</strong></p>
+                    <ul style="font-size: 0.85em; line-height: 1.8; color: var(--vscode-descriptionForeground);">
+                        <li>Click "Browse" to search for the orca file on your computer</li>
+                        <li>After entering the path, click "Validate and Test Path" to make sure it works</li>
+                        <li>If validation fails, double-check the path or reinstall ORCA</li>
+                    </ul>
+                </div>
             </div>
             
-            <div class="step" id="step-6">
-                <h2>✅ ORCA Installed Successfully!</h2>
+            <div class="step" id="step-4">
+                <h2>🎉 Installation Complete!</h2>
                 <div id="completion-message">
                     <div class="success">
-                        <p><strong>✓ Setup Complete!</strong></p>
-                        <p>ORCA has been successfully configured for VS-ORCA.</p>
+                        <p style="font-size: 1.2em; margin: 0;"><strong>✓ Success!</strong></p>
+                        <p style="margin: 5px 0 0 0;">ORCA is now installed and configured. You're ready to run quantum chemistry calculations!</p>
                     </div>
                     <div id="install-details" style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
                         <p><strong>Installation Details:</strong></p>
@@ -802,13 +974,36 @@ export class WizardPanel {
                             <li id="install-method" style="margin: 5px 0;">🔧 Method: <span>--</span></li>
                         </ul>
                     </div>
-                    <p><strong>Next Steps:</strong></p>
-                    <ul>
-                        <li>Open an ORCA input file (.inp) or create a new one</li>
-                        <li>Press <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px; font-size: 0.9em;">F5</kbd> to run a calculation</li>
-                        <li>View results in the ORCA output panel</li>
-                        <li>Explore the extension's features in the command palette (<kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px; font-size: 0.9em;">Ctrl+Shift+P</kbd> or <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px; font-size: 0.9em;">Cmd+Shift+P</kbd>)</li>
-                    </ul>
+                    <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px;">
+                        <p style="margin: 0 0 15px 0;"><strong>🚀 What's Next? Here's how to use ORCA:</strong></p>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">1. Create your first ORCA input file</p>
+                            <p style="margin: 0; font-size: 0.9em;">Click "Run Test Job" below to create a simple example, or create your own .inp file</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">2. Run a calculation</p>
+                            <p style="margin: 0; font-size: 0.9em;">Open an .inp file and press <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px;">F5</kbd> or right-click and select "Run ORCA"</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">3. View your results</p>
+                            <p style="margin: 0; font-size: 0.9em;">Results appear in the ORCA Output panel. Look for the .out file with the same name as your input</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">4. Explore features</p>
+                            <p style="margin: 0; font-size: 0.9em;">Press <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px;">Ctrl+Shift+P</kbd> (Windows/Linux) or <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px;">Cmd+Shift+P</kbd> (Mac) to see all ORCA commands</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px; border-left: 3px solid var(--vscode-button-background);">
+                        <p style="margin: 0 0 8px 0; font-size: 0.9em;"><strong>📚 Need more help?</strong></p>
+                        <p style="margin: 0; font-size: 0.85em; color: var(--vscode-descriptionForeground);">• Check the ORCA documentation: <a href="#" class="external-link" data-url="https://www.faccts.de/docs/orca/6.0/manual/">ORCA Manual</a><br>
+                        • Join the ORCA Forum for community support<br>
+                        • Use code snippets: Type "orca" in a .inp file for templates</p>
+                    </div>
                     <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                         <button id="view-settings-btn" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">⚙️ View Settings</button>
                         <button id="run-test-job-btn" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">🧪 Run Test Job</button>
@@ -849,6 +1044,7 @@ export class WizardPanel {
                 const backBtn = document.getElementById('back-btn');
                 const licenseCheckbox = document.getElementById('license-agree');
                 const startDetectionBtn = document.getElementById('start-detection-btn');
+                const skipDetectionBtn = document.getElementById('skip-detection-btn');
                 const browseBtn = document.getElementById('browse-btn');
                 const validateBtn = document.getElementById('validate-btn');
                 const viewSettingsBtn = document.getElementById('view-settings-btn');
@@ -880,7 +1076,6 @@ export class WizardPanel {
                     startDetectionBtn.addEventListener('click', startDetection);
                 }
                 
-                const skipDetectionBtn = document.getElementById('skip-detection-btn');
                 if (skipDetectionBtn) {
                     skipDetectionBtn.addEventListener('click', skipDetection);
                 }
@@ -960,16 +1155,7 @@ export class WizardPanel {
                     return;
                 }
                 
-                // Handle special navigation flows
-                if (currentStep === 3) {
-                    // After download instructions, go to path configuration
-                    currentStep = 5;
-                } else if (currentStep === 4) {
-                    // Legacy step - skip to path configuration
-                    currentStep = 5;
-                } else {
-                    currentStep++;
-                }
+                currentStep++;
                 
                 console.log('[ORCA Wizard] Moving to step:', currentStep);
                 updateStep();
@@ -992,14 +1178,7 @@ export class WizardPanel {
             
             function validateCurrentStep() {
                 console.log('[ORCA Wizard] Validating step:', currentStep);
-                if (currentStep === 1) {
-                    // License step
-                    const agree = document.getElementById('license-agree');
-                    if (agree && !agree.checked) {
-                        alert('Please accept the license terms to continue');
-                        return false;
-                    }
-                } else if (currentStep === 5) {
+                if (currentStep === 3) {
                     // Path configuration step
                     if (!validationResult || !validationResult.success) {
                         alert('Please validate the ORCA binary path first');
@@ -1028,15 +1207,7 @@ export class WizardPanel {
                     } else {
                         nextBtn.textContent = 'Next';
                     }
-                    
-                    // Update button state based on current step
-                    if (currentStep === 1) {
-                        // License step - disable until checkbox is checked
-                        const agree = document.getElementById('license-agree');
-                        nextBtn.disabled = agree ? !agree.checked : false;
-                    } else {
-                        nextBtn.disabled = false;
-                    }
+                    nextBtn.disabled = false;
                 }
                 
                 const progress = ((currentStep + 1) / steps.length) * 100;
@@ -1060,9 +1231,9 @@ export class WizardPanel {
             }
             
             function skipDetection() {
-                console.log('[ORCA Wizard] Skipping detection, going directly to path configuration');
-                // Jump directly to path configuration step (step 5)
-                currentStep = 5;
+                console.log('[ORCA Wizard] Skipping detection, going directly to download instructions');
+                // Jump to download instructions (step 2)
+                currentStep = 2;
                 updateStep();
                 vscode.postMessage({ type: 'saveState', payload: { currentStep } });
             }
@@ -1183,22 +1354,22 @@ export class WizardPanel {
                     });
                     html += '</ul>';
                     html += '<div style="margin-top: 15px;">' +
-                        '<button id="specify-path-btn">Specify Path Manually</button>' +
-                        '<button id="show-install-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Show Installation Instructions</button>' +
+                        '<button id="show-install-btn" style="background-color: var(--vscode-button-background); color: var(--vscode-button-foreground);">📥 Show Installation Instructions</button>' +
+                        '<button id="specify-path-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">I Already Installed It</button>' +
                         '</div>';
                     output.innerHTML = html;
                     
                     // Add event listeners
-                    const specifyPathBtn = document.getElementById('specify-path-btn');
-                    if (specifyPathBtn) {
-                        specifyPathBtn.addEventListener('click', function() {
-                            currentStep = 5;
-                            updateStep();
-                        });
-                    }
                     const showInstallBtn = document.getElementById('show-install-btn');
                     if (showInstallBtn) {
                         showInstallBtn.addEventListener('click', function() {
+                            currentStep = 2;
+                            updateStep();
+                        });
+                    }
+                    const specifyPathBtn = document.getElementById('specify-path-btn');
+                    if (specifyPathBtn) {
+                        specifyPathBtn.addEventListener('click', function() {
                             currentStep = 3;
                             updateStep();
                         });
@@ -1248,7 +1419,7 @@ export class WizardPanel {
                     const pathInput = document.getElementById('binary-path');
                     if (pathInput) pathInput.value = selected.path;
                     // Jump to path configuration step
-                    currentStep = 5;
+                    currentStep = 3;
                     updateStep();
                 } else {
                     console.log('[ORCA Wizard] No installation to use');
