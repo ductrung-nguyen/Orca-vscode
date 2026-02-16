@@ -734,9 +734,6 @@ export class WizardPanel {
                     <input type="checkbox" id="license-agree" onchange="updateLicenseButton()">
                     <strong>I acknowledge and accept these license terms</strong>
                 </label>
-                <p style="font-size: 0.85em; color: var(--vscode-descriptionForeground); margin-top: 10px;">
-                    Note: Automated installation uses Conda packages. Manual downloads require ORCA forum registration.
-                </p>
             </div>
             
             <div class="step" id="step-2">
@@ -775,59 +772,6 @@ export class WizardPanel {
                         <p style="margin: 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">Follow the installation instructions for your platform. After installation, click "Next" to configure VS-ORCA.</p>
                         <button class="external-link-btn" data-url="https://www.faccts.de/docs/orca/6.1/manual/contents/quickstartguide/installation.html" style="margin-top: 10px;">View Installation Guide →</button>
                     </div>
-                </div>
-            </div>
-            
-            <div class="step" id="step-auto-install">
-                <h2>⚙️ Installing ORCA</h2>
-                <p id="install-method-desc">Installing via Conda...</p>
-                
-                <div class="progress-container" style="margin: 30px 0;">
-                    <div class="progress-bar" style="width: 100%; height: 8px; background-color: var(--vscode-progressBar-background); border-radius: 4px; overflow: hidden;">
-                        <div class="progress-fill" id="install-progress-fill" style="width: 0%; height: 100%; background-color: var(--vscode-progressBar-foreground); transition: width 0.3s ease;"></div>
-                    </div>
-                    <div class="progress-text" style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9em;">
-                        <span id="install-progress-pct">0%</span>
-                        <span id="install-step-desc" style="color: var(--vscode-descriptionForeground);">Initializing...</span>
-                    </div>
-                    <div class="time-estimate" style="margin-top: 8px; font-size: 0.85em; color: var(--vscode-descriptionForeground);">
-                        <span id="install-elapsed">Elapsed: 0s</span> | 
-                        <span id="install-time-remaining">Estimated: ~3 minutes</span>
-                    </div>
-                </div>
-                
-                <details class="output-log" style="margin: 20px 0;">
-                    <summary style="cursor: pointer; margin-bottom: 10px;">▼ Show Installation Log</summary>
-                    <pre id="install-output" style="background-color: var(--vscode-textCodeBlock-background); padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto; font-size: 0.85em; line-height: 1.4;"></pre>
-                </details>
-                
-                <div class="action-buttons" style="margin-top: 20px;">
-<button id="cancel-install-btn" class="secondary" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Cancel Installation</button>
-                </div>
-            </div>
-            
-            <div class="step" id="step-install-error">
-                <h2>❌ Installation Failed</h2>
-                <div class="error-message" id="install-error-message" style="padding: 15px; background-color: var(--vscode-inputValidation-errorBackground); border: 1px solid var(--vscode-inputValidation-errorBorder); border-radius: 3px; margin: 15px 0;"></div>
-                <div class="remediation-steps" id="install-remediation" style="margin: 20px 0;"></div>
-                
-                <details class="error-log" style="margin: 20px 0;">
-                    <summary style="cursor: pointer; margin-bottom: 10px;">▼ Show Error Details</summary>
-                    <pre id="error-output" style="background-color: var(--vscode-textCodeBlock-background); padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto; font-size: 0.85em; line-height: 1.4; color: var(--vscode-errorForeground);"></pre>
-                </details>
-                
-                <div class="action-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button id="retry-install-btn">🔄 Retry Installation</button>
-                    <button id="manual-fallback-btn" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">📋 Switch to Manual Installation</button>
-                    <button id="cancel-error-btn" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Cancel</button>
-                </div>
-            </div>
-            
-            <div class="step" id="step-4">
-                <h2>Installation Instructions</h2>
-                <div id="installation-instructions">
-                    <p>Follow these steps to install ORCA:</p>
-                    <div id="steps-container"></div>
                 </div>
             </div>
             
@@ -907,10 +851,6 @@ export class WizardPanel {
                 const startDetectionBtn = document.getElementById('start-detection-btn');
                 const browseBtn = document.getElementById('browse-btn');
                 const validateBtn = document.getElementById('validate-btn');
-                const cancelInstallBtn = document.getElementById('cancel-install-btn');
-                const retryInstallBtn = document.getElementById('retry-install-btn');
-                const manualFallbackBtn = document.getElementById('manual-fallback-btn');
-                const cancelErrorBtn = document.getElementById('cancel-error-btn');
                 const viewSettingsBtn = document.getElementById('view-settings-btn');
                 const runTestJobBtn = document.getElementById('run-test-job-btn');
                 const closeWizardBtn = document.getElementById('close-wizard-btn');
@@ -951,38 +891,6 @@ export class WizardPanel {
                 
                 if (validateBtn) {
                     validateBtn.addEventListener('click', validatePath);
-                }
-                
-                if (cancelInstallBtn) {
-                    cancelInstallBtn.addEventListener('click', function() {
-                        console.log('[ORCA Wizard] Cancel installation clicked');
-                        vscode.postMessage({ type: 'cancelInstallation' });
-                    });
-                }
-                
-                if (retryInstallBtn) {
-                    retryInstallBtn.addEventListener('click', function() {
-                        console.log('[ORCA Wizard] Retry installation clicked');
-                        const methodRadio = document.querySelector('input[name="install-method"]:checked');
-                        const method = methodRadio ? methodRadio.value : 'conda';
-                        vscode.postMessage({ type: 'startAutomatedInstallation', payload: { method } });
-                        // Go back to auto-install step
-                        showStep('step-auto-install');
-                    });
-                }
-                
-                if (manualFallbackBtn) {
-                    manualFallbackBtn.addEventListener('click', function() {
-                        console.log('[ORCA Wizard] Manual fallback clicked');
-                        currentStep = 4; // Jump to manual installation instructions
-                        updateStep();
-                    });
-                }
-                
-                if (cancelErrorBtn) {
-                    cancelErrorBtn.addEventListener('click', function() {
-                        vscode.postMessage({ type: 'cancel' });
-                    });
                 }
                 
                 if (viewSettingsBtn) {
@@ -1117,9 +1025,6 @@ export class WizardPanel {
                     // Set button text based on current step
                     if (currentStep === steps.length - 1) {
                         nextBtn.textContent = 'Finish';
-                    } else if (currentStep === 4) {
-                        // Installation instructions step
-                        nextBtn.textContent = "I've Installed ORCA";
                     } else {
                         nextBtn.textContent = 'Next';
                     }
@@ -1160,13 +1065,6 @@ export class WizardPanel {
                 currentStep = 5;
                 updateStep();
                 vscode.postMessage({ type: 'saveState', payload: { currentStep } });
-            }
-            
-            function loadInstallationInstructions() {
-                const methodRadio = document.querySelector('input[name="install-method"]:checked');
-                const method = methodRadio ? methodRadio.value : 'conda';
-                console.log('[ORCA Wizard] Loading instructions for method:', method);
-                vscode.postMessage({ type: 'getInstallationSteps', payload: { method } });
             }
             
             function validatePath() {
@@ -1227,22 +1125,6 @@ export class WizardPanel {
                         if (pathInput) pathInput.value = message.payload.path;
                         break;
                         
-                    case 'progressUpdate':
-                        handleProgressUpdate(message.payload);
-                        break;
-                        
-                    case 'outputLine':
-                        handleOutputLine(message.payload.line);
-                        break;
-                        
-                    case 'installationError':
-                        handleInstallationError(message.payload);
-                        break;
-                        
-                    case 'installationComplete':
-                        handleInstallationComplete(message.payload);
-                        break;
-                        
                     case 'restoreState':
                         if (message.payload.currentStep !== undefined) {
                             currentStep = message.payload.currentStep;
@@ -1255,144 +1137,6 @@ export class WizardPanel {
                         break;
                 }
             });
-            
-            function showStep(stepId) {
-                const steps = document.querySelectorAll('.step');
-                steps.forEach(function(step) {
-                    step.classList.remove('active');
-                });
-                const targetStep = document.getElementById(stepId);
-                if (targetStep) {
-                    targetStep.classList.add('active');
-                }
-            }
-            
-            function handleProgressUpdate(payload) {
-                const fillEl = document.getElementById('install-progress-fill');
-                const pctEl = document.getElementById('install-progress-pct');
-                const descEl = document.getElementById('install-step-desc');
-                const elapsedEl = document.getElementById('install-elapsed');
-                const remainingEl = document.getElementById('install-time-remaining');
-                
-                if (fillEl) fillEl.style.width = payload.percentage + '%';
-                if (pctEl) pctEl.textContent = Math.round(payload.percentage) + '%';
-                if (descEl) descEl.textContent = payload.message || 'Processing...';
-                if (elapsedEl && payload.elapsedTime !== undefined) {
-                    elapsedEl.textContent = 'Elapsed: ' + formatTime(payload.elapsedTime);
-                }
-                if (remainingEl && payload.estimatedRemaining !== undefined) {
-                    remainingEl.textContent = 'Remaining: ~' + formatTime(payload.estimatedRemaining);
-                }
-            }
-            
-            function handleOutputLine(line) {
-                const outputEl = document.getElementById('install-output');
-                if (outputEl) {
-                    outputEl.textContent += line + '\\n';
-                    // Auto-scroll to bottom
-                    outputEl.scrollTop = outputEl.scrollHeight;
-                }
-            }
-            
-            function handleInstallationError(payload) {
-                // Switch to error step
-                showStep('step-install-error');
-                
-                const messageEl = document.getElementById('install-error-message');
-                const remediationEl = document.getElementById('install-remediation');
-                const errorOutputEl = document.getElementById('error-output');
-                
-                if (messageEl) {
-                    // Clear any existing content
-                    messageEl.innerHTML = '';
-
-                    const p = document.createElement('p');
-                    const strong = document.createElement('strong');
-                    strong.textContent = 'Error:';
-                    p.appendChild(strong);
-
-                    const messageText = payload.error && payload.error.message
-                        ? payload.error.message
-                        : 'Unknown error';
-                    p.appendChild(document.createTextNode(' ' + messageText));
-
-                    messageEl.appendChild(p);
-                }
-                
-                if (remediationEl && payload.error.remediation) {
-                    // Clear any existing content
-                    remediationEl.innerHTML = '';
-
-                    const titleParagraph = document.createElement('p');
-                    const titleStrong = document.createElement('strong');
-                    titleStrong.textContent = 'Possible Solutions:';
-                    titleParagraph.appendChild(titleStrong);
-                    remediationEl.appendChild(titleParagraph);
-
-                    const list = document.createElement('ol');
-                    payload.error.remediation.forEach(function(step) {
-                        const li = document.createElement('li');
-                        li.textContent = step;
-                        list.appendChild(li);
-                    });
-                    remediationEl.appendChild(list);
-                }
-                
-                if (errorOutputEl && payload.error.details) {
-                    errorOutputEl.textContent = payload.error.details;
-                }
-                
-                // Update retry button state
-                const retryBtn = document.getElementById('retry-install-btn');
-                if (retryBtn) {
-                    retryBtn.disabled = !payload.error.canRetry;
-                    if (!payload.error.canRetry) {
-                        retryBtn.textContent = '🔄 Retry (Not Available)';
-                    }
-                }
-            }
-            
-            function handleInstallationComplete(payload) {
-                // Switch to completion step
-                currentStep = 6;
-                updateStep();
-                
-                // Update installation details
-                const result = payload.result || {};
-                
-                const versionEl = document.getElementById('install-version');
-                if (versionEl && result.version) {
-                    const span = versionEl.querySelector('span');
-                    if (span) span.textContent = result.version;
-                }
-                
-                const pathEl = document.getElementById('install-path');
-                if (pathEl && result.binaryPath) {
-                    const span = pathEl.querySelector('span');
-                    if (span) span.textContent = result.binaryPath;
-                }
-                
-                const timeEl = document.getElementById('install-time');
-                if (timeEl && result.duration !== undefined) {
-                    const span = timeEl.querySelector('span');
-                    if (span) span.textContent = formatTime(result.duration);
-                }
-                
-                const methodEl = document.getElementById('install-method');
-                if (methodEl && result.method) {
-                    const span = methodEl.querySelector('span');
-                    if (span) span.textContent = result.method;
-                }
-            }
-            
-            function formatTime(seconds) {
-                if (seconds < 60) {
-                    return Math.round(seconds) + 's';
-                }
-                const mins = Math.floor(seconds / 60);
-                const secs = Math.round(seconds % 60);
-                return mins + 'm ' + secs + 's';
-            }
             
             function handleDetectionResults(installations) {
                 console.log('[ORCA Wizard] Handling detection results:', installations);
