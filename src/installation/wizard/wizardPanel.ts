@@ -44,11 +44,12 @@ export enum MessageFromWebview {
   Cancel = "cancel",
   OpenExternal = "openExternal",
   BrowseForBinary = "browseForBinary",
-  StartAutomatedInstallation = "startAutomatedInstallation",
-  CancelInstallation = "cancelInstallation",
-  RetryInstallation = "retryInstallation",
   OpenSettings = "openSettings",
   RunTestJob = "runTestJob",
+  // Note: Automated installation via package managers is no longer supported
+  // to avoid user confusion (no package manager provides ORCA correctly).
+  // These message types are kept for backwards compatibility but are no-ops:
+  // StartAutomatedInstallation, CancelInstallation, RetryInstallation
 }
 
 /**
@@ -797,12 +798,12 @@ export class WizardPanel {
                                     <ul style="font-size: 0.9em; line-height: 1.6;">
                                         <li>Right-click the downloaded zip file</li>
                                         <li>Select "Extract All..."</li>
-                                        <li>Choose a location (recommended: <code>C:\orca</code>)</li>
+                                        <li>Choose a location (recommended: <code>C:\\orca</code>)</li>
                                         <li>Click "Extract"</li>
                                     </ul>
                                 </li>
                                 <li><strong>The ORCA program is now at:</strong>
-                                    <div class="code-block" style="margin: 10px 0;">C:\orca\orca.exe</div>
+                                    <div class="code-block" style="margin: 10px 0;">C:\\orca\\orca.exe</div>
                                     <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
                                 </li>
                                 <li><strong>(Optional) Add to System PATH:</strong>
@@ -812,7 +813,7 @@ export class WizardPanel {
                                         <li>Click "Environment Variables"</li>
                                         <li>Under "System variables", find and select "Path"</li>
                                         <li>Click "Edit" → "New"</li>
-                                        <li>Add: <code>C:\orca</code></li>
+                                        <li>Add: <code>C:\\orca</code></li>
                                         <li>Click "OK" on all dialogs</li>
                                     </ul>
                                 </li>
@@ -895,7 +896,7 @@ tar -xf orca_6*.tar.xz</div>
                         </li>
                         <li><strong>Navigate to ORCA directory:</strong>
                             <div class="code-block" style="margin: 10px 0;"># Windows:
-cd C:\orca
+cd C:\\orca
 
 # macOS:
 cd /Applications/orca
@@ -903,15 +904,32 @@ cd /Applications/orca
 # Linux:
 cd /opt/orca</div>
                         </li>
-                        <li><strong>Run ORCA version check:</strong>
-                            <div class="code-block" style="margin: 10px 0;"># Windows:
-orca.exe --version
+                        <li><strong>Create a test input file and run ORCA:</strong>
+                            <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground); margin: 6px 0 4px 0;">
+                                ORCA requires an input file to run. Create a minimal test file to verify installation:
+                            </p>
+                            <div class="code-block" style="margin: 10px 0;"># Windows (PowerShell):
+@'
+! HF def2-SVP
+* xyz 0 1
+O 0.0 0.0 0.0
+*
+'@ | Out-File -Encoding ascii version_check.inp
+
+orca.exe version_check.inp
 
 # macOS/Linux:
-./orca --version</div>
+cat << 'EOF' > version_check.inp
+! HF def2-SVP
+* xyz 0 1
+O 0.0 0.0 0.0
+*
+EOF
+
+./orca version_check.inp</div>
                         </li>
-                        <li><strong>You should see output like:</strong>
-                            <div class="code-block" style="margin: 10px 0; color: var(--vscode-testing-iconPassed);">Program Version 6.0.0 - RELEASE</div>
+                        <li><strong>You should see output containing:</strong>
+                            <div class="code-block" style="margin: 10px 0; color: var(--vscode-testing-iconPassed);">Program Version 6.0.0</div>
                             <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">If you see this, ORCA is installed correctly! 🎉</p>
                         </li>
                     </ol>
@@ -931,7 +949,7 @@ orca.exe --version
                     <p style="margin: 0 0 10px 0;"><strong>📂 What path should you enter?</strong></p>
                     <p style="margin: 5px 0; font-size: 0.9em;">Enter the <strong>full path</strong> to the ORCA executable file:</p>
                     <ul style="font-size: 0.9em; line-height: 1.8; color: var(--vscode-descriptionForeground);">
-                        <li><strong>Windows:</strong> <code>C:\orca\orca.exe</code></li>
+                        <li><strong>Windows:</strong> <code>C:\\orca\\orca.exe</code></li>
                         <li><strong>macOS:</strong> <code>/Applications/orca/orca</code></li>
                         <li><strong>Linux:</strong> <code>/opt/orca/orca</code></li>
                     </ul>
@@ -1161,8 +1179,8 @@ orca.exe --version
                 updateStep();
                 
                 // Trigger actions for specific steps
-                if (currentStep === 2) {
-                    // Auto-start detection on step 2
+                if (currentStep === 1) {
+                    // Auto-start detection on step 1 (detection step)
                     console.log('[ORCA Wizard] Auto-starting detection');
                     setTimeout(startDetection, 500);
                 }

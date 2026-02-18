@@ -53,13 +53,24 @@ The installer sets required environment variables automatically.
 
 ### Step 4: Verify Installation
 
+Create a minimal test input file and run ORCA to verify it's installed correctly:
+
 ```bash
-orca --version
+# Create test input file
+cat > version_check.inp << 'EOF'
+! HF def2-SVP
+* xyz 0 1
+O 0.0 0.0 0.0
+*
+EOF
+
+# Run ORCA
+orca version_check.inp
 ```
 
-You should see output like:
+You should see output containing:
 ```
-ORCA-Pilot, version X.X.X -  Ab-Initio, DFT and Semiempirical Electronic Structure Package
+Program Version X.Y.Z
 ```
 
 ## Architecture
@@ -102,11 +113,10 @@ Interactive installation guide:
 ### UI States
 
 1. **Welcome** - Introduction to the wizard
-2. **License Agreement** - User must acknowledge terms
-3. **Detection** - Scan for existing ORCA installations
-4. **Installation Instructions** - Platform-specific manual installation steps
-5. **Path Configuration** - Enter or browse for ORCA binary
-6. **Success** - Configuration complete
+2. **Detection** - Scan for existing ORCA installations
+3. **Download/Install** - Platform-specific download and installation guidance
+4. **Path Configuration** - Enter or browse for ORCA binary
+5. **Completion** - Configuration complete
 
 ### Message Flow
 
@@ -132,11 +142,9 @@ Interactive installation guide:
 
 ### Unit Tests
 
-Located: `src/installation/__tests__/`
+The extension uses Mocha (TDD UI) for testing. Tests are located in `src/test/suite/` and compiled to `out/test/suite/` before execution.
 
-- `detector.test.ts` - ORCA detection
-- `validator.test.ts` - Installation validation
-- `errorHandling.test.ts` - Error handling
+Note: Test files under `src/installation/__tests__/` use Jest-style syntax and are not currently integrated with the test harness. To run these tests, they would need to be converted to Mocha TDD format or moved to `src/test/suite/`.
 
 Run tests:
 
