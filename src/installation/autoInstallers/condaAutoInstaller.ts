@@ -158,18 +158,11 @@ export class CondaAutoInstaller extends BaseAutoInstaller {
         }
       });
 
-      // Handle completion
-      childProcess.on("close", (code: number | null) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(
-            new Error(
-              `Conda installation failed with exit code ${code}\nLast output: ${lastOutput}`,
-            ),
-          );
-        }
-      });
+      // Timeout after 10 minutes (declare before using in handlers)
+      const timeoutHandle = setTimeout(() => {
+        childProcess.kill("SIGTERM");
+        reject(new Error("Installation timed out after 10 minutes"));
+      }, 600000);
 
       // Handle errors
       childProcess.on("error", (error: Error) => {
@@ -190,12 +183,6 @@ export class CondaAutoInstaller extends BaseAutoInstaller {
           );
         }
       });
-
-      // Timeout after 10 minutes
-      const timeoutHandle = setTimeout(() => {
-        childProcess.kill("SIGTERM");
-        reject(new Error("Installation timed out after 10 minutes"));
-      }, 600000);
     });
   }
 

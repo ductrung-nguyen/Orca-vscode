@@ -10,14 +10,16 @@ import { Platform, PackageManager, PackageManagerInfo } from "./types";
 /**
  * Detects and prioritizes package managers on the system
  *
- * NOTE: While this class detects multiple package managers (Homebrew, Apt, Yum),
- * only Conda should be used for automated ORCA installation. Other package managers
- * have "orca" packages that are NOT the ORCA quantum chemistry software:
+ * NOTE: This class is for DETECTION ONLY, not automated installation.
+ * Automated installation has been removed to prevent user confusion.
+ * 
+ * Most package managers have "orca" packages that are NOT the ORCA quantum chemistry software:
  * - Homebrew: "orca" cask is Plotly Orca (chart rendering)
  * - Apt: "orca" package is GNOME Orca (screen reader)
  * - Yum: No official ORCA package available
+ * - Conda: While conda-forge has an "orca" package, manual installation is recommended
  *
- * Only Conda (conda-forge channel) provides the correct ORCA quantum chemistry package.
+ * This detector informs users about available package managers during manual installation.
  */
 export class PackageManagerDetector {
   private platform: Platform;
@@ -277,7 +279,7 @@ export class PackageManagerDetector {
   private async getCommandPath(command: string): Promise<string | undefined> {
     return new Promise((resolve) => {
       const checkCmd = this.platform === Platform.Windows ? "where" : "which";
-      const process = spawn(checkCmd, [command], { shell: true });
+      const process = spawn(checkCmd, [command], { shell: false });
       let output = "";
 
       const timeout = setTimeout(() => {
