@@ -49,7 +49,9 @@ export enum MessageFromWebview {
   // Note: Automated installation via package managers is no longer supported
   // to avoid user confusion (no package manager provides ORCA correctly).
   // These message types are kept for backwards compatibility but are no-ops:
-  // StartAutomatedInstallation, CancelInstallation, RetryInstallation
+  StartAutomatedInstallation = "startAutomatedInstallation",
+  CancelInstallation = "cancelInstallation",
+  RetryInstallation = "retryInstallation",
 }
 
 /**
