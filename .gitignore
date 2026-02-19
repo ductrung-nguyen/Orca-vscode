@@ -4,3 +4,10 @@ node_modules
 *.vsix
 .DS_Store
 ai-docs/
+
+# Internal pipeline artifacts - never commit
+.tot/
+.tot-docs/
+.tmp/
+.agent/
+.copilot-setup*/
