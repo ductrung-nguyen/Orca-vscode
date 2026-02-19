@@ -87,8 +87,8 @@ export interface Prerequisite {
 
 /**
  * Wizard state for persistence
- * Note: Only minimal state (current step) is persisted for resuming the wizard.
- * Full wizard context (detections, validations) is re-fetched on resume.
+ * Persists wizard progress and context so users don't have to re-run detection
+ * when resuming the wizard.
  */
 export interface WizardState {
   /** Current step index (0-4: Welcome, Detection, Download, Path, Completion) */
@@ -96,6 +96,15 @@ export interface WizardState {
 
   /** Timestamp of last wizard interaction (for state expiration) */
   timestamp: number;
+
+  /** Detection results (nullable for backwards compatibility) */
+  detectionResults?: OrcaInstallation[];
+
+  /** Validation result for selected path (nullable for backwards compatibility) */
+  validationResult?: ValidationResult;
+
+  /** User-selected binary path (nullable for backwards compatibility) */
+  selectedPath?: string;
 }
 
 /**

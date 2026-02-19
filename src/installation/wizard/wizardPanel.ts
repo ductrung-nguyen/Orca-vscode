@@ -46,12 +46,6 @@ export enum MessageFromWebview {
   BrowseForBinary = "browseForBinary",
   OpenSettings = "openSettings",
   RunTestJob = "runTestJob",
-  // Note: Automated installation via package managers is no longer supported
-  // to avoid user confusion (no package manager provides ORCA correctly).
-  // These message types are kept for backwards compatibility but are no-ops:
-  StartAutomatedInstallation = "startAutomatedInstallation",
-  CancelInstallation = "cancelInstallation",
-  RetryInstallation = "retryInstallation",
 }
 
 /**
@@ -247,34 +241,6 @@ export class WizardPanel {
           await this.handleBrowseForBinary();
           break;
 
-        case MessageFromWebview.StartAutomatedInstallation:
-          if (
-            message.payload &&
-            typeof message.payload === "object" &&
-            "method" in message.payload
-          ) {
-            await this.handleStartAutomatedInstallation(
-              message.payload.method as InstallationMethod,
-            );
-          }
-          break;
-
-        case MessageFromWebview.CancelInstallation:
-          await this.handleCancelInstallation();
-          break;
-
-        case MessageFromWebview.RetryInstallation:
-          if (
-            message.payload &&
-            typeof message.payload === "object" &&
-            "method" in message.payload
-          ) {
-            await this.handleStartAutomatedInstallation(
-              message.payload.method as InstallationMethod,
-            );
-          }
-          break;
-
         case MessageFromWebview.OpenSettings:
           await this.handleOpenSettings();
           break;
@@ -423,50 +389,6 @@ export class WizardPanel {
         payload: { path: binaryPath },
       });
     }
-  }
-
-  /**
-   * Handle automated installation start
-   * @deprecated Automated installation not available - ORCA requires manual download
-   */
-  private async handleStartAutomatedInstallation(
-    _method: InstallationMethod,
-  ): Promise<void> {
-    // Redirect to manual installation
-    this.sendMessage({
-      type: MessageToWebview.InstallationError,
-      payload: {
-        error: {
-          message: "Please download ORCA from the ORCA Forum",
-          remediation: [
-            "1. Register at https://orcaforum.kofo.mpg.de",
-            "2. Download ORCA after account approval",
-            "3. Run the installer",
-            "4. Return here to configure the path",
-          ],
-          canRetry: false,
-          details: "ORCA is free for academic use.",
-        },
-      },
-    });
-  }
-
-  /**
-   * Installation cancellation tracker
-   */
-  private installationCancelled: boolean = false;
-
-  /**
-   * Handle installation cancellation
-   *
-   * TODO: This currently only sets a flag but doesn't terminate the running install process.
-   * To properly implement: Use AbortController/cancellation token pattern and keep a reference
-   * to the active ChildProcess so it can be killed and cleaned up on cancel.
-   */
-  private async handleCancelInstallation(): Promise<void> {
-    this.installationCancelled = true;
-    vscode.window.showWarningMessage("Installation cancelled by user");
-    // The installer should check this flag and stop gracefully
   }
 
   /**
@@ -707,7 +629,7 @@ export class WizardPanel {
 <body>
     <div class="wizard-container">
         <h1 style="display: flex; align-items: center; gap: 10px;">
-            <img src="${logoUriStr}" alt="" width="28" height="28" style="border-radius: 4px;" onerror="this.style.display='none'">
+            ${logoUriStr ? `<img src="${logoUriStr}" alt="" width="28" height="28" style="border-radius: 4px;">` : ''}
             ORCA Installation Wizard
         </h1>
         

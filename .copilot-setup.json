@@ -1,0 +1,2413 @@
+{
+  "version": "3.2.1",
+  "installedAt": "2026-02-02T17:06:35.128Z",
+  "components": {
+    "agents": true,
+    "prompts": true,
+    "skills": true,
+    "instructions": true
+  },
+  "files": [
+    {
+      "path": ".tot/README.md",
+      "hash": "76c043355ba3826811667b35863e92dcf816fcbb52ce48216d34de773b292c9c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/requirements-test.txt",
+      "hash": "3552a33b0f6b43f75840f1d2fbec138b9d88e62e0f3828ae874cb7b20859cdd7",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pytest.ini",
+      "hash": "31252d0f83bed23ef0b9a64930c4c7b70bde43babcf94e3bca5a5ff8f5be43a8",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.workflow-writer.prompt.md",
+      "hash": "fe3d7752b98ee4cfc8bed5ddd821d4c25922a5e1d610e6a8c78c22150bfe6917",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.validate-prd.prompt.md",
+      "hash": "e4e09ac245845858aad36c42a357a65d616a39c3ebb53ba0f9ee5ed4a2efa44d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.validate-plan.prompt.md",
+      "hash": "b00c5528cc43d54fd75c22a56300261024e5da06764ab0a68e9725b66cf96f02",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.validate-implementation.prompt.md",
+      "hash": "11f6349578e988fc98226897dbd3e78a5b9fdc1a315c405f1613795648b47648",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.spec-writer.prompt.md",
+      "hash": "aa85f3a73e0881b66e171b2e92217d2386875d4b70a4ead5fbf975faa6232cf4",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.review-pr.prompt.md",
+      "hash": "57968dedde222ec08a88d57c09ee5bf43b273a1aac5e8b74d9a68b17540efa30",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.refactor.prompt.md",
+      "hash": "71505350d364b3599d67ba2c3734c93fa6bd262c1d1edd0022e5dec0e1111300",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.refactor-suggest.prompt.md",
+      "hash": "8ea19cbeb83da51dbefd21cd5f28235937c6bdb2a5ba61e258d27cb7da3478b1",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.refactor-analyze.prompt.md",
+      "hash": "796a1d215bfadcb99e6c78a94f780fe1138c6a563eaf249b96c4b0a54414a72a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.process-task-list.prompt.md",
+      "hash": "c9476d0e102eaa5f69cffb60163d7c8350a3396e16b21fddd5faf6deedd03c35",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.prd-refine-loop.prompt.md",
+      "hash": "a57de4591f052eedb619aa923f968afd2fb77eecd55a91908e6b6b3d4a3a5863",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.pr-feedback-refine-loop.prompt.md",
+      "hash": "cb2917d538d3a7592395a2dd450bd60bc4ec3d971f33a8a8062ac1a6e202a4a0",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.plan-refine-loop.prompt.md",
+      "hash": "5fd7960312901bd507e6fd0bbef0d1b3016646e89d24e772c5066bdd0d3f6f31",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.orchestrator.prompt.md",
+      "hash": "68a18a2acf32ab92d811ad9b7436f8109609e380099a1eee8361bc3fb8010c0c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.new-feature.prompt.md",
+      "hash": "a4d2d5892dfcf5fe34d2110b5bbd294e2fd5b38470ef6da76e8d63f6d4896fac",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.llm-validate.prompt.md",
+      "hash": "70eb73c4eeb3d537d5b3062d110af7771ab6c17455275b39e61ca96c4ee64b37",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.issues-refine-loop.prompt.md",
+      "hash": "cd63f94f010ca68dcdbff29aa50889c5919712824d414010ad17b385a2aa254c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.impl-refine-loop.prompt.md",
+      "hash": "2c81f3832bf1ac7b3aee1bff5216b221367ed4fc406f733e0f51c4f44f004ba4",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.handle-pr-feedback.prompt.md",
+      "hash": "96365e0a8fd9aff2934de1dbecaee49e3e17ea4240cf9704783e7e6cc28df7e2",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.github-issue-pipeline.prompt.md",
+      "hash": "f5a4702c5e5033c979424c65611a2d8debccb552f18e324a358661d31e58b49a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.git-repo-init.prompt.md",
+      "hash": "0f9da017ba2f505e6086fb3d2035780d316d80ba5426d13e39b195389842690a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.generate-plan.prompt.md",
+      "hash": "7c21e4065508e09f0f949d7bb280b81df546252686b4a0d7292374a54fa17ff4",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.finalize-release.prompt.md",
+      "hash": "341b1ae222f6e19e778d271467a987e7fbd3b9f14a13f7383483449fd43b1837",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.fetch-github-issue.prompt.md",
+      "hash": "be3fc847bc3b6d9bcbc8d36033ff5fd0a9b25d55ae85895fd306ea5916f52e91",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.feedback-copilot.prompt.md",
+      "hash": "1e1cf94454b5624ec29df7e1adcd06e2fb94790afc43dc0f8e1301ea89e97fc8",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.feature-explorer.prompt.md",
+      "hash": "21e8c8550ec2d03e32f7d6f7a654a9d4b2723eafe719db0d2e5599caa96a878d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.feature-discovery-loop.prompt.md",
+      "hash": "d8e6a8acd2f0e985658c6363a23a4f1b4d97aa6e60fc3b29ad931a7fae837369",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.create-prd.prompt.md",
+      "hash": "11e7f39b51096e4f11327e402f4b44bd5834a1797d03156bc5f76695bfe5e74d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.create-pr.prompt.md",
+      "hash": "fc3740cc0b1e19a5da48f70255e69fb740fe569dd63201a1dc3bd329367ae793",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.create-github-issues.prompt.md",
+      "hash": "fffd4dc9a96354ce9f83125d3ea13bbad87caaf421440a7d01593e5d1f4e880e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.bugfix.prompt.md",
+      "hash": "877d533525ee6b5146602240fe4309a0a138d8811656ad3add1328e53028b6a2",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.bug-discovery-loop.prompt.md",
+      "hash": "c54649407dc776e7f67de8418754eff16d008323597d8ed4ab38a1c8b40fd075",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/prompts/tot.brainstorm.prompt.md",
+      "hash": "810588ca75db16c165c039e8040cc69653e929dbc77f9f6462d8a32318736f1d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/terminal.instructions.md",
+      "hash": "2924251e484b87868fbe85be30ee33eee000c3bfafdc4dfe199b43b4702f7362",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/skills.instructions.md",
+      "hash": "906eaa445fd455815e5c04d832cc42662214d227972dc98d5a07a831cc15bd36",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/script-invocation.instructions.md",
+      "hash": "e66aa758f51bff668eb1367be104c2eee8be924ce49851170a71862caa1f7d8a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/prompt.instructions.md",
+      "hash": "10127930ea8bbff8b979b1d971d721d8eca56bb5bad2fa80664f4cd6966ff25d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/instructions.instructions.md",
+      "hash": "c1ecd19c950a6355976f878af9769b06e39c9623adc22d8615c3eb52359cea8d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/info-leaking-prevention.instructions.md",
+      "hash": "97a4608a383b6885317d6e9bc02417a5d9c1122bdb0a6c1422402de95a442288",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/git-operations.instructions.md",
+      "hash": "bf27385195af9fd2f5112cfc96344649a982d673199dc304cc1752dd2eedb2cf",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/copilot.instructions.md",
+      "hash": "f045aa51b0c2dadc002b36807d68c9d031e0219b3e8668eb9c43359c445bc4af",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/instructions/agents.instructions.md",
+      "hash": "baa4f9a3d20ea71c79d8ed8a929b7d19b3e76bf6111e0c5670a214b0facbc6ea",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/core/discovery.md",
+      "hash": "25f7a802164f97f65ff515d473b44e0bc66ba6384175c139ef893b62c60931f0",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.task-implementor.agent.md",
+      "hash": "8b8874427eda14c2333b38ad4f78f06c37e3b2c926ae4bd2061e6171a956d73b",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.prd-validator.agent.md",
+      "hash": "e68c7daef8815562b9093a2846aa1466bba42e8163f020a2c5eef72a7565f22d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.prd-creator.agent.md",
+      "hash": "254d304a0e0932b013d472ec36d89a5220ff33e1e447e47b3eb0446b9e3e30a9",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.pr-reviewer.agent.md",
+      "hash": "6ddda6688e79208e0febad292c9244b362810fd555871baee2363dcb3e6f30fa",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.pr-feedback-handler.agent.md",
+      "hash": "a93f03e5a93ae6303c6dc1cc05749db78df4ef7c702065e9c72e3f17088c8564",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.pr-creator.agent.md",
+      "hash": "60eb4c157d1859ac899d676e48cd28ddbea39edaec14c7e380acab3d548a6d26",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.plan.agent.md",
+      "hash": "12f68d23fa146e6b3ee45397027f41ddffc84b843cc6742e872e52272c2be8a7",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.plan-validator.agent.md",
+      "hash": "ff72c0e7da672c38f5462abf7d868005ff2dd2cc58388323a844416718be8ce9",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.plan-generator.agent.md",
+      "hash": "92517cd9c08fe24d38abbe0f33c468c330b7a0b07e888acaa1a598df7668a255",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.main-orchestrator.agent.md",
+      "hash": "6669c0c6b3c1b4e64f00d5aebc2485a2bad115a4efa865d746635ccc2d090881",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.issues-validator.agent.md",
+      "hash": "b18cc5cb9fcef7e0e29d5d5f5a7a7b5dc82dac30c7c1509867904f20ebef4579",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.impl-validator.agent.md",
+      "hash": "0e73d37821de760bdaa590484852d6e87023f7f25e0523a3361b8b68462df195",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.feature-exploring-auditor.agent.md",
+      "hash": "1774bd8d017ea4131c521585d32b4cd8437203db772d36caf1d57416fe75823d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.feature-explorer.agent.md",
+      "hash": "247d43e8d29b870b174d53a99a0cf5f234d754a574cd5f81dc4c25a19d451716",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.bug-exploring-auditor.agent.md",
+      "hash": "ca50aa741478e137702d3464cafa723cffc990a9a51307dd3f8445e6f8a3c257",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/agents/tot.bug-explorer.agent.md",
+      "hash": "75431c743cad7cbef78289c6d6593ee0fa11358c59ef84ffa0d29af2ee1a7104",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/todo-loop-enforcement/SKILL.md",
+      "hash": "24b6b8382f34164019567f555594d68d7b3e850914c74af143bc3ebd6fc7e35f",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/task-feedback-reader/SKILL.md",
+      "hash": "66c77d82f646bfb02a3dfbfc6488ae561700c93eca26ab1dc3bf319cfbc78ef6",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/subagent-context-isolation/SKILL.md",
+      "hash": "08dbf560c2521a85b5ea6d9473b7493b5b4c082d48f029c5bcf3807364af2bfd",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/SKILL.md",
+      "hash": "b2e3d83f60425c2d0b9d4162efb8f9aa322b45843497340f2289f42be422801c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/LICENSE.txt",
+      "hash": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-status-protocol/SKILL.md",
+      "hash": "202166ea3d92b75349af6001dc92055ff11c0bde6ce8e3c29a4d8bd94c0e2a6c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/SKILL.md",
+      "hash": "af66fea14c81f84d5dcf58df316340aea56745fa9290fdf5baad36870273683e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/SKILL.md",
+      "hash": "c1e7e8ad0cf58b511096ce893852330db78dc1ec7a89c7b85640d87f4f89a2ee",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/handle-pr-feedback/SKILL.md",
+      "hash": "40fdfbac737057f3be7caa0e3ac60a3a89498c146d53c2bc0985178a5b93ce33",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-safe-operations/SKILL.md",
+      "hash": "54ef6922704140bd2b70ab763dd0f5e51448ed4d20364856916fef487b682257",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/TESTING.md",
+      "hash": "91cdd7294d707507fc4e565bd06e67862b8879f7710a7b0ac55548ca09604c70",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/SKILL.md",
+      "hash": "7ea441f7568e7a57b5dc5f97dc8b372800f5ae391f1cc399d68ddb077891ab97",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/external-validation/SKILL.md",
+      "hash": "8e338807d151a999fb4e45aa0910f56e691fd29f38a5c32a5a0a8242f0ee8800",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/fetch-github-issue/SKILL.md",
+      "hash": "97dd8f91796143d26fe2b330b4deeab52846f38293861b4e35aa65a48386727a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-prompt-writer/SKILL.md",
+      "hash": "a75e501a3568167e7fe1e94a82cb5f1c25a1f0b25d5c6cdef65f7f1b50e60431",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-agent-writer/SKILL.md",
+      "hash": "08975f84c115f19a8e7f1273c45405dfeda7984aa96d6dec5adb02445dc047bd",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/create-pr/SKILL.md",
+      "hash": "930511c555b46da81b2b4a271796f02462dc54ddb2d80697e26cc31b1c019f6e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/create-github-issues/SKILL.md",
+      "hash": "912110953e55f8de267d8c062eab8b4727acbe34818961567ac421dff7946fa8",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/artifact-layout/SKILL.md",
+      "hash": "7400027569b6ef076a1426d39f0da32e48aee5ac98b8e1d96f36282dcf786f4c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-skill-writer/SKILL.md",
+      "hash": "03ab57bda2548b59df3fe9518753be49baeea0aaef4ba1c2bed19dc14d1c9787",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/scripts/quick_validate.py",
+      "hash": "381ab2d3d1fd5ec32371016413063eff99d0d48c415747085c61517e967dbb87",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/scripts/package_skill.py",
+      "hash": "b31fbcb3e362d5c5308e99255ff8e83cde3a513e0636953964a648494ca10931",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/scripts/init_skill.py",
+      "hash": "0bba250b94caa4cb2b28b15dad26fdcf371aeda4c9797b8120e55c2e33e0c73c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/references/workflows.md",
+      "hash": "ef4846877d5dab47511a01a6cf31476ad64f5bc5945635459295794575338980",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/skill-creator/references/output-patterns.md",
+      "hash": "d6027800b9d8c26589edba85b42901a41ac36d753b4e9cebc7f4cbb03cdcf0a4",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/scripts/validate-gh-auth.py",
+      "hash": "c9e74c1395d17e9d384bf2cc991d4da7245115a37d1bf0d5db37aba553e96bdd",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/scripts/post-review.py",
+      "hash": "173a001865d3f8b7363672f8e246d7554bbc1d0a6beb48d215119c35437618ef",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/scripts/fetch-pr-context.py",
+      "hash": "49c7fada98ee4b3adc555ce7b5480dd04264cb943b9c9d13d6827ab755c27045",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/update_task.py",
+      "hash": "d0877c7379865738a327bc3fc7d29dcac1894821af2bbda1b2536999ab40ca8e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/update_subtask.py",
+      "hash": "ea4bab7069d83c04be30fe023ddbdf1655700fc4cc3e39eac2c1818d160c046c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/update_stage_data.py",
+      "hash": "0bc5125aadef3177ac6f3b3f80595c4ed9f114c122279d25716b0f08825d45bd",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/update_stage.py",
+      "hash": "e204c5c6b712e9e2d44c63cd5e010145524b241d14c02bedfa502aca416f710d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/update_git_info.py",
+      "hash": "816e2310b78851d096ae188990421d0ee839f4cd6ee6e857e820b3ff078aa58d",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/test_pipeline.py",
+      "hash": "9409df8fcfa431fb4378a3aafe9338b96fe523278ff059a05eedece9d9a8ecfb",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/reset_to_stage.py",
+      "hash": "629484876864ae42e4512f92bfcd0b6837ff2b0bff4992474092b3dd01522c1e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/reset_stage.py",
+      "hash": "5138cb28f56f1d751ed3011c87be2464362a87977f2afa2289922fc294803443",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/reset_refinement.py",
+      "hash": "0ac083e3013ed21eda02e6ad73ff21827086aa73c66615ed82bb108324a2925f",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/request_stage_approval.py",
+      "hash": "d62f5b99fd2586b567ce507fc95621963616685be59d7916dc33544349800373",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/record_refinement.py",
+      "hash": "3cfa7cc068c6f74d7b8f3c27f634d7072f7373da7d93c31a04805aea9f8ff4f1",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/read_status.py",
+      "hash": "168a2eb8fc154f1e9df81ae8855ad719c4126d1b0b218a3f8d05f0874f3222c1",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/read_feedback.py",
+      "hash": "fda616832178676766b23ee8850262f6db3fc9e5f0f1a0ead1d59b3dc70eec62",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/pipeline_utils.py",
+      "hash": "651cc6c9a2b4235ce25fb59294e843a59754e22ae34f00c4078e02b305151bec",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/migrate_v2_to_v3.py",
+      "hash": "b1c2a80e5818eea7bd5b76959beea62a7eef32e1de3498a545b400881ed669bd",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/migrate_to_feature_folders.py",
+      "hash": "9cacca8a45720879fc509c9eb6f9247ac53cbd244caf5cba19573b3e7c6abfb1",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/init_pipeline.py",
+      "hash": "aea9484520ef101d3ad5b2436091b37f1301337f1fda11b766131c32d36dc1e5",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_task_status.py",
+      "hash": "a6cba62dce409f43e4c955bef69482f019223d7f5108c3d96747bfda5cb881c6",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_stage_status.py",
+      "hash": "30588c1b1112d740c5fa1e1b715279a574ccb3ac58358470816923bb8ce44ae5",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_pending_tasks.py",
+      "hash": "db569b04724dbc0390ae065cef60d0e26509dc712a9976b57c2eae5932a438e4",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_next_task.py",
+      "hash": "68aff04b05c5afa6aa300ad675be81c467f97983700fbce0f4df07530525e4f4",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_next_prd_id.py",
+      "hash": "eb72ab7bc2529361e35e9ba9a0a21007481b156b8efb5946f5f0ad6ec986413b",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_next_pipeline_id.py",
+      "hash": "010d1255279b88d5ce2c574e071e4efd97f0433d396634a326298c877cf0ca84",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_feedback_file_for_attempt.py",
+      "hash": "410659a9112dde05117cd35cd214318f354e5dbaa6bbe23542d6df31c9a5493c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_feedback_file.py",
+      "hash": "90e5180a2946d0bd94c9d514269ced976bd20f645dbf8d0c77a64ea25d146a42",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/get_current_stage.py",
+      "hash": "10c87d0d90f5da4138d20b2d4f4201fe2b2de1c408456f65e3d8e292f6d0d015",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/complete_stage.py",
+      "hash": "079a7edfab5d2cdfe0c56ca71351e39d5356c8ed31e6bb7b89f5e2be7a7dcf53",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/check_task_completion.py",
+      "hash": "2833fea529a32bf4aecb49ee6e96333ca0076d2aa617ee2895726a59137610c9",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/check_loop.py",
+      "hash": "3eb19bd3c12fe8a68f06cf5ad1106d52bff3b3dd71908dfe341157d22201a38f",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/add_task.py",
+      "hash": "9d10a352b47176331967be2c2bd7bb35011e6a233560c904a8ea0cd5c8a10c65",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/add_subtask.py",
+      "hash": "63fc78961f8ac7792bc45a9d0c277b83a36e0597bdf27b4f6308f0cdab0141ad",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/add_github_issue.py",
+      "hash": "f05e5ab8791f054a07aa3f5217b3b8a4f31d0a8a4cb1b592cf43d0086d8905e2",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/add_error.py",
+      "hash": "e97b36d842ab1bce7dd5872b6922d202413e5cafca34cfd53a5abba68e6667ee",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/handle-pr-feedback/scripts/watch-pr-feedback.py",
+      "hash": "923785020fbf2f52195e6126c0f6a8c6289f617d118d63a380f66e8697fda1b9",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/handle-pr-feedback/scripts/resolve-thread.py",
+      "hash": "f7eb45042facb258f13a3d639e824f527e975a7549a45ae7a984cc4b2d32a93e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/handle-pr-feedback/scripts/request-review.py",
+      "hash": "7563bca5c3e7729247ce0181fc441711f52ea3f1862dfa29d46bb634b9b2e60e",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/handle-pr-feedback/scripts/reply-to-comment.py",
+      "hash": "d8856485d1b5558ef2c9b0265abf4696e14e8466d3b6a7b145a27abd321deea7",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/handle-pr-feedback/scripts/fetch-pr-feedback.py",
+      "hash": "23fcc762b35d3db0f5473bb4dff2c95ce71a455a01ffde6ec82d887d56ec4f04",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/templates/release.yml",
+      "hash": "8a58160db49ec512907fd2bc24e7f6668b796d24b080064f15244d85b6a21fad",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/templates/commitlint.config.js",
+      "hash": "4652d6e074ede07d6374c093f571abd1bb523e37b01c18f0df188938ef6faa9c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/templates/commit-msg-hook.sh",
+      "hash": "3b5806a18490637f7c9fe4881ff8dd91ad07b0aafc7fa8a89094a886ead69b00",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/templates/ci.yml",
+      "hash": "fc8b474deabe90567e74d5ea605d991001a20d667da3b8e0909405cb1e7a3eb8",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/git-repo-init/templates/.releaserc.json",
+      "hash": "132ecd95f885634f46d3d952cf02519ffb87318792cec762eacf36e869eb7ea1",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/fetch-github-issue/scripts/fetch-issue.py",
+      "hash": "8a032540047f6ab7d8ac9560a88d657ce6b1ecb323f404537d6ba2bc5976231c",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-prompt-writer/references/prompt_template.md",
+      "hash": "6ffbc91993625ce9d06a32ae78d66cb2b524f8dd685f179d52fc47d4a24831e8",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-agent-writer/references/best_practices.md",
+      "hash": "32caa79dc0c951e4cdc4d023d06b127ac8bd8256bb77f68add6d71b12f8632af",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-agent-writer/references/agent_template.md",
+      "hash": "e5328c0c78245e8ab700bfc25ef548730dd18f21da41ce7f46bbda4bb978de04",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/expert-skill-writer/references/best_practices.md",
+      "hash": "46b4e919dc150e329bb2afc3a92ff24f61433b8339bcf85df765e7e8872bb279",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/scripts/__pycache__/validate-gh-auth.cpython-314.pyc",
+      "hash": "37a44e650e58d8c96b82db1073afdf9bba1f320c0383edf3ae8d05c74cf123d8",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/scripts/__pycache__/post-review.cpython-314.pyc",
+      "hash": "3511efadca46345986cdf6e2aaf0114286ef632461757714ff5ef51371efa14a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/review-pr/scripts/__pycache__/fetch-pr-context.cpython-314.pyc",
+      "hash": "e68b6a38a8c0aa6f4757e96944eae2940cdf2c461e10ce9703a1f9bca4f44338",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/__pycache__/stages.cpython-314.pyc",
+      "hash": "f36307d1d81f8294fc0ff6b2696a2231bd0a79487e160397e21707f4c7a29fa6",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/__pycache__/pipeline_utils.cpython-314.pyc",
+      "hash": "fd3e6b5ea0da7fbc010364375b4eff459411c91875f81e5c698dc3b226266561",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/__pycache__/init_pipeline.cpython-314.pyc",
+      "hash": "9d45cbe45b3223324998a13e325039e86037384cb00904f82dac97c263a7b38a",
+      "component": "agents"
+    },
+    {
+      "path": ".tot/skills/pipeline-management/scripts/__pycache__/get_next_pipeline_id.cpython-314.pyc",
+      "hash": "a7003f6119c8e8f930766a16925535e7e478e80704fa6c1db8f84500578273f1",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.task-implementor.agent.md",
+      "hash": "5e109d8eb70a030f028d4f669f719d24a0c62271d85b8cf781e6dabf260907df",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.prd-validator.agent.md",
+      "hash": "aead8fab73e9b9f05316b1678b256f12262ce18e9cd41d3ad731f883c39a2abe",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.prd-creator.agent.md",
+      "hash": "3a88daedc9d5b44c06388fb5529a4b444cd89385418522f439d17d719ad22675",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.pr-reviewer.agent.md",
+      "hash": "a21dc5844254c42976ac253d8b2a35175fff275b205a8be9a862c790744a11e6",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.pr-feedback-handler.agent.md",
+      "hash": "8bb2590050ffbd9858220013d28542c4207bc5315e7d16aca56755fb891e0de3",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.pr-creator.agent.md",
+      "hash": "910c86b877f0a00ccb2efc93780cfba18576aa0255453309e7217c7ca9c87e02",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.plan.agent.md",
+      "hash": "11bb113f0f2874f64195ad96bd9b00cf759aab46c7942e64a48404daff09b843",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.plan-validator.agent.md",
+      "hash": "140654a459537601bafac14e32d8b00d7a941c7a56e81b188de296844bba5cb3",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.plan-generator.agent.md",
+      "hash": "ad203c4e38f70230ea8a95255e9d993c581d8ed44def46e718e148a8b581b215",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.main-orchestrator.agent.md",
+      "hash": "f86740eb0951111414578229ef9ee021b4d84b633f4a0a58f1f406b0a99f2235",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.issues-validator.agent.md",
+      "hash": "68a0d2854bc1fcbc1abd1226ed1c415faf966f4e66db75ae7bd8ce7c16ba557f",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.impl-validator.agent.md",
+      "hash": "1294098ab2881429f2943b3130a2cadd928a4a90eb8a859fb1071fa831bd349a",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.feature-exploring-auditor.agent.md",
+      "hash": "e2756658e0039267a4eb3eb55f3e899d501bba0686eeefed68d549bb7171d160",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.feature-explorer.agent.md",
+      "hash": "e2f02a5f02ece01884bd418d54a0ada5f22b8ff467eaf18fa350e278887bf3a6",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.bug-exploring-auditor.agent.md",
+      "hash": "252e129f25fb5c489e324bd04bfb2d6a04e95e7ec6d1d636c69ed1bb831a4ca1",
+      "component": "agents"
+    },
+    {
+      "path": ".github/agents/tot.bug-explorer.agent.md",
+      "hash": "462b0276251d113ae62a73cd432823c2b166962ea643bd66f9e886bb70017452",
+      "component": "agents"
+    },
+    {
+      "path": ".github/prompts/tot.workflow-writer.prompt.md",
+      "hash": "f1a6b669169efa81e36ac7fb11f53f5ee4880e53b9a0febdc4a250cb04e4ea23",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.validate-prd.prompt.md",
+      "hash": "7d5bdf4641beb1e29426532a3ed1cb3422fdde133a944a186c5dc12a329a5854",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.validate-plan.prompt.md",
+      "hash": "9131f7d5d6bcab29003cdf0e0b7ae7db827a01743f02a787f2992dfc17ed7e77",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.validate-implementation.prompt.md",
+      "hash": "92e8930a9db67ceb20245d8c5f6d074fc9b4b91b0180cd5870112392f10d075e",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.spec-writer.prompt.md",
+      "hash": "c828193373326b90dab2f9599fe517a6fa7d22001a3b336ab385a054247f7fe8",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.review-pr.prompt.md",
+      "hash": "d57b530a02c1e6415c10dda707470490b1e94fc2f9058c16c7ee953d9ea5e03d",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.refactor.prompt.md",
+      "hash": "811e008952373e73c5a250c5117bc34601da491dcb8d8fc8a0cd3dee1398c2e5",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.refactor-suggest.prompt.md",
+      "hash": "2e28676fc65149e142733087f82b36c311488622586a6a7ebb75f99b8ff3c74e",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.refactor-analyze.prompt.md",
+      "hash": "bf11245e758b1609c8c81f1c581ca36407a513028db9eab68f2ffef0f6158cb6",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.process-task-list.prompt.md",
+      "hash": "21eead7729dba357388c295731e6159a78853d7cc374e655b09610d9db2b808d",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.prd-refine-loop.prompt.md",
+      "hash": "14202f829e137687a11cbe67d373e8c42d6dffac6c4d311bb3d024aa01e2823b",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.pr-feedback-refine-loop.prompt.md",
+      "hash": "574c72930ad5bfbc6727cafe32fd5489c2b855ccda079b5548edd6fe3c74ad1a",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.plan-refine-loop.prompt.md",
+      "hash": "d2c331ec0f3df8ead14b97f57c6dd4537ab2cdeb8d44af9b101c203fd1a95bfb",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.orchestrator.prompt.md",
+      "hash": "b6e1c0ce549741ea13a6ac18587806318442aff65b3583d161d3b9afc455561f",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.new-feature.prompt.md",
+      "hash": "876d7ed9337efac5a4356c47641c46de4d278a701b02f5b66a5dddc553ca46df",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.llm-validate.prompt.md",
+      "hash": "4d99797e5c6a89abf91171ebf6c0c0d27fbd1eacf67c1a2636c0f9439b00a47e",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.issues-refine-loop.prompt.md",
+      "hash": "49e22d4db910775ba4fa1223a8cc4c518479ac74e474d138789beaa23ad1c4cd",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.impl-refine-loop.prompt.md",
+      "hash": "2aecf529501b89100d2bab23c8b44827313fce4e6d68723a08defcd416454a21",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.handle-pr-feedback.prompt.md",
+      "hash": "b6e56c96518a254891a195e38d38d8d74bf8d5318925489f4ddca77acdefc05d",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.github-issue-pipeline.prompt.md",
+      "hash": "de53806bfb356cc5a1bf57ab698db49cb2889b722263120dbae251a520f72e26",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.git-repo-init.prompt.md",
+      "hash": "b6f4607d3df7272ac43056bf632dc4317e9b219a21a4f8c9b739488f3a42039e",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.generate-plan.prompt.md",
+      "hash": "f452dba74a774dc894e537b327bce647aaeed25a59f3244ea062edc4274683f9",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.finalize-release.prompt.md",
+      "hash": "b23c5020f8e8987cbc901fb4fab1fa51605c7e09d040584c54c096dda719ad3b",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.fetch-github-issue.prompt.md",
+      "hash": "141d12bf7782b392aece8521ddb0903d37cc16dcdde5565999e3fce41efdf60a",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.feedback-copilot.prompt.md",
+      "hash": "8c1d3af1cfed81eb614514b8198bb530f2ea8ddef69b83567027f21b93482bf1",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.feature-explorer.prompt.md",
+      "hash": "9a5eab199d0e9488daaf1f458eae8f5fb67aad9e3467c00b550f82238c1054d8",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.feature-discovery-loop.prompt.md",
+      "hash": "7f17573a6dcde5ffd05569d3403be3ceb7fbaf132d4785179c66f964e4f326ca",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.create-prd.prompt.md",
+      "hash": "2f2f8d713442e41bbf7798475c47a5cd85cabe69c6ba17128e51a329f6a7d6ab",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.create-pr.prompt.md",
+      "hash": "0b5c5d80e287b597cf1e648a34ce7754a87e883701d751bd5e383753e2951c30",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.create-github-issues.prompt.md",
+      "hash": "866ce6a3c8460345823861bf44a19509e58698858128d2ff4ca03fab98865573",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.bugfix.prompt.md",
+      "hash": "8f33d7ece94427a443ddd03303536935dc5903f0a0550db9a01a2ba1cb8deb6f",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.bug-discovery-loop.prompt.md",
+      "hash": "89e4544a6a9065d9213bc45605525b59b963f6cd01e3c3251824805b8fcfcaf3",
+      "component": "prompts"
+    },
+    {
+      "path": ".github/prompts/tot.brainstorm.prompt.md",
+      "hash": "3938f2bae3df72d828393dc4d93d859c420e9d4b7701adb09364114f15e21207",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/workflow-writer.md",
+      "hash": "a4b58d383c10b7b16fa125ec9544a71c07af7cdd94a79d4f2f34026760bb5043",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/validate-prd.md",
+      "hash": "524c95a3cfad4b5530e2d5f31bec77fd871e0bf4e50cb6c73ca733aa7c495325",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/validate-plan.md",
+      "hash": "b71b00d74470abb2b0327a18782fb34a9c8a602e33e7dfa73997fbf6313ec9b2",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/validate-implementation.md",
+      "hash": "1f5c2043be878cd5f247c61761301c92289d598e2377b63d835ecd846768113e",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/spec-writer.md",
+      "hash": "16acc28adbd46fe8f7ba044e8b1a1c24f67f56b0ef644074af97b0b4e936f685",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/review-pr.md",
+      "hash": "ed6af7a5ff795027374e191b6695539a7c18568fac772e48bdf70344e050b52c",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/refactor.md",
+      "hash": "f69cc608d935ce6eeed4931117024faca4afd4a19985c4e4a8a1a2adea3eb237",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/refactor-suggest.md",
+      "hash": "ccc39e7e79c866c263e2c36c4d0d668b953c81e30cb003701bbcec2d5eb40e4e",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/refactor-analyze.md",
+      "hash": "656e5b150a944a9b50d1df1685dc7b30752cce3efb6dcb891134d223e85eba3e",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/process-task-list.md",
+      "hash": "03d9d516a89f0fd49dea22e3a7345a7c03878e8b27202fac3ef603db8a40f2a0",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/prd-refine-loop.md",
+      "hash": "cbe977ea149723a637c63efe316bd2eb6a073271dde3ec4a8f589dfff28af535",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/pr-feedback-refine-loop.md",
+      "hash": "b67ddb8a77ad092607a79b9ee9e6c779c8440f341885fe71516140369a9b4de7",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/plan-refine-loop.md",
+      "hash": "023e0adf8b46c21b553455e26bafa0457c9c87c96affec92faa229659b4b3db4",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/orchestrator.md",
+      "hash": "c5cc72b46390ed1de4af99f13cc8d52f7e8ba519c2262e5c0ec54eaf826be2d0",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/new-feature.md",
+      "hash": "1629fed9a4aacd72b0425bee34694d0d89688f0b0f42f9777fd2c00b1a624d57",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/llm-validate.md",
+      "hash": "4e484bf040549730c0bed8e1a44c5fd2c1c9d5a52f7b0c3e93e4b22099b70139",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/issues-refine-loop.md",
+      "hash": "78f3f2531c681ce8255d1d33b9009371e49f482d3cfab8dd4c96ec6b287495ac",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/impl-refine-loop.md",
+      "hash": "901a1ed68788137e0f8249000e7dfd1a162b12f1e37dbfaf8e63014de9f901a7",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/handle-pr-feedback.md",
+      "hash": "f9f893019312532fbf3af3c4485cc856bd77e760353bd8e78b8a418700d326ac",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/github-issue-pipeline.md",
+      "hash": "249fa2dea7b71e2495f77b107f3651d60127db7aac255cfb6b88ae650199a15e",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/git-repo-init.md",
+      "hash": "e2b60e6d49b762647972310fc985245e4e66e64b360c4ed99195b5ab0af24fc3",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/generate-plan.md",
+      "hash": "1743804512eecf6182931dfa8be713acacbd8b90b180e7a1aaa23d1c711dcf5d",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/finalize-release.md",
+      "hash": "12b1096c9674ad19e1c4a27cb8f1ef4e383d5a7784300ba642dc9c43fa41aac2",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/fetch-github-issue.md",
+      "hash": "75ba539805411ad75dfd9bb2c07aa503c7634fd310774297b4c8ffacb0c84731",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/feedback-copilot.md",
+      "hash": "54fc32c417434ea775a7181dd3d27694db4351ae91f7599490110541fa64e94c",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/feature-explorer.md",
+      "hash": "0ada556ed8bf8ce8ee140b7b2f7f6cadd5bb4847ddbf2d7886a45d19a12eabcd",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/feature-discovery-loop.md",
+      "hash": "d5dc2ceb4190df48c3b36369bf7d152e0b1a2d3af61e10eb98ef86f1b45eeb20",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/create-prd.md",
+      "hash": "52397edbe575036baed623959a1a31642dad5f21ac44913b74a236b2830c1c34",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/create-pr.md",
+      "hash": "4688478315f3b75164a52239ba5fbee19d0ac66601f2b6a7ac17f6f639013562",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/create-github-issues.md",
+      "hash": "b473f50080e9a97af148f9116163d76bf5df372ca8567ee30073adc2b396d715",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/bugfix.md",
+      "hash": "c10d8e509dc56d07dcd40dc533a3aa271f2e4cc82a0248f147c8a0c48138448f",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/bug-discovery-loop.md",
+      "hash": "c58b4761a741b3ab2bb212c4e9059b4f08be70e50efb089ffee31a2c3414c4ab",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/workflows/brainstorm.md",
+      "hash": "6f1dba1b0ec39f826091cebb2af8485738b496c825e27a9a1ab06f5cc957e4be",
+      "component": "prompts"
+    },
+    {
+      "path": ".agent/agents/tot.task-implementor.agent.md",
+      "hash": "a5ac533c2cec66d8953a011091f8a27dfc02076cf878f02ae1a5e600d513cb00",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.prd-validator.agent.md",
+      "hash": "6581150e4569a9179d9c21094edf9e7dfc7389f7cb25a08018e97b4adc32dd2f",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.prd-creator.agent.md",
+      "hash": "524826e4aaa617229cccb49a49c8815d498c1ca12d4609ffc0a5412b92a76ffd",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.pr-reviewer.agent.md",
+      "hash": "b5fdc9c5137aa03345c0e45a5fdb956ae6a2a1925cbbacd59d897e14a36d0df8",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.pr-feedback-handler.agent.md",
+      "hash": "ed37b68635c9f31474e96564f252513e222a24fad7cfafd4d65f6e335947c4bc",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.pr-creator.agent.md",
+      "hash": "3fe440c5f2f28eb6ff3006ce9e5a128d349c83df3a636aee7c98170b2dde59e3",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.plan.agent.md",
+      "hash": "6be1c4315d1207f132efbc8fdba1e8af3294222d09802f3838e2250a03e537f4",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.plan-validator.agent.md",
+      "hash": "3751fb31d7ec6b44f7129e8c91b4b3f8ed365cb154bf8d74cf8d9d57f2e8676d",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.plan-generator.agent.md",
+      "hash": "af94a2a4379eacf34cbe04624edcab0ab5766645ed3770dd1e9e9dd456d920db",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.main-orchestrator.agent.md",
+      "hash": "4d828bd6e41a4d0bc8230fd3f28b2e2886f5beb7715a4b32230f20555a64ef3e",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.issues-validator.agent.md",
+      "hash": "f7f5bcb7fca6685ceb15455d369c56efee7193d009e071560161997bcce3cc64",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.impl-validator.agent.md",
+      "hash": "b614fdf788e46b0da35d18bc02b3a4b7267c4e152b8d2b29dc0a7f6e40a525bf",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.feature-exploring-auditor.agent.md",
+      "hash": "5301debb383eb86eca6f7a53ffda477042224f8ae5fa82bb0b8c235b7f24ff74",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.feature-explorer.agent.md",
+      "hash": "a2d05c3e3a7ea912e0e87152dca648113adaee55174be895baaf3709766eb37c",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.bug-exploring-auditor.agent.md",
+      "hash": "bf0ecb893dcd1be4ed938815afb07dfcafd18808dd913d681d4b9c60c8d9de82",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/agents/tot.bug-explorer.agent.md",
+      "hash": "8f3dbc1cae1b09a4c60009e9597cc894c7af89ddfcb2de63dbf24081324ea669",
+      "component": "agents"
+    },
+    {
+      "path": ".agent/rules/agents.instructions.md",
+      "hash": "796dfa8b82bd5ba27a030b6752cdb16a3c9181dafc15d811345b7ac2f9822e6b",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/copilot.instructions.md",
+      "hash": "753675db74fc92498e14f24bbe081796013eefa6997ca94b3320eef47d0d937e",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/git-operations.instructions.md",
+      "hash": "2cc4dd107a376d2988afc8a5ee26071fb0782bf6a352020884b6558c2aa79879",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/info-leaking-prevention.instructions.md",
+      "hash": "655f0533de7ce53b565a835ec5dda8e9f12735b7da53c2f822a17c1a3ee0ff4e",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/prompt.instructions.md",
+      "hash": "0feb86187a8c0763b0050f1b18af0c8e0a07ce9bbed8ed587b7d6206dec96e35",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/script-invocation.instructions.md",
+      "hash": "a0fd25937a18af8eeec40b240d3ebc06e9793d3f5f92ced185b4c407186fe28a",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/skills.instructions.md",
+      "hash": "d03416a8bd5dc009c34ec70ce4d6e8431179b9867b169443b1ad46856d0abd75",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/terminal.instructions.md",
+      "hash": "dcfcf2124c75f66a69d25265b8e7c84779103f67ce78a703231397e9cae7e972",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/terminal.rules.md",
+      "hash": "c2e3827bb4f99256a30bfd2ae9682702e7e3deac8e55bbf04763bba680b87dc1",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/skills.rules.md",
+      "hash": "6f6685b13e5c4a111e55ea63dca0ac8b97efbf7f062b511687dc748686d64c9f",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/prompt.rules.md",
+      "hash": "671dedb8df70f9d790cd5b5f97e9073274272eb354d1a3a139a82a47d94421bf",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/instructions.rules.md",
+      "hash": "08d4150a2a6f65a874b61c31de436d938da1bcc532d27b68d864ef7f51d71076",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/info-leaking-prevention.rules.md",
+      "hash": "e0f6408c3bedf7cf4d076c026abf9ca7f84fb99cd9b35e01d597082f0fb6c2a2",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/git-operations.rules.md",
+      "hash": "3af28ce89b1d4eea195db1e34b18f19e4de3da04b60b62dbc133235d01a01d06",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/copilot.rules.md",
+      "hash": "a7eb84edd553b10fbbb1e3cbe5226e483e6809f590deeb56d49bfae8d7597f76",
+      "component": "instructions"
+    },
+    {
+      "path": ".agent/rules/agents.rules.md",
+      "hash": "d041c56caedddbd862ba4f5c6f8d0fef96e0ea60e6b52940f93bdaceb13abe93",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/terminal.instructions.md",
+      "hash": "2924251e484b87868fbe85be30ee33eee000c3bfafdc4dfe199b43b4702f7362",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/skills.instructions.md",
+      "hash": "906eaa445fd455815e5c04d832cc42662214d227972dc98d5a07a831cc15bd36",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/script-invocation.instructions.md",
+      "hash": "e66aa758f51bff668eb1367be104c2eee8be924ce49851170a71862caa1f7d8a",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/prompt.instructions.md",
+      "hash": "10127930ea8bbff8b979b1d971d721d8eca56bb5bad2fa80664f4cd6966ff25d",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/instructions.instructions.md",
+      "hash": "c1ecd19c950a6355976f878af9769b06e39c9623adc22d8615c3eb52359cea8d",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/info-leaking-prevention.instructions.md",
+      "hash": "97a4608a383b6885317d6e9bc02417a5d9c1122bdb0a6c1422402de95a442288",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/git-operations.instructions.md",
+      "hash": "bf27385195af9fd2f5112cfc96344649a982d673199dc304cc1752dd2eedb2cf",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/copilot.instructions.md",
+      "hash": "f045aa51b0c2dadc002b36807d68c9d031e0219b3e8668eb9c43359c445bc4af",
+      "component": "instructions"
+    },
+    {
+      "path": ".github/instructions/agents.instructions.md",
+      "hash": "baa4f9a3d20ea71c79d8ed8a929b7d19b3e76bf6111e0c5670a214b0facbc6ea",
+      "component": "instructions"
+    },
+    {
+      "path": "agents/tot.spec-updater.agent.md",
+      "hash": "ed78c197720f92ed2ca328b6e28a54a9b8db1a17ad6c842da717402ef4d62467",
+      "component": "agents"
+    },
+    {
+      "path": "agents/tot.issue-pipeline-orchestrator.agent.md",
+      "hash": "e7bdbbb250a88cbf30dec1d3744809fa46fcd2e094652c3bb1100912b211203f",
+      "component": "agents"
+    },
+    {
+      "path": "agents/tot.spec-reader.agent.md",
+      "hash": "3458ece350259b28ce8f9858ba54a7ff5ac5192a3f63267c9f107e53f18613ab",
+      "component": "agents"
+    },
+    {
+      "path": "prompts/tot.solve-github-issue.prompt.md",
+      "hash": "fe0246c66ac479fa0400d191ac773d1c3e6fd2459467039d6a14ef51d050736c",
+      "component": "prompts"
+    },
+    {
+      "path": "instructions/specifications.instructions.md",
+      "hash": "548ff7ec1dbc2e63a9eba89ffdbcc4cfa77cd6375c29ef3843d3f3fb198dff30",
+      "component": "instructions"
+    },
+    {
+      "path": "create-github-issues/SKILL.md",
+      "hash": "912110953e55f8de267d8c062eab8b4727acbe34818961567ac421dff7946fa8",
+      "component": "skills"
+    },
+    {
+      "path": "artifact-layout/SKILL.md",
+      "hash": "7400027569b6ef076a1426d39f0da32e48aee5ac98b8e1d96f36282dcf786f4c",
+      "component": "skills"
+    },
+    {
+      "path": "expert-agent-writer/references/best_practices.md",
+      "hash": "32caa79dc0c951e4cdc4d023d06b127ac8bd8256bb77f68add6d71b12f8632af",
+      "component": "skills"
+    },
+    {
+      "path": "expert-agent-writer/SKILL.md",
+      "hash": "08975f84c115f19a8e7f1273c45405dfeda7984aa96d6dec5adb02445dc047bd",
+      "component": "skills"
+    },
+    {
+      "path": "expert-prompt-writer/references/prompt_template.md",
+      "hash": "6ffbc91993625ce9d06a32ae78d66cb2b524f8dd685f179d52fc47d4a24831e8",
+      "component": "skills"
+    },
+    {
+      "path": "create-pr/SKILL.md",
+      "hash": "930511c555b46da81b2b4a271796f02462dc54ddb2d80697e26cc31b1c019f6e",
+      "component": "skills"
+    },
+    {
+      "path": "expert-skill-writer/SKILL.md",
+      "hash": "03ab57bda2548b59df3fe9518753be49baeea0aaef4ba1c2bed19dc14d1c9787",
+      "component": "skills"
+    },
+    {
+      "path": "expert-prompt-writer/SKILL.md",
+      "hash": "a75e501a3568167e7fe1e94a82cb5f1c25a1f0b25d5c6cdef65f7f1b50e60431",
+      "component": "skills"
+    },
+    {
+      "path": "external-validation/SKILL.md",
+      "hash": "8e338807d151a999fb4e45aa0910f56e691fd29f38a5c32a5a0a8242f0ee8800",
+      "component": "skills"
+    },
+    {
+      "path": "expert-agent-writer/references/agent_template.md",
+      "hash": "e5328c0c78245e8ab700bfc25ef548730dd18f21da41ce7f46bbda4bb978de04",
+      "component": "skills"
+    },
+    {
+      "path": "expert-skill-writer/references/best_practices.md",
+      "hash": "46b4e919dc150e329bb2afc3a92ff24f61433b8339bcf85df765e7e8872bb279",
+      "component": "skills"
+    },
+    {
+      "path": "fetch-github-issue/scripts/fetch-issue.py",
+      "hash": "da46dce91957f8033fa7d7aa69d3a26ba926227c47be214146d406ebfc105028",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/TESTING.md",
+      "hash": "91cdd7294d707507fc4e565bd06e67862b8879f7710a7b0ac55548ca09604c70",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/SKILL.md",
+      "hash": "7ea441f7568e7a57b5dc5f97dc8b372800f5ae391f1cc399d68ddb077891ab97",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/templates/.releaserc.json",
+      "hash": "132ecd95f885634f46d3d952cf02519ffb87318792cec762eacf36e869eb7ea1",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/templates/ci.yml",
+      "hash": "fc8b474deabe90567e74d5ea605d991001a20d667da3b8e0909405cb1e7a3eb8",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/templates/commitlint.config.js",
+      "hash": "4652d6e074ede07d6374c093f571abd1bb523e37b01c18f0df188938ef6faa9c",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/templates/commit-msg-hook.sh",
+      "hash": "3b5806a18490637f7c9fe4881ff8dd91ad07b0aafc7fa8a89094a886ead69b00",
+      "component": "skills"
+    },
+    {
+      "path": "handle-pr-feedback/scripts/fetch-pr-feedback.py",
+      "hash": "23fcc762b35d3db0f5473bb4dff2c95ce71a455a01ffde6ec82d887d56ec4f04",
+      "component": "skills"
+    },
+    {
+      "path": "git-safe-operations/SKILL.md",
+      "hash": "54ef6922704140bd2b70ab763dd0f5e51448ed4d20364856916fef487b682257",
+      "component": "skills"
+    },
+    {
+      "path": "handle-pr-feedback/SKILL.md",
+      "hash": "40fdfbac737057f3be7caa0e3ac60a3a89498c146d53c2bc0985178a5b93ce33",
+      "component": "skills"
+    },
+    {
+      "path": "fetch-github-issue/SKILL.md",
+      "hash": "97dd8f91796143d26fe2b330b4deeab52846f38293861b4e35aa65a48386727a",
+      "component": "skills"
+    },
+    {
+      "path": "handle-pr-feedback/scripts/reply-to-comment.py",
+      "hash": "d8856485d1b5558ef2c9b0265abf4696e14e8466d3b6a7b145a27abd321deea7",
+      "component": "skills"
+    },
+    {
+      "path": "handle-pr-feedback/scripts/watch-pr-feedback.py",
+      "hash": "923785020fbf2f52195e6126c0f6a8c6289f617d118d63a380f66e8697fda1b9",
+      "component": "skills"
+    },
+    {
+      "path": "handle-pr-feedback/scripts/resolve-thread.py",
+      "hash": "f7eb45042facb258f13a3d639e824f527e975a7549a45ae7a984cc4b2d32a93e",
+      "component": "skills"
+    },
+    {
+      "path": "handle-pr-feedback/scripts/request-review.py",
+      "hash": "7563bca5c3e7729247ce0181fc441711f52ea3f1862dfa29d46bb634b9b2e60e",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/SKILL.md",
+      "hash": "d7052466d0add7d3d279c834cd5d68e2083dca087d0056a155fe28f0f13d8e47",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/pipeline_utils.cpython-314.pyc",
+      "hash": "2649a6f60700ec5d6acc858d655bd24aeb9b2f757c817a2c0025d15bc79f0111",
+      "component": "skills"
+    },
+    {
+      "path": "git-repo-init/templates/release.yml",
+      "hash": "8a58160db49ec512907fd2bc24e7f6668b796d24b080064f15244d85b6a21fad",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_next_pipeline_id.cpython-314.pyc",
+      "hash": "ed621351d5a2d1d2825a156b4d85efffe8f39bfb5973ce323ac1b2473907eea9",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/add_error.py",
+      "hash": "2b526ae44f4664fd1d5a63d009b0439775cf51cda816ff9a549d9986667dd9c7",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/add_github_issue.py",
+      "hash": "5ceda7fc91fe22fc260c186b3f634d39f6aa77649fb9c82480e3576bc112c6c4",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/check_loop.py",
+      "hash": "f2e58eb12229ccea00b8e3f96e77c832d2a1c2c649354c3fe1138d1841525068",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/check_task_completion.py",
+      "hash": "39aaa9f481c071d93f0bdb1d75c5bae283c6a083412482dd49d749918bc7ac1f",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/complete_stage.py",
+      "hash": "687bf3eaea6fafb843bf876afe8d1f113f9e7f6fca0ff0f824d6f4d1ffb3ad49",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_current_stage.py",
+      "hash": "a88b26f1f6edaa30bb6f9cb9b08cb5904033c9a1229c0eb0653bb944b3b1b18a",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/add_subtask.py",
+      "hash": "75ef66cee24bac7d770f94db02cac43e0a5fa64fb54df50aaa6d13fe6ed0d6be",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_feedback_file.py",
+      "hash": "c24c0ad2874f60429b5900d01ce9b346d511ad466808ec1faf15cd2dd805c232",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/add_task.py",
+      "hash": "1d8ae5f476c0551cd6d02a81c862d41972fac084c0f481979e92356bdc272011",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_feedback_file_for_attempt.py",
+      "hash": "53bb29020fef63c168606cd68486cbd43ae98e4f4388dfc9fd1122d13a999fb6",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_next_prd_id.py",
+      "hash": "2a48000065f05699276441958c4e10a8fd8d510818604117eb158dfcbac721fc",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_next_pipeline_id.py",
+      "hash": "2dc9ca177f65927feb69db35fd1968f9875e9266a2e930ddad3ae7aa0c07a37f",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_pending_tasks.py",
+      "hash": "5a21f0d33984e56338571e4cd263d2413b1d4b7e60a2e9cc7d7a836ae6fe9efd",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_stage_status.py",
+      "hash": "e49b1f99c5110990632302f08df6f9ecc07db5322976cad88e2d2699a4b26df7",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_task_status.py",
+      "hash": "7a03353f123b4396a750cd9e83c83cb7512d9864f27960d5f33e22f70dc3f330",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/init_pipeline.cpython-314.pyc",
+      "hash": "bbb1ce869fc1d5abab8a81776fd45c8dbcb9bf887a5eff91de7d404835ae6fe9",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_next_task.py",
+      "hash": "3799206000d16d0c041e8b3b3860212fcc9598d306d3f18466c03269e7e2d4cc",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/migrate_to_feature_folders.py",
+      "hash": "7e11b956195b367c653673bd2dd258a3f180fa692bcc634fc616604fadfd3098",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/stages.cpython-314.pyc",
+      "hash": "f36307d1d81f8294fc0ff6b2696a2231bd0a79487e160397e21707f4c7a29fa6",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/init_pipeline.py",
+      "hash": "0c9b7085202080d5fcba10791bc0e798a0c7470a0260c021f2741b7460dea7c4",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/migrate_v2_to_v3.py",
+      "hash": "fc9d68f22ee90206f7cfd286a208ba59dd4a8061a3740b44d62b91e759e042ab",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/pipeline_utils.py",
+      "hash": "82e8873bfbdd4e31ceb29d3d4001145f657f9a513967fd669b64ef27e8f1a040",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/read_feedback.py",
+      "hash": "fda616832178676766b23ee8850262f6db3fc9e5f0f1a0ead1d59b3dc70eec62",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/record_refinement.py",
+      "hash": "140b1d0b72e217ba2955ac2fc337b88c9529625c07164fbd78e56016008e33a7",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/request_stage_approval.py",
+      "hash": "d62f5b99fd2586b567ce507fc95621963616685be59d7916dc33544349800373",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/read_status.py",
+      "hash": "e71690dd6afeaba8ad0abb32fa1f74f269613ae13d6dbe3511d2e10e52c68323",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/reset_stage.py",
+      "hash": "507cb794e08e4bd6b94ecb171610306f310866db5c8f005b9537f66d8ccd5a24",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/reset_refinement.py",
+      "hash": "0ac083e3013ed21eda02e6ad73ff21827086aa73c66615ed82bb108324a2925f",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/test_pipeline.py",
+      "hash": "9409df8fcfa431fb4378a3aafe9338b96fe523278ff059a05eedece9d9a8ecfb",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/update_git_info.py",
+      "hash": "f2ca4d2e53ee02b35fff33d1beb3f292d5380c4937200a9349238cdfa6e35e4d",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/update_subtask.py",
+      "hash": "ad5b22188d7b0567f92481493fc055b0d955b4cf617362f4f7fcfba85e53423a",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/update_stage.py",
+      "hash": "754a3cc79b71ab8f707291bff39c32e37027b09f483eaa74511238494aa8aaca",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/reset_to_stage.py",
+      "hash": "629484876864ae42e4512f92bfcd0b6837ff2b0bff4992474092b3dd01522c1e",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/update_stage_data.py",
+      "hash": "04848e54cb28b975ee0c7c62cb15c968420cfe9fae1ba93ce976ec28e7e47d0a",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-status-protocol/SKILL.md",
+      "hash": "202166ea3d92b75349af6001dc92055ff11c0bde6ce8e3c29a4d8bd94c0e2a6c",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/update_task.py",
+      "hash": "0e8773815bbcf8fa85a51283ede108045bbcf8b2132de7de1b2424b4adcebe6f",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/scripts/__pycache__/fetch-pr-context.cpython-314.pyc",
+      "hash": "e68b6a38a8c0aa6f4757e96944eae2940cdf2c461e10ce9703a1f9bca4f44338",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/SKILL.md",
+      "hash": "af66fea14c81f84d5dcf58df316340aea56745fa9290fdf5baad36870273683e",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/scripts/__pycache__/post-review.cpython-314.pyc",
+      "hash": "3511efadca46345986cdf6e2aaf0114286ef632461757714ff5ef51371efa14a",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/LICENSE.txt",
+      "hash": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/scripts/__pycache__/validate-gh-auth.cpython-314.pyc",
+      "hash": "37a44e650e58d8c96b82db1073afdf9bba1f320c0383edf3ae8d05c74cf123d8",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/scripts/fetch-pr-context.py",
+      "hash": "49c7fada98ee4b3adc555ce7b5480dd04264cb943b9c9d13d6827ab755c27045",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/scripts/post-review.py",
+      "hash": "173a001865d3f8b7363672f8e246d7554bbc1d0a6beb48d215119c35437618ef",
+      "component": "skills"
+    },
+    {
+      "path": "review-pr/scripts/validate-gh-auth.py",
+      "hash": "c9e74c1395d17e9d384bf2cc991d4da7245115a37d1bf0d5db37aba553e96bdd",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/references/workflows.md",
+      "hash": "ef4846877d5dab47511a01a6cf31476ad64f5bc5945635459295794575338980",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/SKILL.md",
+      "hash": "b2e3d83f60425c2d0b9d4162efb8f9aa322b45843497340f2289f42be422801c",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/references/output-patterns.md",
+      "hash": "d6027800b9d8c26589edba85b42901a41ac36d753b4e9cebc7f4cbb03cdcf0a4",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/scripts/init_skill.py",
+      "hash": "0bba250b94caa4cb2b28b15dad26fdcf371aeda4c9797b8120e55c2e33e0c73c",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/scripts/quick_validate.py",
+      "hash": "381ab2d3d1fd5ec32371016413063eff99d0d48c415747085c61517e967dbb87",
+      "component": "skills"
+    },
+    {
+      "path": "task-feedback-reader/SKILL.md",
+      "hash": "66c77d82f646bfb02a3dfbfc6488ae561700c93eca26ab1dc3bf319cfbc78ef6",
+      "component": "skills"
+    },
+    {
+      "path": "skill-creator/scripts/package_skill.py",
+      "hash": "b31fbcb3e362d5c5308e99255ff8e83cde3a513e0636953964a648494ca10931",
+      "component": "skills"
+    },
+    {
+      "path": "subagent-context-isolation/SKILL.md",
+      "hash": "08dbf560c2521a85b5ea6d9473b7493b5b4c082d48f029c5bcf3807364af2bfd",
+      "component": "skills"
+    },
+    {
+      "path": "todo-loop-enforcement/SKILL.md",
+      "hash": "24b6b8382f34164019567f555594d68d7b3e850914c74af143bc3ebd6fc7e35f",
+      "component": "skills"
+    },
+    {
+      "path": "prompts/tot.validate-issue.prompt.md",
+      "hash": "140a3c6a241f7009cc0d8a4726d5240102c0a74cd76c13929aec29c5b03e4b7d",
+      "component": "prompts"
+    },
+    {
+      "path": "agents/tot.impl-refine-loop.agent.md",
+      "hash": "d82fbac8f348e3bedcf528ad1c4bc8a97809b280fed1f59ccde229ac6926914a",
+      "component": "agents"
+    },
+    {
+      "path": "prompts/tot.validate-implementation.prompt.md",
+      "hash": "bdac874fc3e1bcdd22f431b4a732837e9ec02cdb1a9dd2fb97c708c627f15da6",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.validate-prd.prompt.md",
+      "hash": "debd3b45e842cc2b2a19d42051c884e10f4b7ae8ab3d86e248a0d99c30c77b70",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.validate-plan.prompt.md",
+      "hash": "7393d4435345a8c741efda49e378bf95290349bd33298bfb7de76265e0a67da2",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.process-task-list.prompt.md",
+      "hash": "3490004f06b5ac62c0acf4b2803dd718c2463d0c267d972f21df1888bc03cc1c",
+      "component": "prompts"
+    },
+    {
+      "path": "agents/tot.feature-orchestrator.agent.md",
+      "hash": "dbf0d79e72d6f13bf1015d85d724993f845a07706321e9c44a0623c9ae4a3083",
+      "component": "agents"
+    },
+    {
+      "path": "prompts/tot.prd-refine-loop.prompt.md",
+      "hash": "3c9b7c7285535e5e40b2a0b0a73f67dc6dba8dc688a6b54d8f86f6df2d70f899",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.plan-refine-loop.prompt.md",
+      "hash": "9dc50263a269e95704de90b54bdf33b35d278203d54e97abafd9d52107492b38",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.resolve-github-issue.prompt.md",
+      "hash": "621272c0fe85994bc3bb67c628c4a83487a77eb9c841c1f28315199fcb4ca04c",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.orchestrator.prompt.md",
+      "hash": "1a69c87dc081c5f8ab9814229b3fbeb3167e4f9e493ff95c018c450ef95777b5",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.issues-refine-loop.prompt.md",
+      "hash": "7897c7154f07021c32aca5656c552a6d3d2db5fcb893930541f7c1c7b4a87bc0",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.finalize-release.prompt.md",
+      "hash": "1ae58524e95e549bdc0fa181771dce0a70a272266e22bd2f29aa7b259894aa2f",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.feature-discovery-loop.prompt.md",
+      "hash": "48496473ad167a9713a046c16007ca5e2e87b0b3f45facd253de3478af3b48d3",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.create-github-issues.prompt.md",
+      "hash": "206adda18973163c6612fa6e552515cac5ca486827a6cdda96b6a9be7929e53b",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.generate-plan.prompt.md",
+      "hash": "9adb9e6a7222c4a731bdd5f4a16b4affaefbcd46ea95558207c03c87f2f5e5fb",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.bugfix.prompt.md",
+      "hash": "d05455fb494d521afebe2adf6c87199dd60aa8f397ee837a66d10e024bfd31fe",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.impl-refine-loop.prompt.md",
+      "hash": "af9dc52b56d8406e9966b32fcadfc05838aebc8282ef60d23756733215a6c19b",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.new-feature.prompt.md",
+      "hash": "50ec0bb9af862741e692811919f74554adfd82ff42f6f7ce65badcf40e1f8c5d",
+      "component": "prompts"
+    },
+    {
+      "path": "prompts/tot.bug-discovery.prompt.md",
+      "hash": "dc240c4f9ccf31fa2fae07082be198a87e53dad89eefce32796b01c5bd1f725d",
+      "component": "prompts"
+    },
+    {
+      "path": ".pytest_cache/CACHEDIR.TAG",
+      "hash": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+      "component": "skills"
+    },
+    {
+      "path": ".pytest_cache/README.md",
+      "hash": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+      "component": "skills"
+    },
+    {
+      "path": "prompts/tot.brainstorm.prompt.md",
+      "hash": "0144c411ce7f3ccbbbfc92259c8484d06b6ac9f94112745676754912e9196d0a",
+      "component": "prompts"
+    },
+    {
+      "path": ".pytest_cache/.gitignore",
+      "hash": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+      "component": "skills"
+    },
+    {
+      "path": ".pytest_cache/v/cache/lastfailed",
+      "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/README.md",
+      "hash": "daf83cc60d156b2192dceb2a190a00da28fe9769f5a54b9f8d54d4da64860397",
+      "component": "skills"
+    },
+    {
+      "path": ".pytest_cache/v/cache/nodeids",
+      "hash": "38164140c9ecd3d1102f23cd857b783d6ff036e7f5a8f95079fbe2d61568466a",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/feedback-files.md",
+      "hash": "560eedcf2cf26f9adfe37878c38ca33d0d7267161d94d02eedeacb763c33d6f9",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/init-migration.md",
+      "hash": "f104c5839b33e7f0c7d61478c7cee2c95550bc2daae0eeed2139d4d003bf669c",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/stages.md",
+      "hash": "1b2bc72c5d8d7016e6541b2ee069bbaf6c482caf779df242bdf5c512135e4f43",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/other-scripts.md",
+      "hash": "6bc7e32560a36a39bf641b51ad90430cdae25650b7434e6288283679d7509518",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/tasks.md",
+      "hash": "a1a1878efa166db879edb26e99925cd2002ee404f6ffaf623bc490144aeb8f3b",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/.tot-docs/4444-qt/status.json",
+      "hash": "f38e3f8e7f71222d4c5e78aa99b9b00e7bb8a94af0c59c1f5f2066431a258e0b",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/references/loop-control.md",
+      "hash": "ada8be7aeb911f5ad073afa518c057059de3161a20c3288f067b31a921ab8178",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/.tot-docs/6666-test-fmt/status.json",
+      "hash": "faced52e2c6d129d0930ea3f25377873c3eacb1a4db4c6a65660f05ca7c75c10",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/add_error.cpython-314.pyc",
+      "hash": "a328407c8bc0636985159578b2ed708cd08c104d5224f7b6d0198e2e5c791799",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/add_github_issue.cpython-314.pyc",
+      "hash": "ad22711966fdc89167fc0785bbb906700345dd487e48dcd5296d234f71422b32",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/add_task.cpython-314.pyc",
+      "hash": "16e3127f25786d27317775a7526de1262f18367766a9175867c06ab39bfbe4b2",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/add_subtask.cpython-314.pyc",
+      "hash": "8ba1f1f7eb66fae3d997e6f4c2f278180a17584adfb97a0f04bd60afbf3254ca",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/check_loop.cpython-314.pyc",
+      "hash": "d3c353dee588d50a330b91673989b36401308facd98575aa166040417318e57c",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/check_task_completion.cpython-314.pyc",
+      "hash": "1262a1545afa33e55a2d7f3b717df45f6cc76f755ad521385f405d850a5703d8",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_feedback_file.cpython-314.pyc",
+      "hash": "f39153f8ee268f42bd68a1e1fab90de1e847b68c3e492f7eace8a18158465c24",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_current_stage.cpython-314.pyc",
+      "hash": "4f2a667c9762bdfcb9ad48019e992ffde2c13fa01a458d8a918a9ac6837b3971",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/complete_stage.cpython-314.pyc",
+      "hash": "c2fdb392f9fb5d9d88c861291c440087fc296f87c59630f97e95115f705c5e3e",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_feedback_file_for_attempt.cpython-314.pyc",
+      "hash": "45c35ad176a2b3bc51b9ec62b3086a43a0b49ab4a7ff0ae471e41746fe533e49",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_next_prd_id.cpython-314.pyc",
+      "hash": "1ac3d2cbfdb67278986473c0ef87dc65cb568e36e50c1d0c48dfc8776d8c8053",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_pipeline_paths.cpython-314.pyc",
+      "hash": "ed3c181f9a4bfc2ad4d127eb0b668a508e21585acd96537ede1e8379bb15e8a1",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_stage_status.cpython-314.pyc",
+      "hash": "230b94b2a6ddaf1a09f9f9c52ba48b1340bc4ae12b059a6fc36b740e1574bb68",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_pending_tasks.cpython-314.pyc",
+      "hash": "b7a2107253e2b45d2b67da64d86e2056a0cd2e90d976b663f2016575eff7a5d4",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_task_status.cpython-314.pyc",
+      "hash": "b27b9fa10ade376bfb317c59a9d280341fbe26ec4a46a553c129b91b7defb605",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/get_next_task.cpython-314.pyc",
+      "hash": "5d48fcbcb97e2b31b60ce9baf15487225fd8ac53152690d9038dd9262192ccea",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/pipeline.cpython-314.pyc",
+      "hash": "7fe516e4eaa6f11b14e32baa077a094173637496045eba07849696409b6c2ce8",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/read_status.cpython-314.pyc",
+      "hash": "da0d27a815d44ccd0c4d655024d473a8879f3851cd15b7d136e4985093902008",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/record_refinement.cpython-314.pyc",
+      "hash": "8ee5248ef7e75303d1e8fce18df5d5b1501f81011bdbe0020525649b9ca17493",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/reset_stage.cpython-314.pyc",
+      "hash": "c53c408048366b5d47253cc3b7b7d86b1b392ad407f1e0496d72b6bfeb322031",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/update_stage_data.cpython-314.pyc",
+      "hash": "3bb2d5147a6fb2d853dfdb374ebb6f9814281ac642cecb165f361cb26f319435",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/update_git_info.cpython-314.pyc",
+      "hash": "e8d435ab300208d564d03732cae6cafef406e5b8f1d6f74ea05763ef85a0e099",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/update_stage.cpython-314.pyc",
+      "hash": "34a42386a1e52462f4bbc170620d630206c33186409d65743f34f92d1a98ef9a",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/update_subtask.cpython-314.pyc",
+      "hash": "8fa5d8596132c954f92d5dd7d8750902749061c620ede3cc2a4769edb7543d58",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/__pycache__/update_task.cpython-314.pyc",
+      "hash": "f8f538f85d4fe9987066b31196abef1efa355e5deefcef4f55d7f92f02cb59cb",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/get_pipeline_paths.py",
+      "hash": "48f1f92d7d8cb5d5761c081422b2e25824d9d66fe100bd384897cb54736c3251",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/pipeline.py",
+      "hash": "e39f22eabeb31516e6aac8ccb3b4184c5182970a5c28e13474ead32388298b0f",
+      "component": "skills"
+    },
+    {
+      "path": "pipeline-management/scripts/test_feedback_auto_calc.py",
+      "hash": "250806f6ef88840bd85f58d2d671932beaacf1ee7d01c639eda465c5f82e8269",
+      "component": "skills"
+    },
+    {
+      "path": "agents/tot.pr-feedback-handler.agent.md",
+      "hash": "cef7dfbe8169e20f98c9223040c301bc493b81dbbdcef7af5bf1924adca221fc",
+      "component": "agents"
+    },
+    {
+      "path": "prompts/tot.pr-feedback-refine-loop.prompt.md",
+      "hash": "d3686ed7cc0e79e92d58f941c7eea8992bc594a24f4b22da83c6c62028a78ae1",
+      "component": "prompts"
+    }
+  ],
+  "folders": [
+    {
+      "path": ".tot",
+      "hash": "f2bc93abebeac805dd8ba51f1279e65d4f2a18748044571550ff1cfd88334b9b",
+      "component": "core"
+    },
+    {
+      "path": ".github/skills/.pytest_cache",
+      "hash": "fe3e346105e22aad5fbf063934760fec1afda7a838af40c5683c3c8665f65d45",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/artifact-layout",
+      "hash": "542ee78f528612499778ee0d93f27cfe69560034f1f1cb933c88820e0b0206aa",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/create-github-issues",
+      "hash": "7158cacc55f64b4c669fd7c4c8585d8c96260192cf2a552e98d47ef0a4056ea3",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/create-pr",
+      "hash": "b88fc80544ae117688e55f2c0aadc6c3d524d351aa03f2e1790973a5cb9d3c6b",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/expert-agent-writer",
+      "hash": "a27cb4cf0ae38dd2ecca5e222ade42f945a589c9ba750be625ff6d85ef052214",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/expert-prompt-writer",
+      "hash": "7bc1b899ba48490984093c35e2b5cdd2a30536a623ba41b10c498707ec1cea90",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/expert-skill-writer",
+      "hash": "dcd4f22f47d7ffc3b069ed787f3570cf8d5328a3ef6ec32a043241f4630c5455",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/external-validation",
+      "hash": "66af1953856e0fe734726851b4892f7c57cc1c861e8852b8dce971685912a93b",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/fetch-github-issue",
+      "hash": "9ededf0d77b2e9d12f5b806cc810213dd47958f506ab319c756df663f2aeaeb6",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/git-repo-init",
+      "hash": "9b649a05b5cbc9489d8fd55314dcf68718534806441243567a63456b05c312c9",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/git-safe-operations",
+      "hash": "b79afac232c9098d6e814c1902bfe84b34d5c34363f469f172d69ab7d65cb23f",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/handle-pr-feedback",
+      "hash": "ac87100391320725460ff09b9b76b2d20f87bcbbc811c4b80c15a77bb23b5485",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/pipeline-management",
+      "hash": "2259559099d88bfcedda49c57eb7bd4895f9c9647f9f0e5cc5a10acd86105554",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/pipeline-status-protocol",
+      "hash": "7fd4cab4ec1536a12bf3bdbab3894aa8343ba754a1fc7dc9aca4be03fc0b0913",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/review-pr",
+      "hash": "d1deae4425cbac504c5f56cd3ecc687137fc3c4e7084f535b1b7dc2a99954b6d",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/skill-creator",
+      "hash": "8fc2ec7cb17021e68ed8976f8a389f72c8080cf678819d5f8503340560547f3c",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/subagent-context-isolation",
+      "hash": "4188cc1b8e6f712fa820cf658113d8a91a0ebce5fce8dc5312605273d36eeebe",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/task-feedback-reader",
+      "hash": "84a20db8b3d519ae5cd93900ade9b7853bc7af46aaa1af38f5f73ff7f4587937",
+      "component": "skills"
+    },
+    {
+      "path": ".github/skills/todo-loop-enforcement",
+      "hash": "43a3dbee174c41c3e87ee99ec98043ba632d3e3563b726017855b67e351109ca",
+      "component": "skills"
+    }
+  ],
+  "skillsInstallMode": "local",
+  "skillsInstallPath": "/Users/trungnd/projects/Orca-vscode/.github/skills",
+  "updateHistory": [
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "2.0.0",
+      "timestamp": "2026-02-02T17:11:55.948Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "2.0.0",
+      "toVersion": "2.0.0",
+      "timestamp": "2026-02-02T17:27:00.670Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "2.0.0",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T21:55:19.007Z",
+      "filesChanged": 268,
+      "breakingChange": true
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T22:45:47.291Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "2.0.0",
+      "timestamp": "2026-02-02T23:02:27.246Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "2.0.0",
+      "toVersion": "2.0.0",
+      "timestamp": "2026-02-02T23:06:11.811Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "2.0.0",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T23:27:41.185Z",
+      "filesChanged": 268,
+      "breakingChange": true
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T23:27:49.123Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T23:28:06.584Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T23:28:47.070Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-02T23:28:49.909Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "2.0.0",
+      "timestamp": "2026-02-02T23:30:23.532Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "2.0.0",
+      "toVersion": "2.0.0",
+      "timestamp": "2026-02-03T07:44:58.959Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "2.0.0",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T21:07:27.530Z",
+      "filesChanged": 268,
+      "breakingChange": true
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T21:11:37.560Z",
+      "filesChanged": 268,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T21:58:39.626Z",
+      "filesChanged": 356,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T22:12:21.082Z",
+      "filesChanged": 356,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T22:26:33.836Z",
+      "filesChanged": 356,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T22:58:14.191Z",
+      "filesChanged": 357,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-03T23:08:13.285Z",
+      "filesChanged": 357,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-11T17:46:05.212Z",
+      "filesChanged": 419,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-11T23:50:36.919Z",
+      "filesChanged": 419,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-12T15:34:21.980Z",
+      "filesChanged": 421,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-12T23:34:17.672Z",
+      "filesChanged": 421,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-13T21:34:14.972Z",
+      "filesChanged": 421,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-13T21:39:22.315Z",
+      "filesChanged": 421,
+      "breakingChange": false
+    },
+    {
+      "fromVersion": "3.2.1",
+      "toVersion": "3.2.1",
+      "timestamp": "2026-02-16T14:50:41.188Z",
+      "filesChanged": 421,
+      "breakingChange": false
+    }
+  ],
+  "updatedAt": "2026-02-16T14:50:41.188Z"
+}
