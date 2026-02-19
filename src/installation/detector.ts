@@ -181,6 +181,7 @@ export class OrcaDetector {
                 
                 proc.stderr.on('data', (data) => {
                     stderr += data.toString();
+                    tryResolveVersion();
                 });
                 
                 const timeout = setTimeout(() => {
@@ -188,7 +189,7 @@ export class OrcaDetector {
                         proc.kill('SIGTERM');
                         reject(new Error('Version check timeout - this may not be ORCA computational chemistry software'));
                     }
-                }, 5000);
+                }, 15000);
                 
                 proc.on('close', () => {
                     clearTimeout(timeout);

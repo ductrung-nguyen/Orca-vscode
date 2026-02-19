@@ -579,7 +579,7 @@ export class WizardPanel {
       const iconPath = path.join(this.context.extensionPath, "images", "icon.png");
       if (fs.existsSync(iconPath)) {
         const logoUri = this.panel.webview.asWebviewUri(vscode.Uri.file(iconPath));
-        html = html.replace("{{logoUri}}", logoUri.toString());
+        html = html.replace(/\{\{logoUri\}\}/g, logoUri.toString());
       } else {
         html = html.replace(/\{\{logoUri\}\}/g, "");
       }
@@ -1566,7 +1566,7 @@ EOF
                     methodEl.textContent = 'Manual';
                 }
             }
-            
+
             function handleValidationResults(result) {
                 console.log('[ORCA Wizard] Handling validation results:', result);
                 validationResult = result;
