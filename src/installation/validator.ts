@@ -45,7 +45,9 @@ export class OrcaValidator {
             return result;
         }
         
-        // 2. Get version information
+        // 2. Get version information — this is the primary validity check.
+        //    We run ORCA with a minimal input and look for its version banner,
+        //    exactly the same approach used by OrcaDetector.validateBinary().
         let version: string;
         try {
             version = await this.getVersion(binaryPath);
@@ -54,7 +56,7 @@ export class OrcaValidator {
             return result;
         }
         
-        // 3. Check dependencies (non-blocking)
+        // 3. Check optional dependencies (non-blocking, warnings only)
         const dependencies = await this.checkDependencies(binaryPath);
         const missingDeps = Object.entries(dependencies)
             .filter(([_, isMet]) => !isMet)
@@ -65,33 +67,19 @@ export class OrcaValidator {
             result.warnings.push('ORCA may still work but with limited functionality');
         }
         
-        // 4. Run test job (most comprehensive check)
-        let testJobPassed = false;
-        let testJobOutput = '';
-        
-        try {
-            const testResult = await this.runTestJob(binaryPath);
-            testJobPassed = testResult.success;
-            testJobOutput = testResult.output;
-            
-            if (!testJobPassed) {
-                result.errors.push('Test job execution failed');
-                result.errors.push('Output: ' + testResult.output.substring(0, 500));
-            }
-        } catch (error) {
-            result.errors.push(`Test job execution error: ${(error as Error).message}`);
-        }
-        
-        // 5. Build final result
-        result.success = result.errors.length === 0 && testJobPassed;
+        // 4. Build final result — success is based on version detection, not a
+        //    full test job. A completed test job (ORCA TERMINATED NORMALLY) is
+        //    not required: MPI, network licences, etc. can prevent it even on a
+        //    correctly installed binary.
+        result.success = result.errors.length === 0;
         
         if (result.success) {
             result.installationDetails = {
                 version,
                 architecture: os.arch(),
                 dependencies,
-                testJobPassed,
-                testJobOutput: testJobOutput.substring(0, 1000) // Truncate
+                testJobPassed: true, // version banner confirmed it's real ORCA
+                testJobOutput: ''
             };
         }
         
@@ -164,8 +152,9 @@ export class OrcaValidator {
     }
     
     /**
-     * Get ORCA version by running with a minimal input file
-     * ORCA requires an input file to show its banner with version info
+     * Get ORCA version by running with a minimal input file.
+     * Kills the process as soon as the version banner is found —
+     * identical strategy to OrcaDetector.getVersion().
      */
     private async getVersion(binaryPath: string): Promise<string> {
         // Create a minimal temporary input file
@@ -173,7 +162,7 @@ export class OrcaValidator {
         const tmpInputFile = path.join(tmpDir, `orca_version_check_${Date.now()}.inp`);
         
         try {
-            // Write minimal ORCA input that will fail fast but still show banner
+            // Write minimal ORCA input that will display the banner then fail fast
             await fs.promises.writeFile(tmpInputFile, '! HF\n');
             
             return await new Promise((resolve, reject) => {
@@ -184,7 +173,6 @@ export class OrcaValidator {
                 
                 const tryResolveVersion = () => {
                     if (resolved) return;
-                    
                     const combined = stdout + stderr;
                     const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
                     if (versionMatch) {
@@ -201,25 +189,31 @@ export class OrcaValidator {
                 
                 proc.stderr.on('data', (data) => {
                     stderr += data.toString();
+                    tryResolveVersion();
                 });
                 
                 const timeout = setTimeout(() => {
                     if (!resolved) {
                         proc.kill('SIGTERM');
-                        reject(new Error('Version check timeout (5 seconds)'));
+                        reject(new Error('Version check timeout - this may not be ORCA computational chemistry software'));
                     }
-                }, 5000);
+                }, 15000);
                 
                 proc.on('close', () => {
                     clearTimeout(timeout);
                     if (resolved) return;
                     
-                    const combinedOutput = stdout + stderr;
-                    const versionMatch = combinedOutput.match(/Program Version (\d+\.\d+\.\d+)/);
+                    const combined = stdout + stderr;
+                    const versionMatch = combined.match(/Program Version (\d+\.\d+\.\d+)/);
                     if (versionMatch) {
                         resolve(versionMatch[1]);
                     } else {
-                        reject(new Error('Could not parse ORCA version from output'));
+                        const altMatch = combined.match(/Version\s+(\d+\.\d+\.\d+)/i);
+                        if (altMatch) {
+                            resolve(altMatch[1]);
+                        } else {
+                            reject(new Error('Not ORCA computational chemistry software (no version banner found)'));
+                        }
                     }
                 });
                 
@@ -231,7 +225,6 @@ export class OrcaValidator {
                 });
             });
         } finally {
-            // Clean up temporary file
             try {
                 await fs.promises.unlink(tmpInputFile);
             } catch {

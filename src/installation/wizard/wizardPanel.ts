@@ -3,408 +3,533 @@
  * Manages the interactive installation wizard UI
  */
 
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as os from 'os';
-import { OrcaDetector } from '../detector';
-import { OrcaValidator } from '../validator';
-import { WizardState, Platform, InstallationMethod } from '../types';
-import { LinuxInstaller } from '../strategies/linuxInstaller';
-import { MacOSInstaller } from '../strategies/macosInstaller';
-import { WindowsInstaller } from '../strategies/windowsInstaller';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
+import * as os from "os";
+import { OrcaDetector } from "../detector";
+import { OrcaValidator } from "../validator";
+import { WizardState, Platform, InstallationMethod } from "../types";
+import { LinuxInstaller } from "../strategies/linuxInstaller";
+import { MacOSInstaller } from "../strategies/macosInstaller";
+import { WindowsInstaller } from "../strategies/windowsInstaller";
 
 /**
  * Message types sent from extension to webview
  */
 export enum MessageToWebview {
-    Initialize = 'initialize',
-    DetectionResults = 'detectionResults',
-    ValidationResults = 'validationResults',
-    InstallationSteps = 'installationSteps',
-    RestoreState = 'restoreState',
-    Error = 'error'
+  Initialize = "initialize",
+  DetectionResults = "detectionResults",
+  ValidationResults = "validationResults",
+  InstallationSteps = "installationSteps",
+  RestoreState = "restoreState",
+  Error = "error",
+  ProgressUpdate = "progressUpdate",
+  OutputLine = "outputLine",
+  InstallationError = "installationError",
+  InstallationComplete = "installationComplete",
 }
 
 /**
  * Message types sent from webview to extension
  */
 export enum MessageFromWebview {
-    Ready = 'ready',
-    StartDetection = 'startDetection',
-    ValidatePath = 'validatePath',
-    GetInstallationSteps = 'getInstallationSteps',
-    SaveConfiguration = 'saveConfiguration',
-    SaveState = 'saveState',
-    Complete = 'complete',
-    Cancel = 'cancel',
-    OpenExternal = 'openExternal',
-    BrowseForBinary = 'browseForBinary'
+  Ready = "ready",
+  StartDetection = "startDetection",
+  ValidatePath = "validatePath",
+  GetInstallationSteps = "getInstallationSteps",
+  SaveConfiguration = "saveConfiguration",
+  SaveState = "saveState",
+  Complete = "complete",
+  Cancel = "cancel",
+  OpenExternal = "openExternal",
+  BrowseForBinary = "browseForBinary",
+  OpenSettings = "openSettings",
+  RunTestJob = "runTestJob",
 }
 
 /**
  * Message payload interface
  */
 interface Message {
-    type: string;
-    payload?: Record<string, unknown> | { path?: string; url?: string; method?: InstallationMethod } | undefined;
+  type: string;
+  payload?:
+    | Record<string, unknown>
+    | { path?: string; url?: string; method?: InstallationMethod }
+    | undefined;
 }
 
 /**
  * Manages the ORCA installation wizard webview panel
  */
 export class WizardPanel {
-    /** Singleton instance */
-    private static currentPanel: WizardPanel | undefined;
-    
-    /** VS Code webview panel */
-    private readonly panel: vscode.WebviewPanel;
-    
-    /** Extension context */
-    private readonly context: vscode.ExtensionContext;
-    
-    /** Detector instance */
-    private readonly detector: OrcaDetector;
-    
-    /** Validator instance */
-    private readonly validator: OrcaValidator;
-    
-    /** Disposables for cleanup */
-    private disposables: vscode.Disposable[] = [];
-    
-    /** Current platform */
-    private readonly platform: Platform;
-    
-    /**
-     * Create or show the wizard panel
-     */
-    public static createOrShow(context: vscode.ExtensionContext): void {
-        const column = vscode.window.activeTextEditor
-            ? vscode.window.activeTextEditor.viewColumn
-            : undefined;
-        
-        // If we already have a panel, show it
-        if (WizardPanel.currentPanel) {
-            WizardPanel.currentPanel.panel.reveal(column);
-            return;
+  /** Singleton instance */
+  private static currentPanel: WizardPanel | undefined;
+
+  /** VS Code webview panel */
+  private readonly panel: vscode.WebviewPanel;
+
+  /** Extension context */
+  private readonly context: vscode.ExtensionContext;
+
+  /** Detector instance */
+  private readonly detector: OrcaDetector;
+
+  /** Validator instance */
+  private readonly validator: OrcaValidator;
+
+  /** Disposables for cleanup */
+  private disposables: vscode.Disposable[] = [];
+
+  /** Current platform */
+  private readonly platform: Platform;
+
+  /**
+   * Create or show the wizard panel
+   */
+  public static createOrShow(context: vscode.ExtensionContext): void {
+    const column = vscode.window.activeTextEditor
+      ? vscode.window.activeTextEditor.viewColumn
+      : undefined;
+
+    // If we already have a panel, show it
+    if (WizardPanel.currentPanel) {
+      WizardPanel.currentPanel.panel.reveal(column);
+      return;
+    }
+
+    // Otherwise, create a new panel
+    const panel = vscode.window.createWebviewPanel(
+      "orcaInstallationWizard",
+      "ORCA Installation Wizard",
+      column || vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [
+          vscode.Uri.file(
+            path.join(context.extensionPath, "src", "installation", "wizard"),
+          ),
+          vscode.Uri.file(
+            path.join(context.extensionPath, "images"),
+          ),
+        ],
+      },
+    );
+
+    WizardPanel.currentPanel = new WizardPanel(panel, context);
+  }
+
+  /**
+   * Private constructor (use createOrShow)
+   */
+  private constructor(
+    panel: vscode.WebviewPanel,
+    context: vscode.ExtensionContext,
+  ) {
+    this.panel = panel;
+    this.context = context;
+    this.detector = new OrcaDetector();
+    this.validator = new OrcaValidator(context);
+    this.platform = os.platform() as Platform;
+
+    // Set the webview's initial html content
+    this.panel.webview.html = this.getHtmlContent();
+
+    // Set icon
+    const iconPath = path.join(context.extensionPath, "images", "icon.png");
+    if (fs.existsSync(iconPath)) {
+      this.panel.iconPath = vscode.Uri.file(iconPath);
+    }
+
+    // Listen for panel disposal
+    this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
+
+    // Handle messages from the webview
+    this.panel.webview.onDidReceiveMessage(
+      (message) => this.handleWebviewMessage(message),
+      null,
+      this.disposables,
+    );
+
+    // Update content when view state changes
+    this.panel.onDidChangeViewState(
+      (_e) => {
+        if (this.panel.visible) {
+          // Panel became visible
+          this.restoreState();
         }
-        
-        // Otherwise, create a new panel
-        const panel = vscode.window.createWebviewPanel(
-            'orcaInstallationWizard',
-            'ORCA Installation Wizard',
-            column || vscode.ViewColumn.One,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-                localResourceRoots: [
-                    vscode.Uri.file(path.join(context.extensionPath, 'src', 'installation', 'wizard'))
-                ]
-            }
-        );
-        
-        WizardPanel.currentPanel = new WizardPanel(panel, context);
-    }
-    
-    /**
-     * Private constructor (use createOrShow)
-     */
-    private constructor(
-        panel: vscode.WebviewPanel,
-        context: vscode.ExtensionContext
-    ) {
-        this.panel = panel;
-        this.context = context;
-        this.detector = new OrcaDetector();
-        this.validator = new OrcaValidator(context);
-        this.platform = os.platform() as Platform;
-        
-        // Set the webview's initial html content
-        this.panel.webview.html = this.getHtmlContent();
-        
-        // Set icon
-        const iconPath = path.join(context.extensionPath, 'images', 'icon.png');
-        if (fs.existsSync(iconPath)) {
-            this.panel.iconPath = vscode.Uri.file(iconPath);
-        }
-        
-        // Listen for panel disposal
-        this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
-        
-        // Handle messages from the webview
-        this.panel.webview.onDidReceiveMessage(
-            message => this.handleWebviewMessage(message),
-            null,
-            this.disposables
-        );
-        
-        // Update content when view state changes
-        this.panel.onDidChangeViewState(
-            _e => {
-                if (this.panel.visible) {
-                    // Panel became visible
-                    this.restoreState();
-                }
-            },
-            null,
-            this.disposables
-        );
-    }
-    
-    /**
-     * Handle messages from webview
-     */
-    private async handleWebviewMessage(message: Message): Promise<void> {
-        try {
-            switch (message.type) {
-                case MessageFromWebview.Ready:
-                    await this.handleReady();
-                    break;
-                    
-                case MessageFromWebview.StartDetection:
-                    await this.handleDetection();
-                    break;
-                    
-                case MessageFromWebview.ValidatePath:
-                    if (message.payload && typeof message.payload === 'object' && 'path' in message.payload) {
-                        await this.handleValidation(message.payload.path as string);
-                    }
-                    break;
-                    
-                case MessageFromWebview.GetInstallationSteps:
-                    if (message.payload && typeof message.payload === 'object' && 'method' in message.payload) {
-                        await this.handleGetInstallationSteps(message.payload.method as InstallationMethod);
-                    }
-                    break;
-                    
-                case MessageFromWebview.SaveConfiguration:
-                    if (message.payload && typeof message.payload === 'object' && 'path' in message.payload) {
-                        await this.handleSaveConfiguration(message.payload.path as string);
-                    }
-                    break;
-                    
-                case MessageFromWebview.SaveState:
-                    if (message.payload) {
-                        await this.handleSaveState(message.payload as WizardState);
-                    }
-                    break;
-                    
-                case MessageFromWebview.Complete:
-                    await this.handleComplete();
-                    break;
-                    
-                case MessageFromWebview.Cancel:
-                    this.dispose();
-                    break;
-                    
-                case MessageFromWebview.OpenExternal:
-                    if (message.payload && typeof message.payload === 'object' && 'url' in message.payload) {
-                        await vscode.env.openExternal(vscode.Uri.parse(message.payload.url as string));
-                    }
-                    break;
-                    
-                case MessageFromWebview.BrowseForBinary:
-                    await this.handleBrowseForBinary();
-                    break;
-            }
-        } catch (error) {
-            this.sendMessage({
-                type: MessageToWebview.Error,
-                payload: { message: (error as Error).message }
-            });
-        }
-    }
-    
-    /**
-     * Handle ready message
-     */
-    private async handleReady(): Promise<void> {
-        await this.restoreState();
-    }
-    
-    /**
-     * Handle detection
-     */
-    private async handleDetection(): Promise<void> {
-        const installations = await this.detector.detectInstallations();
-        
-        this.sendMessage({
-            type: MessageToWebview.DetectionResults,
-            payload: { installations }
-        });
-    }
-    
-    /**
-     * Handle validation
-     */
-    private async handleValidation(binaryPath: string): Promise<void> {
-        const result = await this.validator.validateInstallation(binaryPath);
-        
-        this.sendMessage({
-            type: MessageToWebview.ValidationResults,
-            payload: result
-        });
-    }
-    
-    /**
-     * Handle get installation steps
-     */
-    private async handleGetInstallationSteps(method: InstallationMethod): Promise<void> {
-        let installer;
-        
-        switch (this.platform) {
-            case Platform.Linux:
-                installer = new LinuxInstaller();
-                break;
-            case Platform.MacOS:
-                installer = new MacOSInstaller();
-                break;
-            case Platform.Windows:
-                installer = new WindowsInstaller();
-                break;
-            default:
-                throw new Error('Unsupported platform');
-        }
-        
-        const steps = installer.getInstallationSteps(method);
-        const prerequisites = await installer.checkPrerequisites();
-        
-        this.sendMessage({
-            type: MessageToWebview.InstallationSteps,
-            payload: { steps, prerequisites }
-        });
-    }
-    
-    /**
-     * Handle save configuration
-     */
-    private async handleSaveConfiguration(binaryPath: string): Promise<void> {
-        const config = vscode.workspace.getConfiguration('orca');
-        await config.update('binaryPath', binaryPath, vscode.ConfigurationTarget.Global);
-        
-        vscode.window.showInformationMessage(`ORCA binary path configured: ${binaryPath}`);
-    }
-    
-    /**
-     * Handle save state
-     */
-    private async handleSaveState(state: WizardState): Promise<void> {
-        await this.context.globalState.update('orcaWizardState', {
-            ...state,
-            timestamp: Date.now()
-        });
-    }
-    
-    /**
-     * Handle completion
-     */
-    private async handleComplete(): Promise<void> {
-        // Mark wizard as completed
-        const config = vscode.workspace.getConfiguration('orca');
-        await config.update('installationWizardCompleted', true, vscode.ConfigurationTarget.Global);
-        
-        // Clear saved state
-        await this.context.globalState.update('orcaWizardState', undefined);
-        
-        vscode.window.showInformationMessage('ORCA installation wizard completed successfully!');
-        
-        this.dispose();
-    }
-    
-    /**
-     * Handle browse for binary
-     */
-    private async handleBrowseForBinary(): Promise<void> {
-        const options: vscode.OpenDialogOptions = {
-            canSelectMany: false,
-            openLabel: 'Select ORCA Binary',
-            filters: this.platform === Platform.Windows
-                ? { 'Executables': ['exe'] }
-                : {}
-        };
-        
-        const fileUri = await vscode.window.showOpenDialog(options);
-        
-        if (fileUri && fileUri[0]) {
-            const binaryPath = fileUri[0].fsPath;
-            
-            // Send the selected path back to webview
-            this.sendMessage({
-                type: 'binaryPathSelected',
-                payload: { path: binaryPath }
-            });
-        }
-    }
-    
-    /**
-     * Restore wizard state from storage
-     */
-    private async restoreState(): Promise<void> {
-        const savedState = this.context.globalState.get<WizardState>('orcaWizardState');
-        
-        if (savedState) {
-            // Check if state is expired (7 days)
-            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            if (savedState.timestamp < sevenDaysAgo) {
-                // State expired, clear it
-                await this.context.globalState.update('orcaWizardState', undefined);
-                this.sendMessage({ type: MessageToWebview.Initialize, payload: { platform: this.platform } });
-            } else {
-                // Restore state
-                this.sendMessage({
-                    type: MessageToWebview.RestoreState,
-                    payload: savedState
-                });
-            }
-        } else {
-            // No saved state, initialize fresh
-            this.sendMessage({ type: MessageToWebview.Initialize, payload: { platform: this.platform } });
-        }
-    }
-    
-    /**
-     * Send message to webview
-     */
-    private sendMessage(message: { type: string; payload?: unknown }): void {
-        this.panel.webview.postMessage(message);
-    }
-    
-    /**
-     * Get HTML content for webview
-     */
-    private getHtmlContent(): string {
-        // Try to load from external HTML file first
-        const htmlPath = path.join(this.context.extensionPath, 'src', 'installation', 'wizard', 'wizard.html');
-        
-        if (fs.existsSync(htmlPath)) {
-            let html = fs.readFileSync(htmlPath, 'utf-8');
-            
-            // Replace placeholders with webview URIs
-            const scriptUri = this.panel.webview.asWebviewUri(
-                vscode.Uri.file(path.join(this.context.extensionPath, 'src', 'installation', 'wizard', 'wizard.js'))
+      },
+      null,
+      this.disposables,
+    );
+  }
+
+  /**
+   * Handle messages from webview
+   */
+  private async handleWebviewMessage(message: Message): Promise<void> {
+    try {
+      switch (message.type) {
+        case MessageFromWebview.Ready:
+          await this.handleReady();
+          break;
+
+        case MessageFromWebview.StartDetection:
+          await this.handleDetection();
+          break;
+
+        case MessageFromWebview.ValidatePath:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "path" in message.payload
+          ) {
+            await this.handleValidation(message.payload.path as string);
+          }
+          break;
+
+        case MessageFromWebview.GetInstallationSteps:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "method" in message.payload
+          ) {
+            await this.handleGetInstallationSteps(
+              message.payload.method as InstallationMethod,
             );
-            
-            html = html.replace('{{scriptUri}}', scriptUri.toString());
-            
-            return html;
-        }
-        
-        // Fallback to inline HTML
-        return this.getInlineHtml();
+          }
+          break;
+
+        case MessageFromWebview.SaveConfiguration:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "path" in message.payload
+          ) {
+            await this.handleSaveConfiguration(message.payload.path as string);
+          }
+          break;
+
+        case MessageFromWebview.SaveState:
+          if (message.payload) {
+            await this.handleSaveState(message.payload as WizardState);
+          }
+          break;
+
+        case MessageFromWebview.Complete:
+          await this.handleComplete();
+          break;
+
+        case MessageFromWebview.Cancel:
+          this.dispose();
+          break;
+
+        case MessageFromWebview.OpenExternal:
+          if (
+            message.payload &&
+            typeof message.payload === "object" &&
+            "url" in message.payload
+          ) {
+            await vscode.env.openExternal(
+              vscode.Uri.parse(message.payload.url as string),
+            );
+          }
+          break;
+
+        case MessageFromWebview.BrowseForBinary:
+          await this.handleBrowseForBinary();
+          break;
+
+        case MessageFromWebview.OpenSettings:
+          await this.handleOpenSettings();
+          break;
+
+        case MessageFromWebview.RunTestJob:
+          await this.handleRunTestJob();
+          break;
+      }
+    } catch (error) {
+      this.sendMessage({
+        type: MessageToWebview.Error,
+        payload: { message: (error as Error).message },
+      });
     }
-    
-    /**
-     * Get inline HTML (fallback)
-     */
-    private getInlineHtml(): string {
-        const nonce = this.getNonce();
-        
-        return `<!DOCTYPE html>
+  }
+
+  /**
+   * Handle ready message
+   */
+  private async handleReady(): Promise<void> {
+    await this.restoreState();
+  }
+
+  /**
+   * Handle detection
+   */
+  private async handleDetection(): Promise<void> {
+    const installations = await this.detector.detectInstallations();
+
+    this.sendMessage({
+      type: MessageToWebview.DetectionResults,
+      payload: { installations },
+    });
+  }
+
+  /**
+   * Handle validation
+   */
+  private async handleValidation(binaryPath: string): Promise<void> {
+    const result = await this.validator.validateInstallation(binaryPath);
+
+    this.sendMessage({
+      type: MessageToWebview.ValidationResults,
+      payload: result,
+    });
+  }
+
+  /**
+   * Handle get installation steps
+   */
+  private async handleGetInstallationSteps(
+    method: InstallationMethod,
+  ): Promise<void> {
+    let installer;
+
+    switch (this.platform) {
+      case Platform.Linux:
+        installer = new LinuxInstaller();
+        break;
+      case Platform.MacOS:
+        installer = new MacOSInstaller();
+        break;
+      case Platform.Windows:
+        installer = new WindowsInstaller();
+        break;
+      default:
+        throw new Error("Unsupported platform");
+    }
+
+    const steps = installer.getInstallationSteps(method);
+    const prerequisites = await installer.checkPrerequisites();
+
+    this.sendMessage({
+      type: MessageToWebview.InstallationSteps,
+      payload: { steps, prerequisites },
+    });
+  }
+
+  /**
+   * Handle save configuration
+   */
+  private async handleSaveConfiguration(binaryPath: string): Promise<void> {
+    const config = vscode.workspace.getConfiguration("orca");
+    await config.update(
+      "binaryPath",
+      binaryPath,
+      vscode.ConfigurationTarget.Global,
+    );
+
+    vscode.window.showInformationMessage(
+      `ORCA binary path configured: ${binaryPath}`,
+    );
+  }
+
+  /**
+   * Handle save state
+   */
+  private async handleSaveState(state: WizardState): Promise<void> {
+    await this.context.globalState.update("orcaWizardState", {
+      ...state,
+      timestamp: Date.now(),
+    });
+  }
+
+  /**
+   * Handle completion
+   */
+  private async handleComplete(): Promise<void> {
+    // Mark wizard as completed
+    const config = vscode.workspace.getConfiguration("orca");
+    await config.update(
+      "installationWizardCompleted",
+      true,
+      vscode.ConfigurationTarget.Global,
+    );
+
+    // Clear saved state
+    await this.context.globalState.update("orcaWizardState", undefined);
+
+    vscode.window.showInformationMessage(
+      "ORCA installation wizard completed successfully!",
+    );
+
+    this.dispose();
+  }
+
+  /**
+   * Handle browse for binary
+   */
+  private async handleBrowseForBinary(): Promise<void> {
+    const options: vscode.OpenDialogOptions = {
+      canSelectMany: false,
+      openLabel: "Select ORCA Binary",
+      filters:
+        this.platform === Platform.Windows ? { Executables: ["exe"] } : {},
+    };
+
+    const fileUri = await vscode.window.showOpenDialog(options);
+
+    if (fileUri && fileUri[0]) {
+      const binaryPath = fileUri[0].fsPath;
+
+      // Send the selected path back to webview
+      this.sendMessage({
+        type: "binaryPathSelected",
+        payload: { path: binaryPath },
+      });
+    }
+  }
+
+  /**
+   * Handle open settings
+   */
+  private async handleOpenSettings(): Promise<void> {
+    await vscode.commands.executeCommand(
+      "workbench.action.openSettings",
+      "orca",
+    );
+  }
+
+  /**
+   * Handle run test job
+   */
+  private async handleRunTestJob(): Promise<void> {
+    // Create a simple test input file
+    const testInput = `# Simple ORCA Test Job
+! HF def2-SVP
+
+* xyz 0 1
+  H 0 0 0
+  H 0 0 0.74
+*
+`;
+
+    // Create new untitled document
+    const doc = await vscode.workspace.openTextDocument({
+      content: testInput,
+      language: "orca",
+    });
+
+    await vscode.window.showTextDocument(doc);
+    vscode.window.showInformationMessage(
+      "Test job created. Press F5 to run ORCA calculation.",
+    );
+  }
+
+  /**
+   * Restore wizard state from storage
+   */
+  private async restoreState(): Promise<void> {
+    const savedState =
+      this.context.globalState.get<WizardState>("orcaWizardState");
+
+    if (savedState) {
+      // Check if state is expired (7 days)
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      if (savedState.timestamp < sevenDaysAgo) {
+        // State expired, clear it
+        await this.context.globalState.update("orcaWizardState", undefined);
+        this.sendMessage({
+          type: MessageToWebview.Initialize,
+          payload: { platform: this.platform },
+        });
+      } else {
+        // Restore state
+        this.sendMessage({
+          type: MessageToWebview.RestoreState,
+          payload: savedState,
+        });
+      }
+    } else {
+      // No saved state, initialize fresh
+      this.sendMessage({
+        type: MessageToWebview.Initialize,
+        payload: { platform: this.platform },
+      });
+    }
+  }
+
+  /**
+   * Send message to webview
+   */
+  private sendMessage(message: { type: string; payload?: unknown }): void {
+    this.panel.webview.postMessage(message);
+  }
+
+  /**
+   * Get HTML content for webview
+   */
+  private getHtmlContent(): string {
+    // Try to load from external HTML file first
+    const htmlPath = path.join(
+      this.context.extensionPath,
+      "src",
+      "installation",
+      "wizard",
+      "wizard.html",
+    );
+
+    if (fs.existsSync(htmlPath)) {
+      let html = fs.readFileSync(htmlPath, "utf-8");
+
+      // Replace placeholders with webview URIs
+      const scriptUri = this.panel.webview.asWebviewUri(
+        vscode.Uri.file(
+          path.join(
+            this.context.extensionPath,
+            "src",
+            "installation",
+            "wizard",
+            "wizard.js",
+          ),
+        ),
+      );
+
+      html = html.replace("{{scriptUri}}", scriptUri.toString());
+
+      const iconPath = path.join(this.context.extensionPath, "images", "icon.png");
+      if (fs.existsSync(iconPath)) {
+        const logoUri = this.panel.webview.asWebviewUri(vscode.Uri.file(iconPath));
+        html = html.replace(/\{\{logoUri\}\}/g, logoUri.toString());
+      } else {
+        html = html.replace(/\{\{logoUri\}\}/g, "");
+      }
+
+      return html;
+    }
+
+    // Fallback to inline HTML
+    return this.getInlineHtml();
+  }
+
+  /**
+   * Get inline HTML (fallback)
+   */
+  private getInlineHtml(): string {
+    const nonce = this.getNonce();
+
+    const iconPath = path.join(this.context.extensionPath, "images", "icon.png");
+    const logoUriStr = fs.existsSync(iconPath)
+      ? this.panel.webview.asWebviewUri(vscode.Uri.file(iconPath)).toString()
+      : "";
+
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${this.panel.webview.cspSource} data:;">
     <title>ORCA Installation Wizard</title>
     <style>
         body {
@@ -503,7 +628,10 @@ export class WizardPanel {
 </head>
 <body>
     <div class="wizard-container">
-        <h1>ORCA Installation Wizard</h1>
+        <h1 style="display: flex; align-items: center; gap: 10px;">
+            ${logoUriStr ? `<img src="${logoUriStr}" alt="" width="28" height="28" style="border-radius: 4px;">` : ''}
+            ORCA Installation Wizard
+        </h1>
         
         <div class="progress-bar">
             <div class="progress-bar-fill" id="progress" style="width: 14%;"></div>
@@ -511,36 +639,29 @@ export class WizardPanel {
         
         <div id="wizard-content">
             <div class="step active" id="step-0">
-                <h2>Welcome</h2>
-                <p>This wizard will guide you through the process of installing and configuring ORCA computational chemistry software.</p>
-                <p><strong>What this wizard does:</strong></p>
+                <h2>Welcome to ORCA Installation</h2>
+                <p>This wizard will help you install and configure <strong>ORCA computational chemistry software</strong>.</p>
+                
+                <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                    <p><strong>📚 About ORCA:</strong></p>
+                    <p style="margin: 10px 0; font-size: 0.95em;">ORCA is a powerful computational chemistry program used by researchers worldwide. It's <strong>free for academic use</strong>.</p>
+                    <p style="margin: 10px 0; font-size: 0.9em; color: var(--vscode-descriptionForeground);">• Developed by the Max Planck Institute<br>• Used for quantum chemistry calculations<br>• Requires registration on ORCA Forum to download</p>
+                </div>
+                
+                <p><strong>What you'll do in this wizard:</strong></p>
                 <ul>
-                    <li>Detects existing ORCA installations on your system</li>
-                    <li>Provides step-by-step installation instructions</li>
-                    <li>Validates your installation</li>
-                    <li>Configures VS-ORCA to use your ORCA installation</li>
+                    <li>Check if ORCA is already installed (optional)</li>
+                    <li>Download ORCA from the official website</li>
+                    <li>Install ORCA on your computer</li>
+                    <li>Configure VS Code to use ORCA</li>
                 </ul>
+                
+                <div style="margin-top: 20px; padding: 10px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                    <p style="font-size: 0.9em; margin: 0;">⏱️ <strong>Time needed:</strong> 10-15 minutes (plus account approval time)</p>
+                </div>
             </div>
             
             <div class="step" id="step-1">
-                <h2>License Acknowledgment</h2>
-                <p>ORCA is available free of charge for academic use only.</p>
-                <div class="warning">
-                    <p><strong>Important:</strong> By proceeding, you acknowledge that:</p>
-                    <ul>
-                        <li>ORCA is free for academic use at academic institutions</li>
-                        <li>Commercial use requires a separate license</li>
-                        <li>You must register on the ORCA forum to download</li>
-                        <li>You agree to cite ORCA in publications</li>
-                    </ul>
-                </div>
-                <label style="display: block; margin-top: 20px;">
-                    <input type="checkbox" id="license-agree" onchange="updateLicenseButton()">
-                    I acknowledge and accept these terms
-                </label>
-            </div>
-            
-            <div class="step" id="step-2">
                 <h2>Detection Results</h2>
                 <p>Scanning your system for existing ORCA <strong>computational chemistry</strong> installations...</p>
                 <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">
@@ -554,53 +675,301 @@ export class WizardPanel {
                 </div>
             </div>
             
+            <div class="step" id="step-2">
+                <h2>📥 Download and Install ORCA</h2>
+                <p style="font-size: 1.05em; margin-bottom: 20px;">Follow these steps carefully. Don't worry if you're new to this - we'll guide you through everything!</p>
+                
+                <!-- Step 1: Register -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-button-background);">
+                    <h3 style="margin-top: 0;">🔐 Step 1: Create an ORCA Forum Account</h3>
+                    <p style="margin: 10px 0;"><strong>Why?</strong> You need an account to download ORCA. It's free!</p>
+                    
+                    <ol style="line-height: 1.8;">
+                        <li><strong>Click the button below</strong> to open the ORCA Forum website<br>
+                            <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de" style="margin: 10px 0;">🌐 Open ORCA Forum</button>
+                        </li>
+                        <li>Click <strong>"Register"</strong> (usually at the top right of the page)</li>
+                        <li>Fill in the registration form:
+                            <ul style="font-size: 0.9em; color: var(--vscode-descriptionForeground); line-height: 1.6;">
+                                <li>Use your <strong>academic email</strong> if possible (e.g., .edu, .ac.uk)</li>
+                                <li>Choose a username and password</li>
+                                <li>Select your institution/affiliation</li>
+                            </ul>
+                        </li>
+                        <li><strong>Submit and wait for approval</strong> (can take a few hours to 24 hours)</li>
+                        <li>Check your email for approval notification</li>
+                    </ol>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <p style="margin: 0; font-size: 0.9em;">💡 <strong>Tip:</strong> Complete the next steps while waiting for account approval!</p>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Download -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-button-background);">
+                    <h3 style="margin-top: 0;">⬇️ Step 2: Download ORCA</h3>
+                    <p style="margin: 10px 0;"><strong>After your account is approved</strong>, follow these steps:</p>
+                    
+                    <ol style="line-height: 1.8;">
+                        <li><strong>Log in</strong> to the ORCA Forum with your new account</li>
+                        <li><strong>Click the button below</strong> to go to the Downloads section<br>
+                            <button class="external-link-btn" data-url="https://orcaforum.kofo.mpg.de/app.php/dlext/" style="margin: 10px 0;">📦 Go to Downloads</button>
+                        </li>
+                        <li><strong>Find the right version</strong> for your computer:
+                            <ul style="font-size: 0.9em; color: var(--vscode-descriptionForeground); line-height: 1.6;">
+                                <li><strong>Windows:</strong> Look for "orca_6_X_X_windows.zip" or similar</li>
+                                <li><strong>macOS:</strong> Look for "orca_6_X_X_macos.tar.xz" or similar</li>
+                                <li><strong>Linux:</strong> Look for "orca_6_X_X_linux.tar.xz" or similar</li>
+                            </ul>
+                        </li>
+                        <li><strong>Click the download link</strong> and save the file to your Downloads folder</li>
+                        <li><strong>Wait for download to complete</strong> (file is large, ~1-2 GB)</li>
+                    </ol>
+                </div>
+                
+                <!-- Step 3: Install -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-button-background);">
+                    <h3 style="margin-top: 0;">🔧 Step 3: Install ORCA</h3>
+                    <p style="margin: 10px 0;">Installation differs by operating system. <strong>Choose your system below:</strong></p>
+                    
+                    <!-- Windows Instructions -->
+                    <details style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <summary style="cursor: pointer; font-weight: bold; font-size: 1.05em;">🪟 Windows Installation</summary>
+                        <div style="margin-top: 15px;">
+                            <ol style="line-height: 1.8;">
+                                <li><strong>Extract the zip file:</strong>
+                                    <ul style="font-size: 0.9em; line-height: 1.6;">
+                                        <li>Right-click the downloaded zip file</li>
+                                        <li>Select "Extract All..."</li>
+                                        <li>Choose a location (recommended: <code>C:\\orca</code>)</li>
+                                        <li>Click "Extract"</li>
+                                    </ul>
+                                </li>
+                                <li><strong>The ORCA program is now at:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">C:\\orca\\orca.exe</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
+                                </li>
+                                <li><strong>(Optional) Add to System PATH:</strong>
+                                    <ul style="font-size: 0.9em; line-height: 1.6;">
+                                        <li>Press <kbd>Win + X</kbd> and select "System"</li>
+                                        <li>Click "Advanced system settings"</li>
+                                        <li>Click "Environment Variables"</li>
+                                        <li>Under "System variables", find and select "Path"</li>
+                                        <li>Click "Edit" → "New"</li>
+                                        <li>Add: <code>C:\\orca</code></li>
+                                        <li>Click "OK" on all dialogs</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    
+                    <!-- macOS Instructions -->
+                    <details style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <summary style="cursor: pointer; font-weight: bold; font-size: 1.05em;">🍎 macOS Installation</summary>
+                        <div style="margin-top: 15px;">
+                            <ol style="line-height: 1.8;">
+                                <li><strong>Extract the archive:</strong>
+                                    <ul style="font-size: 0.9em; line-height: 1.6;">
+                                        <li>Double-click the downloaded .tar.xz file (or .dmg if available)</li>
+                                        <li>It will extract automatically</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Move ORCA to Applications folder:</strong>
+                                    <p style="font-size: 0.9em; margin: 10px 0;">Open Terminal (Applications → Utilities → Terminal) and run these commands:</p>
+                                    <div class="code-block" style="margin: 10px 0;">cd ~/Downloads
+sudo mv orca_6* /Applications/orca
+cd /Applications/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">💡 You'll need to enter your Mac password when prompted</p>
+                                </li>
+                                <li><strong>Make ORCA executable:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">sudo chmod +x /Applications/orca/orca</div>
+                                </li>
+                                <li><strong>The ORCA program is now at:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">/Applications/orca/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    
+                    <!-- Linux Instructions -->
+                    <details style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                        <summary style="cursor: pointer; font-weight: bold; font-size: 1.05em;">🐧 Linux Installation</summary>
+                        <div style="margin-top: 15px;">
+                            <ol style="line-height: 1.8;">
+                                <li><strong>Extract the archive:</strong>
+                                    <p style="font-size: 0.9em; margin: 10px 0;">Open Terminal and run:</p>
+                                    <div class="code-block" style="margin: 10px 0;">cd ~/Downloads
+tar -xf orca_6*.tar.xz</div>
+                                </li>
+                                <li><strong>Move ORCA to /opt:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">sudo mv orca_6* /opt/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">💡 You may need to enter your password</p>
+                                </li>
+                                <li><strong>Make ORCA executable:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">sudo chmod +x /opt/orca/orca</div>
+                                </li>
+                                <li><strong>(Optional) Add to PATH:</strong>
+                                    <p style="font-size: 0.9em; margin: 10px 0;">Add this line to your ~/.bashrc or ~/.zshrc:</p>
+                                    <div class="code-block" style="margin: 10px 0;">export PATH="/opt/orca:$PATH"</div>
+                                    <p style="font-size: 0.9em;">Then run: <code>source ~/.bashrc</code> (or <code>source ~/.zshrc</code>)</p>
+                                </li>
+                                <li><strong>The ORCA program is now at:</strong>
+                                    <div class="code-block" style="margin: 10px 0;">/opt/orca/orca</div>
+                                    <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">📝 Write this down - you'll need it in the next step!</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                </div>
+                
+                <!-- Step 4: Verify -->
+                <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px; border-left: 4px solid var(--vscode-testing-iconPassed);">
+                    <h3 style="margin-top: 0;">✅ Step 4: Verify Installation (Optional but Recommended)</h3>
+                    <p style="margin: 10px 0;">Let's make sure ORCA is installed correctly!</p>
+                    
+                    <ol style="line-height: 1.8;">
+                        <li><strong>Open Terminal/Command Prompt:</strong>
+                            <ul style="font-size: 0.9em; line-height: 1.6;">
+                                <li><strong>Windows:</strong> Press <kbd>Win + R</kbd>, type <code>cmd</code>, press Enter</li>
+                                <li><strong>macOS:</strong> Applications → Utilities → Terminal</li>
+                                <li><strong>Linux:</strong> Use your terminal emulator</li>
+                            </ul>
+                        </li>
+                        <li><strong>Navigate to ORCA directory:</strong>
+                            <div class="code-block" style="margin: 10px 0;"># Windows:
+cd C:\\orca
+
+# macOS:
+cd /Applications/orca
+
+# Linux:
+cd /opt/orca</div>
+                        </li>
+                        <li><strong>Create a test input file and run ORCA:</strong>
+                            <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground); margin: 6px 0 4px 0;">
+                                ORCA requires an input file to run. Create a minimal test file to verify installation:
+                            </p>
+                            <div class="code-block" style="margin: 10px 0;"># Windows (PowerShell):
+@'
+! HF def2-SVP
+* xyz 0 1
+O 0.0 0.0 0.0
+*
+'@ | Out-File -Encoding ascii version_check.inp
+
+orca.exe version_check.inp
+
+# macOS/Linux:
+cat << 'EOF' > version_check.inp
+! HF def2-SVP
+* xyz 0 1
+O 0.0 0.0 0.0
+*
+EOF
+
+./orca version_check.inp</div>
+                        </li>
+                        <li><strong>You should see output containing:</strong>
+                            <div class="code-block" style="margin: 10px 0; color: var(--vscode-testing-iconPassed);">Program Version 6.0.0</div>
+                            <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">If you see this, ORCA is installed correctly! 🎉</p>
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="success" style="margin-top: 20px;">
+                    <p style="margin: 0;"><strong>✨ Ready for the next step!</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em;">Once ORCA is installed, click "Next" to configure VS Code to use it.</p>
+                </div>
+            </div>
+            
             <div class="step" id="step-3">
-                <h2>Installation Method</h2>
-                <p>Select your installation method:</p>
-                <div id="installation-methods">
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="radio" name="install-method" value="conda" checked>
-                        Conda (Recommended) - Easiest installation with dependency management
-                    </label>
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="radio" name="install-method" value="manual">
-                        Manual Installation - Download from ORCA forum
-                    </label>
+                <h2>🎯 Configure VS Code to Use ORCA</h2>
+                <p>Let's find ORCA on your system and configure VS Code to use it.</p>
+
+                <!-- Auto-detection panel -->
+                <div id="step3-detection-panel" style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px; border-left: 3px solid var(--vscode-button-background);">
+                    <p style="margin: 0 0 8px 0;"><strong>🔍 Detected Installations</strong></p>
+                    <div id="step3-detection-output" style="margin: 8px 0;">
+                        <p style="margin: 0; color: var(--vscode-descriptionForeground); font-size: 0.9em;">Loading...</p>
+                    </div>
+                    <button id="step3-rescan-btn" style="margin-top: 8px; padding: 6px 12px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); font-size: 0.9em; display: none;">🔄 Scan Again</button>
+                </div>
+
+                <!-- Manual path entry -->
+                <div style="margin: 20px 0;">
+                    <label for="binary-path" style="display: block; margin-bottom: 8px; font-weight: bold;">ORCA Executable Path:</label>
+                    <input type="text" id="binary-path" placeholder="Enter the full path to orca executable" style="width: 70%; padding: 10px; font-family: var(--vscode-editor-font-family);">
+                    <button id="browse-btn" style="margin-left: 10px; padding: 10px 16px;">📁 Browse...</button>
+                </div>
+
+                <button id="validate-btn" style="padding: 10px 20px; font-size: 1em;">✓ Validate and Test Path</button>
+
+                <div id="validation-output" style="margin-top: 20px;"></div>
+
+                <div style="margin-top: 20px; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                    <p style="margin: 0 0 5px 0; font-size: 0.9em;"><strong>📂 Common installation paths:</strong></p>
+                    <ul style="font-size: 0.85em; line-height: 1.8; color: var(--vscode-descriptionForeground); margin: 0; padding-left: 20px;">
+                        <li><strong>Windows:</strong> <code>C:\\orca\\orca.exe</code></li>
+                        <li><strong>macOS:</strong> <code>/Applications/orca/orca</code></li>
+                        <li><strong>Linux:</strong> <code>/opt/orca/orca</code></li>
+                    </ul>
+                    <p style="margin: 8px 0 0 0; font-size: 0.85em; color: var(--vscode-descriptionForeground);">💡 Click "Browse" to locate the orca executable, or type the path directly.</p>
                 </div>
             </div>
             
             <div class="step" id="step-4">
-                <h2>Installation Instructions</h2>
-                <div id="installation-instructions">
-                    <p>Follow these steps to install ORCA:</p>
-                    <div id="steps-container"></div>
-                </div>
-            </div>
-            
-            <div class="step" id="step-5">
-                <h2>Path Configuration</h2>
-                <p>Provide the path to your ORCA binary:</p>
-                <div style="margin: 20px 0;">
-                    <input type="text" id="binary-path" placeholder="/path/to/orca" style="width: 70%; padding: 8px;">
-                    <button id="browse-btn" style="margin-left: 10px;">Browse</button>
-                </div>
-                <button id="validate-btn">Validate Path</button>
-                <div id="validation-output" style="margin-top: 20px;"></div>
-            </div>
-            
-            <div class="step" id="step-6">
-                <h2>Completion</h2>
+                <h2>🎉 Installation Complete!</h2>
                 <div id="completion-message">
                     <div class="success">
-                        <p><strong>✓ Setup Complete!</strong></p>
-                        <p>ORCA has been successfully configured for VS-ORCA.</p>
+                        <p style="font-size: 1.2em; margin: 0;"><strong>✓ Success!</strong></p>
+                        <p style="margin: 5px 0 0 0;">ORCA is now installed and configured. You're ready to run quantum chemistry calculations!</p>
                     </div>
-                    <p><strong>Next steps:</strong></p>
-                    <ul>
-                        <li>Open an ORCA input file (.inp)</li>
-                        <li>Press F5 to run a calculation</li>
-                        <li>View results in the ORCA output panel</li>
-                    </ul>
+                    <div id="install-details" style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
+                        <p><strong>Installation Details:</strong></p>
+                        <ul style="list-style: none; padding-left: 0; margin-top: 10px;">
+                            <li id="install-version" style="margin: 5px 0;">📦 Version: <span style="font-family: var(--vscode-editor-font-family);">--</span></li>
+                            <li id="install-path" style="margin: 5px 0;">📁 Location: <span style="font-family: var(--vscode-editor-font-family);">--</span></li>
+                            <li id="install-time" style="margin: 5px 0;">⏱️ Installation Time: <span>--</span></li>
+                            <li id="install-method" style="margin: 5px 0;">🔧 Method: <span>--</span></li>
+                        </ul>
+                    </div>
+                    <div style="margin: 20px 0; padding: 20px; background-color: var(--vscode-textCodeBlock-background); border-radius: 5px;">
+                        <p style="margin: 0 0 15px 0;"><strong>🚀 What's Next? Here's how to use ORCA:</strong></p>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">1. Create your first ORCA input file</p>
+                            <p style="margin: 0; font-size: 0.9em;">Click "Run Test Job" below to create a simple example, or create your own .inp file</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">2. Run a calculation</p>
+                            <p style="margin: 0; font-size: 0.9em;">Open an .inp file and press <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px;">F5</kbd> or right-click and select "Run ORCA"</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">3. View your results</p>
+                            <p style="margin: 0; font-size: 0.9em;">Results appear in the ORCA Output panel. Look for the .out file with the same name as your input</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">4. Explore features</p>
+                            <p style="margin: 0; font-size: 0.9em;">Press <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px;">Ctrl+Shift+P</kbd> (Windows/Linux) or <kbd style="background-color: var(--vscode-keybindingLabel-background); color: var(--vscode-keybindingLabel-foreground); padding: 2px 6px; border-radius: 3px;">Cmd+Shift+P</kbd> (Mac) to see all ORCA commands</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px; border-left: 3px solid var(--vscode-button-background);">
+                        <p style="margin: 0 0 8px 0; font-size: 0.9em;"><strong>📚 Need more help?</strong></p>
+                        <p style="margin: 0; font-size: 0.85em; color: var(--vscode-descriptionForeground);">• Check the ORCA documentation: <a href="#" class="external-link" data-url="https://www.faccts.de/docs/orca/6.0/manual/">ORCA Manual</a><br>
+                        • Join the ORCA Forum for community support<br>
+                        • Use code snippets: Type "orca" in a .inp file for templates</p>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="view-settings-btn" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">⚙️ View Settings</button>
+                        <button id="run-test-job-btn" style="background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">🧪 Run Test Job</button>
+                        <button id="close-wizard-btn">✓ Close Wizard</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -619,6 +988,7 @@ export class WizardPanel {
             let currentStep = 0;
             let detectionResults = [];
             let validationResult = null;
+            let step3DetectionPending = false;
             
             // Wait for DOM to be ready
             document.addEventListener('DOMContentLoaded', initWizard);
@@ -636,8 +1006,12 @@ export class WizardPanel {
                 const backBtn = document.getElementById('back-btn');
                 const licenseCheckbox = document.getElementById('license-agree');
                 const startDetectionBtn = document.getElementById('start-detection-btn');
+                const skipDetectionBtn = document.getElementById('skip-detection-btn');
                 const browseBtn = document.getElementById('browse-btn');
                 const validateBtn = document.getElementById('validate-btn');
+                const viewSettingsBtn = document.getElementById('view-settings-btn');
+                const runTestJobBtn = document.getElementById('run-test-job-btn');
+                const closeWizardBtn = document.getElementById('close-wizard-btn');
                 
                 if (nextBtn) {
                     console.log('[ORCA Wizard] Next button found, adding listener');
@@ -664,7 +1038,6 @@ export class WizardPanel {
                     startDetectionBtn.addEventListener('click', startDetection);
                 }
                 
-                const skipDetectionBtn = document.getElementById('skip-detection-btn');
                 if (skipDetectionBtn) {
                     skipDetectionBtn.addEventListener('click', skipDetection);
                 }
@@ -676,6 +1049,55 @@ export class WizardPanel {
                 if (validateBtn) {
                     validateBtn.addEventListener('click', validatePath);
                 }
+                
+                const step3RescanBtn = document.getElementById('step3-rescan-btn');
+                if (step3RescanBtn) {
+                    step3RescanBtn.addEventListener('click', function() {
+                        detectionResults = [];
+                        step3DetectionPending = false;
+                        populateStep3WithDetectionResults();
+                    });
+                }
+                
+                if (viewSettingsBtn) {
+                    viewSettingsBtn.addEventListener('click', function() {
+                        vscode.postMessage({ type: 'openSettings' });
+                    });
+                }
+                
+                if (runTestJobBtn) {
+                    runTestJobBtn.addEventListener('click', function() {
+                        vscode.postMessage({ type: 'runTestJob' });
+                    });
+                }
+                
+                if (closeWizardBtn) {
+                    closeWizardBtn.addEventListener('click', function() {
+                        vscode.postMessage({ type: 'complete' });
+                    });
+                }
+                
+                // Add event listeners to external links
+                document.querySelectorAll('.external-link').forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var url = this.getAttribute('data-url');
+                        if (typeof url === 'string' && url.trim() !== '') {
+                            openExternal(url);
+                        }
+                    });
+                });
+                
+                // Add event listeners to external link buttons
+                document.querySelectorAll('.external-link-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var url = this.getAttribute('data-url');
+                        if (typeof url === 'string' && url.trim() !== '') {
+                            openExternal(url);
+                        }
+                    });
+                });
                 
                 console.log('[ORCA Wizard] Wizard initialized successfully');
                 
@@ -704,25 +1126,25 @@ export class WizardPanel {
                     return;
                 }
                 
-                // Special flow: after installation instructions (step 4), go back to detection (step 2)
-                if (currentStep === 4) {
-                    console.log('[ORCA Wizard] After installation instructions, going to detection');
-                    currentStep = 2;
-                } else {
-                    currentStep++;
+                currentStep++;
+                
+                // If we just left the detection step and ORCA was already found,
+                // skip the download/install instructions (step 2) and go straight to configure
+                if (currentStep === 2) {
+                    const validInstallations = detectionResults.filter(function(inst) { return inst.isValid; });
+                    if (validInstallations.length > 0) {
+                        currentStep = 3;
+                    }
                 }
+                
                 console.log('[ORCA Wizard] Moving to step:', currentStep);
                 updateStep();
                 
                 // Trigger actions for specific steps
-                if (currentStep === 2) {
-                    // Auto-start detection on step 2
+                if (currentStep === 1) {
+                    // Auto-start detection on step 1 (detection step)
                     console.log('[ORCA Wizard] Auto-starting detection');
                     setTimeout(startDetection, 500);
-                } else if (currentStep === 4) {
-                    // Load installation instructions on step 4
-                    console.log('[ORCA Wizard] Loading installation instructions');
-                    loadInstallationInstructions();
                 }
                 
                 vscode.postMessage({ type: 'saveState', payload: { currentStep } });
@@ -736,14 +1158,7 @@ export class WizardPanel {
             
             function validateCurrentStep() {
                 console.log('[ORCA Wizard] Validating step:', currentStep);
-                if (currentStep === 1) {
-                    // License step
-                    const agree = document.getElementById('license-agree');
-                    if (agree && !agree.checked) {
-                        alert('Please accept the license terms to continue');
-                        return false;
-                    }
-                } else if (currentStep === 5) {
+                if (currentStep === 3) {
                     // Path configuration step
                     if (!validationResult || !validationResult.success) {
                         alert('Please validate the ORCA binary path first');
@@ -769,26 +1184,26 @@ export class WizardPanel {
                     // Set button text based on current step
                     if (currentStep === steps.length - 1) {
                         nextBtn.textContent = 'Finish';
-                    } else if (currentStep === 4) {
-                        // Installation instructions step
-                        nextBtn.textContent = "I've Installed ORCA";
                     } else {
                         nextBtn.textContent = 'Next';
                     }
-                    
-                    // Update button state based on current step
-                    if (currentStep === 1) {
-                        // License step - disable until checkbox is checked
-                        const agree = document.getElementById('license-agree');
-                        nextBtn.disabled = agree ? !agree.checked : false;
-                    } else {
-                        nextBtn.disabled = false;
-                    }
+                    nextBtn.disabled = false;
                 }
                 
                 const progress = ((currentStep + 1) / steps.length) * 100;
                 const progressBar = document.getElementById('progress');
                 if (progressBar) progressBar.style.width = progress + '%';
+
+                // Populate detection results whenever step 3 becomes active,
+                // regardless of how navigation arrived here
+                if (currentStep === 3) {
+                    setTimeout(populateStep3WithDetectionResults, 100);
+                }
+
+                // Populate installation details whenever step 4 becomes active
+                if (currentStep === 4) {
+                    populateInstallationDetails();
+                }
             }
             
             function updateLicenseButton() {
@@ -807,18 +1222,11 @@ export class WizardPanel {
             }
             
             function skipDetection() {
-                console.log('[ORCA Wizard] Skipping detection, going directly to path configuration');
-                // Jump directly to path configuration step (step 5)
-                currentStep = 5;
+                console.log('[ORCA Wizard] Skipping detection, going directly to download instructions');
+                // Jump to download instructions (step 2)
+                currentStep = 2;
                 updateStep();
                 vscode.postMessage({ type: 'saveState', payload: { currentStep } });
-            }
-            
-            function loadInstallationInstructions() {
-                const methodRadio = document.querySelector('input[name="install-method"]:checked');
-                const method = methodRadio ? methodRadio.value : 'conda';
-                console.log('[ORCA Wizard] Loading instructions for method:', method);
-                vscode.postMessage({ type: 'getInstallationSteps', payload: { method } });
             }
             
             function validatePath() {
@@ -895,6 +1303,14 @@ export class WizardPanel {
             function handleDetectionResults(installations) {
                 console.log('[ORCA Wizard] Handling detection results:', installations);
                 detectionResults = installations;
+
+                // If we're already on step 3, refresh its detection panel instead of step 1
+                if (currentStep === 3) {
+                    step3DetectionPending = false; // allow re-scan if user triggers it later
+                    populateStep3WithDetectionResults();
+                    return;
+                }
+
                 const output = document.getElementById('detection-output');
                 
                 if (!output) return;
@@ -913,14 +1329,14 @@ export class WizardPanel {
                     const specifyPathBtn = document.getElementById('specify-path-btn');
                     if (specifyPathBtn) {
                         specifyPathBtn.addEventListener('click', function() {
-                            currentStep = 5;
+                            currentStep = 3;
                             updateStep();
                         });
                     }
                     const showInstallBtn = document.getElementById('show-install-btn');
                     if (showInstallBtn) {
                         showInstallBtn.addEventListener('click', function() {
-                            currentStep = 3;
+                            currentStep = 2; // Download & Install step
                             updateStep();
                         });
                     }
@@ -937,22 +1353,22 @@ export class WizardPanel {
                     });
                     html += '</ul>';
                     html += '<div style="margin-top: 15px;">' +
-                        '<button id="specify-path-btn">Specify Path Manually</button>' +
-                        '<button id="show-install-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Show Installation Instructions</button>' +
+                        '<button id="show-install-btn" style="background-color: var(--vscode-button-background); color: var(--vscode-button-foreground);">📥 Show Installation Instructions</button>' +
+                        '<button id="specify-path-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">I Already Installed It</button>' +
                         '</div>';
                     output.innerHTML = html;
                     
                     // Add event listeners
-                    const specifyPathBtn = document.getElementById('specify-path-btn');
-                    if (specifyPathBtn) {
-                        specifyPathBtn.addEventListener('click', function() {
-                            currentStep = 5;
-                            updateStep();
-                        });
-                    }
                     const showInstallBtn = document.getElementById('show-install-btn');
                     if (showInstallBtn) {
                         showInstallBtn.addEventListener('click', function() {
+                            currentStep = 2;
+                            updateStep();
+                        });
+                    }
+                    const specifyPathBtn = document.getElementById('specify-path-btn');
+                    if (specifyPathBtn) {
+                        specifyPathBtn.addEventListener('click', function() {
                             currentStep = 3;
                             updateStep();
                         });
@@ -964,25 +1380,29 @@ export class WizardPanel {
                     });
                     html += '</ul>';
                     html += '<div style="margin-top: 15px;">' +
-                        '<button id="use-detected-btn">Use First Valid Installation</button>' +
+                        '<button id="use-detected-btn">✓ Use This Installation</button>' +
                         '<button id="specify-other-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Specify Different Path</button>' +
-                        '</div>';
+                        '</div>' +
+                        '<div id="step1-validate-output" style="margin-top: 12px;"></div>';
                     output.innerHTML = html;
                     
-                    // Add event listener to the new button
                     const useDetectedBtn = document.getElementById('use-detected-btn');
-                    console.log('[ORCA Wizard] Use detected button found:', !!useDetectedBtn);
                     if (useDetectedBtn) {
                         useDetectedBtn.addEventListener('click', function() {
-                            console.log('[ORCA Wizard] Use First Valid Installation clicked!');
-                            useDetectedInstallation();
+                            const selected = validInstallations[0];
+                            const pathInput = document.getElementById('binary-path');
+                            if (pathInput) pathInput.value = selected.path;
+                            const step1Out = document.getElementById('step1-validate-output');
+                            if (step1Out) step1Out.innerHTML = '<p style="color: var(--vscode-descriptionForeground); font-size: 0.9em;">Verifying installation…</p>';
+                            useDetectedBtn.disabled = true;
+                            vscode.postMessage({ type: 'validatePath', payload: { path: selected.path } });
                         });
                     }
                     
                     const specifyOtherBtn = document.getElementById('specify-other-btn');
                     if (specifyOtherBtn) {
                         specifyOtherBtn.addEventListener('click', function() {
-                            currentStep = 5;
+                            currentStep = 3;
                             updateStep();
                         });
                     }
@@ -1002,19 +1422,117 @@ export class WizardPanel {
                     const pathInput = document.getElementById('binary-path');
                     if (pathInput) pathInput.value = selected.path;
                     // Jump to path configuration step
-                    currentStep = 5;
+                    currentStep = 3;
                     updateStep();
                 } else {
                     console.log('[ORCA Wizard] No installation to use');
                     alert('No installation found to use');
                 }
             }
-            
+
+            function populateStep3WithDetectionResults() {
+                console.log('[ORCA Wizard] populateStep3WithDetectionResults, detectionResults:', detectionResults.length);
+                const output = document.getElementById('step3-detection-output');
+                const rescanBtn = document.getElementById('step3-rescan-btn');
+                if (!output) return;
+
+                if (detectionResults.length > 0) {
+                    const validInstallations = detectionResults.filter(function(inst) { return inst.isValid; });
+                    if (validInstallations.length > 0) {
+                        let html = '<div class="success" style="padding: 8px 12px; margin-bottom: 8px;"><p style="margin: 0;">✓ Found ' + validInstallations.length + ' ORCA installation(s):</p></div>';
+                        html += '<ul style="margin: 0 0 8px 0; padding-left: 20px;">';
+                        validInstallations.forEach(function(inst) {
+                            const versionTag = inst.version && inst.version !== 'unknown'
+                                ? ' <span style="font-size: 0.85em; color: var(--vscode-descriptionForeground);">(v' + inst.version + ')</span>'
+                                : '';
+                            html += '<li style="margin: 4px 0;"><button class="step3-use-path-btn" data-path="' + inst.path + '" style="background: none; border: none; color: var(--vscode-textLink-foreground); cursor: pointer; padding: 0; text-decoration: underline; font-family: var(--vscode-editor-font-family);">' + inst.path + '</button>' + versionTag + '</li>';
+                        });
+                        html += '</ul>';
+                        html += '<p style="font-size: 0.85em; margin: 0; color: var(--vscode-descriptionForeground);">Click a path to use it, or type a different path below.</p>';
+                        output.innerHTML = html;
+
+                        // Pre-fill input with the best valid installation if empty
+                        const pathInput = document.getElementById('binary-path');
+                        if (pathInput && !pathInput.value) {
+                            pathInput.value = validInstallations[0].path;
+                        }
+
+                        // Wire up clickable paths
+                        document.querySelectorAll('.step3-use-path-btn').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                const pathInput = document.getElementById('binary-path');
+                                if (pathInput) pathInput.value = btn.getAttribute('data-path') || '';
+                            });
+                        });
+                    } else {
+                        output.innerHTML = '<div class="warning" style="padding: 8px 12px;"><p style="margin: 0;">No valid ORCA installations detected automatically. Please enter the path manually.</p></div>';
+                    }
+                    if (rescanBtn) rescanBtn.style.display = 'inline-block';
+                } else {
+                    // No detection run yet — trigger a fresh scan (guard against duplicates)
+                    if (!step3DetectionPending) {
+                        step3DetectionPending = true;
+                        output.innerHTML = '<p style="margin: 0; color: var(--vscode-descriptionForeground); font-size: 0.9em;">Scanning your system for ORCA installations…</p>';
+                        if (rescanBtn) rescanBtn.style.display = 'none';
+                        vscode.postMessage({ type: 'startDetection' });
+                    }
+                }
+            }
+
+            function populateInstallationDetails() {
+                const pathInput = document.getElementById('binary-path');
+                const currentPath = pathInput ? pathInput.value.trim() : '';
+
+                const versionEl = document.querySelector('#install-version span');
+                const pathEl    = document.querySelector('#install-path span');
+                const timeEl    = document.querySelector('#install-time span');
+                const methodEl  = document.querySelector('#install-method span');
+
+                if (versionEl && validationResult && validationResult.installationDetails) {
+                    versionEl.textContent = validationResult.installationDetails.version || 'unknown';
+                }
+                if (pathEl && currentPath) {
+                    pathEl.textContent = currentPath;
+                }
+                if (timeEl) {
+                    timeEl.textContent = new Date().toLocaleString();
+                }
+                if (methodEl) {
+                    methodEl.textContent = 'Manual';
+                }
+            }
+
             function handleValidationResults(result) {
                 console.log('[ORCA Wizard] Handling validation results:', result);
                 validationResult = result;
+
+                // If validation was triggered from the detection step (step 1), route automatically
+                if (currentStep === 1) {
+                    const step1Out = document.getElementById('step1-validate-output');
+                    const useDetectedBtn = document.getElementById('use-detected-btn');
+                    if (result.success) {
+                        if (step1Out) {
+                            const details = result.installationDetails;
+                            step1Out.innerHTML = '<div class="success" style="padding: 8px 12px;"><p style="margin: 0;">✓ Verified: ORCA v' + (details ? details.version : '') + ' — proceeding to summary…</p></div>';
+                        }
+                        setTimeout(function() {
+                            currentStep = 4;
+                            updateStep();
+                        }, 800);
+                    } else {
+                        if (step1Out) {
+                            step1Out.innerHTML = '<div class="warning" style="padding: 8px 12px;"><p style="margin: 0;">✗ Verification failed. Please enter the path manually.</p></div>';
+                        }
+                        if (useDetectedBtn) useDetectedBtn.disabled = false;
+                        setTimeout(function() {
+                            currentStep = 3;
+                            updateStep();
+                        }, 1200);
+                    }
+                    return;
+                }
+
                 const output = document.getElementById('validation-output');
-                
                 if (!output) return;
                 
                 if (result.success) {
@@ -1097,33 +1615,34 @@ export class WizardPanel {
     </script>
 </body>
 </html>`;
+  }
+
+  /**
+   * Generate nonce for CSP
+   */
+  private getNonce(): string {
+    let text = "";
+    const possible =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 32; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
-    
-    /**
-     * Generate nonce for CSP
-     */
-    private getNonce(): string {
-        let text = '';
-        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < 32; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-        return text;
+    return text;
+  }
+
+  /**
+   * Dispose of the panel
+   */
+  public dispose(): void {
+    WizardPanel.currentPanel = undefined;
+
+    this.panel.dispose();
+
+    while (this.disposables.length) {
+      const disposable = this.disposables.pop();
+      if (disposable) {
+        disposable.dispose();
+      }
     }
-    
-    /**
-     * Dispose of the panel
-     */
-    public dispose(): void {
-        WizardPanel.currentPanel = undefined;
-        
-        this.panel.dispose();
-        
-        while (this.disposables.length) {
-            const disposable = this.disposables.pop();
-            if (disposable) {
-                disposable.dispose();
-            }
-        }
-    }
+  }
 }
