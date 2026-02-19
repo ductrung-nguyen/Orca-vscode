@@ -1,3 +1,26 @@
+# [0.8.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.7.0...v0.8.0) (2026-02-19)
+
+
+### Bug Fixes
+
+* **ci:** resolve TypeScript compilation errors ([33ed6a5](https://github.com/ductrung-nguyen/Orca-vscode/commit/33ed6a593c9f1f9ada3494789c842a8343cf6028))
+* **installation:** address Copilot PR review feedback ([2c34238](https://github.com/ductrung-nguyen/Orca-vscode/commit/2c3423810e8c7f6bcc776506838f51c92e796371))
+* **installation:** delete incorrect Homebrew and apt installer files ([ed52324](https://github.com/ductrung-nguyen/Orca-vscode/commit/ed523244df5a2c965173691034c60d8013093c28))
+* **installation:** remove all automated installation UI elements ([12a9c9e](https://github.com/ductrung-nguyen/Orca-vscode/commit/12a9c9ed93db58d88bb2d8860e0459bae6abe658))
+* **installation:** remove incorrect Homebrew and apt installers ([84767ec](https://github.com/ductrung-nguyen/Orca-vscode/commit/84767ec038dfe461c21b7c0d33ff72abccb135c7))
+* **installation:** simplify wizard to focus on manual installation ([4dc5a10](https://github.com/ductrung-nguyen/Orca-vscode/commit/4dc5a10eaa2c6d1907fed664ab326a6506ea0249))
+* **lint:** escape backslashes in Windows paths ([2eca44d](https://github.com/ductrung-nguyen/Orca-vscode/commit/2eca44d0d3f7f52872e30e55a55ec853bf81ac21))
+* **wizard:** fix logo image not displaying in webview ([6e460e4](https://github.com/ductrung-nguyen/Orca-vscode/commit/6e460e4c105fa8b2c3a88f4684ce8220cb5b8018))
+* **wizard:** fix version check timeout and installation detail regressions ([8afe24d](https://github.com/ductrung-nguyen/Orca-vscode/commit/8afe24d099f97eaa2849a0bbeb966ef92a722123))
+* **wizard:** skip download step when ORCA already detected ([cd5d56d](https://github.com/ductrung-nguyen/Orca-vscode/commit/cd5d56d8a13dcabe9edbdbe231c52f4ee47b4d77))
+
+
+### Features
+
+* **installation:** add automated ORCA installation with Conda, Homebrew, and Apt ([18af4fe](https://github.com/ductrung-nguyen/Orca-vscode/commit/18af4fe8ba7f97dad0fa0036b75cc6d3374a2171))
+* **installation:** redesign wizard for complete beginners ([5401a26](https://github.com/ductrung-nguyen/Orca-vscode/commit/5401a2678808de6bc83618fef1c1aaab59a93804))
+* **wizard:** improve configure step with auto-detection and fix validation ([7e9f4ce](https://github.com/ductrung-nguyen/Orca-vscode/commit/7e9f4cee48a560df78e4dc3923cea4513de411df))
+
 # [0.7.0](https://github.com/ductrung-nguyen/Orca-vscode/compare/v0.6.0...v0.7.0) (2026-02-12)
 
 
