@@ -1206,6 +1206,15 @@ EOF
                 
                 currentStep++;
                 
+                // If we just left the detection step and ORCA was already found,
+                // skip the download/install instructions (step 2) and go straight to configure
+                if (currentStep === 2) {
+                    const validInstallations = detectionResults.filter(function(inst) { return inst.isValid; });
+                    if (validInstallations.length > 0) {
+                        currentStep = 3;
+                    }
+                }
+                
                 console.log('[ORCA Wizard] Moving to step:', currentStep);
                 updateStep();
                 
@@ -1449,25 +1458,29 @@ EOF
                     });
                     html += '</ul>';
                     html += '<div style="margin-top: 15px;">' +
-                        '<button id="use-detected-btn">Use First Valid Installation</button>' +
+                        '<button id="use-detected-btn">✓ Use This Installation</button>' +
                         '<button id="specify-other-btn" style="margin-left: 10px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Specify Different Path</button>' +
-                        '</div>';
+                        '</div>' +
+                        '<div id="step1-validate-output" style="margin-top: 12px;"></div>';
                     output.innerHTML = html;
                     
-                    // Add event listener to the new button
                     const useDetectedBtn = document.getElementById('use-detected-btn');
-                    console.log('[ORCA Wizard] Use detected button found:', !!useDetectedBtn);
                     if (useDetectedBtn) {
                         useDetectedBtn.addEventListener('click', function() {
-                            console.log('[ORCA Wizard] Use First Valid Installation clicked!');
-                            useDetectedInstallation();
+                            const selected = validInstallations[0];
+                            const pathInput = document.getElementById('binary-path');
+                            if (pathInput) pathInput.value = selected.path;
+                            const step1Out = document.getElementById('step1-validate-output');
+                            if (step1Out) step1Out.innerHTML = '<p style="color: var(--vscode-descriptionForeground); font-size: 0.9em;">Verifying installation…</p>';
+                            useDetectedBtn.disabled = true;
+                            vscode.postMessage({ type: 'validatePath', payload: { path: selected.path } });
                         });
                     }
                     
                     const specifyOtherBtn = document.getElementById('specify-other-btn');
                     if (specifyOtherBtn) {
                         specifyOtherBtn.addEventListener('click', function() {
-                            currentStep = 3; // Configure VS Code step
+                            currentStep = 3;
                             updateStep();
                         });
                     }
@@ -1570,8 +1583,34 @@ EOF
             function handleValidationResults(result) {
                 console.log('[ORCA Wizard] Handling validation results:', result);
                 validationResult = result;
+
+                // If validation was triggered from the detection step (step 1), route automatically
+                if (currentStep === 1) {
+                    const step1Out = document.getElementById('step1-validate-output');
+                    const useDetectedBtn = document.getElementById('use-detected-btn');
+                    if (result.success) {
+                        if (step1Out) {
+                            const details = result.installationDetails;
+                            step1Out.innerHTML = '<div class="success" style="padding: 8px 12px;"><p style="margin: 0;">✓ Verified: ORCA v' + (details ? details.version : '') + ' — proceeding to summary…</p></div>';
+                        }
+                        setTimeout(function() {
+                            currentStep = 4;
+                            updateStep();
+                        }, 800);
+                    } else {
+                        if (step1Out) {
+                            step1Out.innerHTML = '<div class="warning" style="padding: 8px 12px;"><p style="margin: 0;">✗ Verification failed. Please enter the path manually.</p></div>';
+                        }
+                        if (useDetectedBtn) useDetectedBtn.disabled = false;
+                        setTimeout(function() {
+                            currentStep = 3;
+                            updateStep();
+                        }, 1200);
+                    }
+                    return;
+                }
+
                 const output = document.getElementById('validation-output');
-                
                 if (!output) return;
                 
                 if (result.success) {
