@@ -116,6 +116,9 @@ export class WizardPanel {
           vscode.Uri.file(
             path.join(context.extensionPath, "src", "installation", "wizard"),
           ),
+          vscode.Uri.file(
+            path.join(context.extensionPath, "images"),
+          ),
         ],
       },
     );
@@ -573,6 +576,14 @@ export class WizardPanel {
 
       html = html.replace("{{scriptUri}}", scriptUri.toString());
 
+      const iconPath = path.join(this.context.extensionPath, "images", "icon.png");
+      if (fs.existsSync(iconPath)) {
+        const logoUri = this.panel.webview.asWebviewUri(vscode.Uri.file(iconPath));
+        html = html.replace("{{logoUri}}", logoUri.toString());
+      } else {
+        html = html.replace(/\{\{logoUri\}\}/g, "");
+      }
+
       return html;
     }
 
@@ -586,12 +597,17 @@ export class WizardPanel {
   private getInlineHtml(): string {
     const nonce = this.getNonce();
 
+    const iconPath = path.join(this.context.extensionPath, "images", "icon.png");
+    const logoUriStr = fs.existsSync(iconPath)
+      ? this.panel.webview.asWebviewUri(vscode.Uri.file(iconPath)).toString()
+      : "";
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${this.panel.webview.cspSource} data:;">
     <title>ORCA Installation Wizard</title>
     <style>
         body {
@@ -690,7 +706,10 @@ export class WizardPanel {
 </head>
 <body>
     <div class="wizard-container">
-        <h1>ORCA Installation Wizard</h1>
+        <h1 style="display: flex; align-items: center; gap: 10px;">
+            <img src="${logoUriStr}" alt="" width="28" height="28" style="border-radius: 4px;" onerror="this.style.display='none'">
+            ORCA Installation Wizard
+        </h1>
         
         <div class="progress-bar">
             <div class="progress-bar-fill" id="progress" style="width: 14%;"></div>
@@ -945,36 +964,36 @@ EOF
             
             <div class="step" id="step-3">
                 <h2>🎯 Configure VS Code to Use ORCA</h2>
-                <p>Now we need to tell VS Code where to find the ORCA program you just installed.</p>
-                
-                <div style="margin: 20px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px;">
-                    <p style="margin: 0 0 10px 0;"><strong>📂 What path should you enter?</strong></p>
-                    <p style="margin: 5px 0; font-size: 0.9em;">Enter the <strong>full path</strong> to the ORCA executable file:</p>
-                    <ul style="font-size: 0.9em; line-height: 1.8; color: var(--vscode-descriptionForeground);">
-                        <li><strong>Windows:</strong> <code>C:\\orca\\orca.exe</code></li>
-                        <li><strong>macOS:</strong> <code>/Applications/orca/orca</code></li>
-                        <li><strong>Linux:</strong> <code>/opt/orca/orca</code></li>
-                    </ul>
-                    <p style="margin: 10px 0 0 0; font-size: 0.85em; color: var(--vscode-descriptionForeground);">💡 If you installed ORCA in a different location, use that path instead.</p>
+                <p>Let's find ORCA on your system and configure VS Code to use it.</p>
+
+                <!-- Auto-detection panel -->
+                <div id="step3-detection-panel" style="margin: 15px 0; padding: 15px; background-color: var(--vscode-textCodeBlock-background); border-radius: 3px; border-left: 3px solid var(--vscode-button-background);">
+                    <p style="margin: 0 0 8px 0;"><strong>🔍 Detected Installations</strong></p>
+                    <div id="step3-detection-output" style="margin: 8px 0;">
+                        <p style="margin: 0; color: var(--vscode-descriptionForeground); font-size: 0.9em;">Loading...</p>
+                    </div>
+                    <button id="step3-rescan-btn" style="margin-top: 8px; padding: 6px 12px; background-color: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); font-size: 0.9em; display: none;">🔄 Scan Again</button>
                 </div>
-                
+
+                <!-- Manual path entry -->
                 <div style="margin: 20px 0;">
                     <label for="binary-path" style="display: block; margin-bottom: 8px; font-weight: bold;">ORCA Executable Path:</label>
                     <input type="text" id="binary-path" placeholder="Enter the full path to orca executable" style="width: 70%; padding: 10px; font-family: var(--vscode-editor-font-family);">
                     <button id="browse-btn" style="margin-left: 10px; padding: 10px 16px;">📁 Browse...</button>
                 </div>
-                
+
                 <button id="validate-btn" style="padding: 10px 20px; font-size: 1em;">✓ Validate and Test Path</button>
-                
+
                 <div id="validation-output" style="margin-top: 20px;"></div>
-                
-                <div style="margin-top: 30px; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
-                    <p style="margin: 0; font-size: 0.9em;"><strong>Need help?</strong></p>
-                    <ul style="font-size: 0.85em; line-height: 1.8; color: var(--vscode-descriptionForeground);">
-                        <li>Click "Browse" to search for the orca file on your computer</li>
-                        <li>After entering the path, click "Validate and Test Path" to make sure it works</li>
-                        <li>If validation fails, double-check the path or reinstall ORCA</li>
+
+                <div style="margin-top: 20px; padding: 15px; background-color: var(--vscode-editor-background); border-radius: 3px;">
+                    <p style="margin: 0 0 5px 0; font-size: 0.9em;"><strong>📂 Common installation paths:</strong></p>
+                    <ul style="font-size: 0.85em; line-height: 1.8; color: var(--vscode-descriptionForeground); margin: 0; padding-left: 20px;">
+                        <li><strong>Windows:</strong> <code>C:\\orca\\orca.exe</code></li>
+                        <li><strong>macOS:</strong> <code>/Applications/orca/orca</code></li>
+                        <li><strong>Linux:</strong> <code>/opt/orca/orca</code></li>
                     </ul>
+                    <p style="margin: 8px 0 0 0; font-size: 0.85em; color: var(--vscode-descriptionForeground);">💡 Click "Browse" to locate the orca executable, or type the path directly.</p>
                 </div>
             </div>
             
@@ -1047,6 +1066,7 @@ EOF
             let currentStep = 0;
             let detectionResults = [];
             let validationResult = null;
+            let step3DetectionPending = false;
             
             // Wait for DOM to be ready
             document.addEventListener('DOMContentLoaded', initWizard);
@@ -1106,6 +1126,15 @@ EOF
                 
                 if (validateBtn) {
                     validateBtn.addEventListener('click', validatePath);
+                }
+                
+                const step3RescanBtn = document.getElementById('step3-rescan-btn');
+                if (step3RescanBtn) {
+                    step3RescanBtn.addEventListener('click', function() {
+                        detectionResults = [];
+                        step3DetectionPending = false;
+                        populateStep3WithDetectionResults();
+                    });
                 }
                 
                 if (viewSettingsBtn) {
@@ -1233,6 +1262,17 @@ EOF
                 const progress = ((currentStep + 1) / steps.length) * 100;
                 const progressBar = document.getElementById('progress');
                 if (progressBar) progressBar.style.width = progress + '%';
+
+                // Populate detection results whenever step 3 becomes active,
+                // regardless of how navigation arrived here
+                if (currentStep === 3) {
+                    setTimeout(populateStep3WithDetectionResults, 100);
+                }
+
+                // Populate installation details whenever step 4 becomes active
+                if (currentStep === 4) {
+                    populateInstallationDetails();
+                }
             }
             
             function updateLicenseButton() {
@@ -1332,6 +1372,14 @@ EOF
             function handleDetectionResults(installations) {
                 console.log('[ORCA Wizard] Handling detection results:', installations);
                 detectionResults = installations;
+
+                // If we're already on step 3, refresh its detection panel instead of step 1
+                if (currentStep === 3) {
+                    step3DetectionPending = false; // allow re-scan if user triggers it later
+                    populateStep3WithDetectionResults();
+                    return;
+                }
+
                 const output = document.getElementById('detection-output');
                 
                 if (!output) return;
@@ -1350,14 +1398,14 @@ EOF
                     const specifyPathBtn = document.getElementById('specify-path-btn');
                     if (specifyPathBtn) {
                         specifyPathBtn.addEventListener('click', function() {
-                            currentStep = 5;
+                            currentStep = 3;
                             updateStep();
                         });
                     }
                     const showInstallBtn = document.getElementById('show-install-btn');
                     if (showInstallBtn) {
                         showInstallBtn.addEventListener('click', function() {
-                            currentStep = 3;
+                            currentStep = 2; // Download & Install step
                             updateStep();
                         });
                     }
@@ -1419,7 +1467,7 @@ EOF
                     const specifyOtherBtn = document.getElementById('specify-other-btn');
                     if (specifyOtherBtn) {
                         specifyOtherBtn.addEventListener('click', function() {
-                            currentStep = 5;
+                            currentStep = 3; // Configure VS Code step
                             updateStep();
                         });
                     }
@@ -1444,6 +1492,78 @@ EOF
                 } else {
                     console.log('[ORCA Wizard] No installation to use');
                     alert('No installation found to use');
+                }
+            }
+
+            function populateStep3WithDetectionResults() {
+                console.log('[ORCA Wizard] populateStep3WithDetectionResults, detectionResults:', detectionResults.length);
+                const output = document.getElementById('step3-detection-output');
+                const rescanBtn = document.getElementById('step3-rescan-btn');
+                if (!output) return;
+
+                if (detectionResults.length > 0) {
+                    const validInstallations = detectionResults.filter(function(inst) { return inst.isValid; });
+                    if (validInstallations.length > 0) {
+                        let html = '<div class="success" style="padding: 8px 12px; margin-bottom: 8px;"><p style="margin: 0;">✓ Found ' + validInstallations.length + ' ORCA installation(s):</p></div>';
+                        html += '<ul style="margin: 0 0 8px 0; padding-left: 20px;">';
+                        validInstallations.forEach(function(inst) {
+                            const versionTag = inst.version && inst.version !== 'unknown'
+                                ? ' <span style="font-size: 0.85em; color: var(--vscode-descriptionForeground);">(v' + inst.version + ')</span>'
+                                : '';
+                            html += '<li style="margin: 4px 0;"><button class="step3-use-path-btn" data-path="' + inst.path + '" style="background: none; border: none; color: var(--vscode-textLink-foreground); cursor: pointer; padding: 0; text-decoration: underline; font-family: var(--vscode-editor-font-family);">' + inst.path + '</button>' + versionTag + '</li>';
+                        });
+                        html += '</ul>';
+                        html += '<p style="font-size: 0.85em; margin: 0; color: var(--vscode-descriptionForeground);">Click a path to use it, or type a different path below.</p>';
+                        output.innerHTML = html;
+
+                        // Pre-fill input with the best valid installation if empty
+                        const pathInput = document.getElementById('binary-path');
+                        if (pathInput && !pathInput.value) {
+                            pathInput.value = validInstallations[0].path;
+                        }
+
+                        // Wire up clickable paths
+                        document.querySelectorAll('.step3-use-path-btn').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                const pathInput = document.getElementById('binary-path');
+                                if (pathInput) pathInput.value = btn.getAttribute('data-path') || '';
+                            });
+                        });
+                    } else {
+                        output.innerHTML = '<div class="warning" style="padding: 8px 12px;"><p style="margin: 0;">No valid ORCA installations detected automatically. Please enter the path manually.</p></div>';
+                    }
+                    if (rescanBtn) rescanBtn.style.display = 'inline-block';
+                } else {
+                    // No detection run yet — trigger a fresh scan (guard against duplicates)
+                    if (!step3DetectionPending) {
+                        step3DetectionPending = true;
+                        output.innerHTML = '<p style="margin: 0; color: var(--vscode-descriptionForeground); font-size: 0.9em;">Scanning your system for ORCA installations…</p>';
+                        if (rescanBtn) rescanBtn.style.display = 'none';
+                        vscode.postMessage({ type: 'startDetection' });
+                    }
+                }
+            }
+
+            function populateInstallationDetails() {
+                const pathInput = document.getElementById('binary-path');
+                const currentPath = pathInput ? pathInput.value.trim() : '';
+
+                const versionEl = document.querySelector('#install-version span');
+                const pathEl    = document.querySelector('#install-path span');
+                const timeEl    = document.querySelector('#install-time span');
+                const methodEl  = document.querySelector('#install-method span');
+
+                if (versionEl && validationResult && validationResult.installationDetails) {
+                    versionEl.textContent = validationResult.installationDetails.version || 'unknown';
+                }
+                if (pathEl && currentPath) {
+                    pathEl.textContent = currentPath;
+                }
+                if (timeEl) {
+                    timeEl.textContent = new Date().toLocaleString();
+                }
+                if (methodEl) {
+                    methodEl.textContent = 'Manual';
                 }
             }
             
