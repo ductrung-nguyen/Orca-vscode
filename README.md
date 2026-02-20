@@ -4,7 +4,7 @@ A comprehensive Visual Studio Code extension that transforms VS Code into a unif
 
 [![CI](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/ci.yml)
 [![Release](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/release.yml/badge.svg)](https://github.com/ductrung-nguyen/Orca-vscode/actions/workflows/release.yml)
-![Version](https://img.shields.io/badge/version-0.3.1-blue)
+![Version](https://img.shields.io/badge/version-0.8.0-blue)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.85.0+-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -28,11 +28,12 @@ Computational chemists using ORCA face a **fragmented workflow**:
 
 ### 📝 Intelligent Input Editor
 
-| Feature                 | Description                                                              |
-| ----------------------- | ------------------------------------------------------------------------ |
-| **Syntax Highlighting** | Color-coded ORCA keywords (`!`), blocks (`%`), coordinates, and comments |
-| **Smart Snippets**      | Type `opt` → full optimization block, `freq` → frequency template        |
-| **Auto-completion**     | Common functionals (B3LYP, wB97X-D3), basis sets (def2-TZVP), job types  |
+| Feature                 | Description                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| **Syntax Highlighting** | Color-coded ORCA keywords (`!`), blocks (`%`), coordinates, and comments              |
+| **Smart Snippets**      | Type `opt` → full optimization block, `freq` → frequency template                     |
+| **Auto-completion**     | Common functionals (B3LYP, wB97X-D3), basis sets (def2-TZVP), job types               |
+| **Hover Documentation** | Hover over keywords for instant inline docs (50+ keywords, 12+ blocks, 30+ params)   |
 
 **Example:**
 
@@ -45,6 +46,29 @@ Computational chemists using ORCA face a **fragmented workflow**:
 ```
 
 ![Input with snippets](docs/screenshots/input-w-snippets.gif)
+
+#### 💡 Hover Documentation (New in v0.8.0)
+
+Learn ORCA syntax directly in the editor without leaving VS Code:
+
+- **50+ Keywords**: DFT functionals, wave function methods, basis sets, job types
+- **12+ Block Directives**: `%scf`, `%geom`, `%pal`, `%maxcore`, and more
+- **30+ Block Attributes**: Context-aware parameter docs with type, default, and units
+- **Related Keywords**: "See also" sections to discover similar options
+- **Deprecation Warnings**: Alerts for outdated ORCA keywords
+
+**Example:** Hover over `B3LYP` to see:
+```
+B3LYP — Hybrid DFT Functional
+
+Becke 3-parameter Lee-Yang-Parr hybrid functional. One of the most 
+widely used DFT methods, combining exact Hartree-Fock exchange with 
+DFT correlation. Reliable for organic molecules, transition metal 
+complexes, and general-purpose calculations.
+
+Example: ! B3LYP def2-TZVP
+See also: PBE0, CAM-B3LYP, wB97X-D3, M06-2X
+```
 
 ### 🚀 Execution Engine
 
