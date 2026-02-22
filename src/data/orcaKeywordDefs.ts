@@ -18,6 +18,13 @@ export const simpleKeywords: Record<string, KeywordDefinition> = {
 		example: '! B3LYP def2-TZVP',
 		relatedKeywords: ['PBE0', 'CAM-B3LYP', 'wB97X-D3', 'M06-2X']
 	},
+	'B3LYP D3': {
+		name: 'B3LYP D3',
+		category: 'DFT Functional',
+		description: 'B3LYP hybrid functional with Grimme\'s D3 dispersion correction. Adds empirical atom-pair dispersion terms to B3LYP, improving accuracy for non-covalent interactions, van der Waals complexes, and large organic molecules.',
+		example: '! B3LYP D3 def2-SVP',
+		relatedKeywords: ['B3LYP', 'B3LYP-D3BJ', 'PBE-D3', 'wB97X-D3']
+	},
 	'PBE': {
 		name: 'PBE',
 		category: 'GGA DFT Functional',
@@ -151,6 +158,104 @@ export const simpleKeywords: Record<string, KeywordDefinition> = {
 		example: '! r2SCAN def2-TZVP',
 		relatedKeywords: ['SCAN', 'TPSS', 'M06-L']
 	},
+	'WB97X-D': {
+		name: 'wB97X-D',
+		category: 'Range-Separated Hybrid DFT',
+		description: 'Chai-Head-Gordon range-separated hybrid functional with D2 empirical dispersion. Released 2008; precursor to wB97X-D3. Range separation parameter ω=0.2 bohr⁻¹. Found extensively in older literature.',
+		example: '! wB97X-D def2-TZVP',
+		relatedKeywords: ['wB97X-D3', 'wB97X', 'CAM-B3LYP']
+	},
+	'WB97M-V': {
+		name: 'wB97M-V',
+		category: 'Range-Separated Meta-Hybrid DFT',
+		description: 'Range-separated meta-GGA hybrid functional with VV10 non-local correlation. Head-Gordon group. Excellent broad accuracy for thermochemistry, kinetics, and non-covalent interactions.',
+		example: '! wB97M-V def2-TZVP',
+		relatedKeywords: ['wB97X-D3', 'wB97X-D', 'M06-2X']
+	},
+	'HFS': {
+		name: 'HFS',
+		category: 'LDA Exchange Functional',
+		description: 'Hartree-Fock-Slater (Slater X-alpha) exchange-only functional. Simplest DFT approximation using Slater exchange with α=2/3. Historically significant; purely a local exchange with no correlation.',
+		example: '! HFS def2-SVP',
+		relatedKeywords: ['VWN5', 'SVWN5', 'PBE']
+	},
+	'VWN5': {
+		name: 'VWN5',
+		category: 'LDA DFT Functional',
+		description: 'Vosko-Wilk-Nusair LDA correlation functional (parametrization V). Standard LDA correlation used in most modern DFT implementations. Often combined with Slater exchange (SVWN5 = HFS+VWN5).',
+		example: '! VWN5 def2-SVP',
+		relatedKeywords: ['HFS', 'PBE', 'BLYP']
+	},
+	'B97D': {
+		name: 'B97D',
+		category: 'GGA DFT Functional with Dispersion',
+		description: 'Grimme\'s B97-D GGA functional with D1 empirical dispersion. Optimized for non-covalent interaction energies and geometries. Precursor to later B97-D3 variants; widely used in supramolecular chemistry.',
+		example: '! B97D def2-TZVP',
+		relatedKeywords: ['B3LYP-D3BJ', 'PBE-D3BJ', 'wB97X-D']
+	},
+	'M06L': {
+		name: 'M06L',
+		category: 'Meta-GGA DFT Functional',
+		description: 'Local Minnesota meta-GGA functional (no exact exchange); alias for M06-L. Fast and accurate for transition metal systems, organometallics, and solid-state. Good cost-performance ratio.',
+		example: '! M06L def2-SVP',
+		relatedKeywords: ['M06', 'M06-L', 'TPSS']
+	},
+	'SCANFUNC': {
+		name: 'SCANfunc',
+		category: 'Meta-GGA DFT Functional',
+		description: 'SCAN meta-GGA functional, invoked as SCANfunc to avoid conflict with the SCAN geometry-scan keyword. Strongly Constrained and Appropriately Normed functional satisfying all 17 exact constraints.',
+		example: '! SCANfunc def2-TZVP',
+		relatedKeywords: ['R2SCAN', 'RSCAN', 'TPSS']
+	},
+	'RSCAN': {
+		name: 'rSCAN',
+		category: 'Meta-GGA DFT Functional',
+		description: 'Regularized SCAN (rSCAN) meta-GGA functional. Addresses numerical instabilities in SCAN by regularizing kinetic energy density. Intermediate regularization level between SCAN and r2SCAN.',
+		example: '! rSCAN def2-TZVP',
+		relatedKeywords: ['R2SCAN', 'SCANFUNC', 'TPSS']
+	},
+	'B97': {
+		name: 'B97',
+		category: 'GGA DFT Functional',
+		description: 'Handy\'s B97 GGA functional. Parent of the B97 family with fitted exchange and correlation parameters. Good thermochemistry accuracy for a pure GGA. Often used as starting point for dispersion-corrected variants.',
+		example: '! B97 def2-TZVP',
+		relatedKeywords: ['B97D', 'BLYP', 'BP86']
+	},
+	'TPSS0': {
+		name: 'TPSS0',
+		category: 'Meta-GGA Hybrid DFT',
+		description: 'Hybrid TPSS functional with 25% exact exchange. Improved thermochemical accuracy over pure TPSS. Good for transition metal chemistry where a moderate amount of exact exchange is beneficial.',
+		example: '! TPSS0 def2-TZVP',
+		relatedKeywords: ['TPSSh', 'TPSS', 'PBE0']
+	},
+	'R2SCAN0': {
+		name: 'r2SCAN0',
+		category: 'Meta-GGA Hybrid DFT',
+		description: 'Hybrid r2SCAN functional with 25% exact exchange. Combines the regularized meta-GGA with standard hybrid mixing. Improved accuracy over pure r2SCAN for thermochemistry and reaction energies.',
+		example: '! r2SCAN0 def2-TZVP',
+		relatedKeywords: ['R2SCAN', 'R2SCAN50', 'PBE0']
+	},
+	'R2SCAN50': {
+		name: 'r2SCAN50',
+		category: 'Meta-GGA Hybrid DFT',
+		description: 'r2SCAN functional with 50% exact exchange. High exact-exchange content reduces self-interaction error. Suitable for charge-transfer systems and cases requiring strong exchange delocalization correction.',
+		example: '! r2SCAN50 def2-TZVP',
+		relatedKeywords: ['R2SCAN0', 'R2SCAN', 'M06-2X']
+	},
+	'WB97': {
+		name: 'wB97',
+		category: 'Range-Separated DFT Functional',
+		description: 'Original wB97 range-separated functional (Chai and Head-Gordon, 2008). Long-range-corrected GGA with 100% long-range HF exchange. Foundation of the wB97 functional family.',
+		example: '! wB97 def2-TZVP',
+		relatedKeywords: ['WB97X', 'WB97X-D', 'CAM-B3LYP']
+	},
+	'WB97X': {
+		name: 'wB97X',
+		category: 'Range-Separated Hybrid DFT',
+		description: 'wB97X range-separated hybrid (Chai and Head-Gordon, 2008). Adds a fraction of short-range HF exchange to wB97. Good thermochemistry, kinetics, and non-covalent interaction performance.',
+		example: '! wB97X def2-TZVP',
+		relatedKeywords: ['WB97', 'WB97X-D', 'WB97X-D3']
+	},
 
 	// Wave Function Methods (6 entries)
 	'HF': {
@@ -194,6 +299,27 @@ export const simpleKeywords: Record<string, KeywordDefinition> = {
 		description: 'Domain-based Local Pair Natural Orbital CCSD(T). Linear-scaling coupled-cluster approach enabling CCSD(T) accuracy for large systems (100+ atoms). Major breakthrough in computational chemistry.',
 		example: '! DLPNO-CCSD(T) def2-TZVP',
 		relatedKeywords: ['CCSD(T)', 'DLPNO-MP2', 'LPNO-CEPA']
+	},
+	'DLPNO-MP2': {
+		name: 'DLPNO-MP2',
+		category: 'Local Correlation Method',
+		description: 'Domain-Based Local Pair Natural Orbital MP2. Near-linear-scaling MP2 for large systems with controllable accuracy. Significantly cheaper than canonical MP2 while retaining most correlation energy.',
+		example: '! DLPNO-MP2 def2-TZVP',
+		relatedKeywords: ['RI-MP2', 'MP2', 'DLPNO-CCSD(T)']
+	},
+	'CASSCF': {
+		name: 'CASSCF',
+		category: 'Multi-Reference Method',
+		description: 'Complete Active Space SCF. Variational multi-reference method that optimizes both orbitals and CI coefficients within a user-defined active space. Essential for systems with strong static (multi-reference) correlation. Active space defined in %casscf block.',
+		example: '! CASSCF def2-SVP',
+		relatedKeywords: ['NEVPT2', 'MRCI', 'NEVPT2']
+	},
+	'NEVPT2': {
+		name: 'NEVPT2',
+		category: 'Multi-Reference Perturbation Theory',
+		description: 'N-Electron Valence State Perturbation Theory at second order. Post-CASSCF method that adds dynamic correlation. More robust than CASPT2 against intruder states. Recommended for accurate excitation energies and multi-reference systems.',
+		example: '! NEVPT2 def2-SVP',
+		relatedKeywords: ['CASSCF', 'MRCI', 'DLPNO-NEVPT2']
 	},
 
 	// Basis Sets (16 entries)
@@ -311,6 +437,65 @@ export const simpleKeywords: Record<string, KeywordDefinition> = {
 		example: '! DLPNO-CCSD(T) def2-QZVP/C',
 		relatedKeywords: ['def2-QZVPP', 'def2-TZVP/C']
 	},
+	'6-31G(D)': {
+		name: '6-31G(d)',
+		category: 'Basis Set (Pople)',
+		description: 'Pople double-zeta split-valence basis with d-polarization on heavy atoms. Parenthetical notation equivalent to 6-31G*. Historic basis set encountered throughout the DFT literature; def2-SVP recommended for new work.',
+		example: '! B3LYP 6-31G(d)',
+		relatedKeywords: ['6-31G*', 'def2-SVP'],
+		deprecationNote: 'Consider using def2-SVP instead for better balance and auxiliary basis availability.'
+	},
+	'6-311G': {
+		name: '6-311G',
+		category: 'Basis Set (Pople)',
+		description: 'Pople triple-split valence basis without polarization functions. More flexible valence than 6-31G but lacks polarization. Usually extended with * or ** (d/p polarization) or + (diffuse) for practical use.',
+		example: '! B3LYP 6-311G',
+		relatedKeywords: ['6-311G**', '6-31G*', 'def2-TZVP']
+	},
+	'6-311+G(D,P)': {
+		name: '6-311+G(d,P)',
+		category: 'Basis Set (Pople)',
+		description: 'Triple-split Pople basis with diffuse functions and d(heavy)/p(H) polarization. Popular for anions, hydrogen-bonded systems, and molecules with lone pairs. Modern alternatives like def2-TZVP generally preferred.',
+		example: '! B3LYP 6-311+G(d,P)',
+		relatedKeywords: ['6-311G**', 'def2-TZVP', 'aug-cc-pVTZ'],
+		deprecationNote: 'Consider using def2-TZVP or ma-def2-TZVP for better RI compatibility.'
+	},
+	'DEF2-QZVP': {
+		name: 'def2-QZVP',
+		category: 'Basis Set (Quadruple-Zeta)',
+		description: 'Karlsruhe quadruple-zeta valence with one set of polarization functions. Slightly smaller than def2-QZVPP; used for high-accuracy single-point calculations and approaches the basis set limit for most properties.',
+		example: '! PBE0 def2-QZVP',
+		relatedKeywords: ['def2-QZVPP', 'def2-TZVP', 'cc-pVQZ']
+	},
+	'LANL2DZ': {
+		name: 'LANL2DZ',
+		category: 'Basis Set (ECP)',
+		description: 'Los Alamos National Laboratory effective core potential with double-zeta valence basis. Replaces core electrons with a pseudopotential for transition metals and heavy main-group elements. Widely used but older; def2 bases with ECPs preferred for modern work.',
+		example: '! B3LYP LANL2DZ',
+		relatedKeywords: ['SDD', 'def2-SVP', 'def2-TZVP'],
+		deprecationNote: 'Consider def2-SVP or def2-TZVP with built-in ECPs for better accuracy.'
+	},
+	'SDD': {
+		name: 'SDD',
+		category: 'Basis Set (ECP)',
+		description: 'Stuttgart-Dresden effective core potential with double-zeta valence basis. Alternative to LANL2DZ for heavy elements. More modern ECP parametrization; good for transition metals and lanthanides.',
+		example: '! B3LYP SDD',
+		relatedKeywords: ['LANL2DZ', 'def2-SVP', 'def2-TZVP']
+	},
+	'PC-1': {
+		name: 'pc-1',
+		category: 'Basis Set (Polarization-Consistent)',
+		description: 'Jensen\'s polarization-consistent basis set at double-zeta quality. Designed for systematic convergence of DFT energies. More efficient than Pople bases for DFT due to optimized exponents.',
+		example: '! B3LYP pc-1',
+		relatedKeywords: ['PC-2', 'def2-SVP', 'cc-pVDZ']
+	},
+	'PC-2': {
+		name: 'pc-2',
+		category: 'Basis Set (Polarization-Consistent)',
+		description: 'Jensen\'s polarization-consistent basis set at triple-zeta quality. Higher level in the pc-n series. Systematic convergence of DFT energies; often more efficient than def2-TZVP for pure DFT calculations.',
+		example: '! B3LYP pc-2',
+		relatedKeywords: ['PC-1', 'def2-TZVP', 'cc-pVTZ']
+	},
 
 	// Job Types (8 entries)
 	'OPT': {
@@ -369,6 +554,13 @@ export const simpleKeywords: Record<string, KeywordDefinition> = {
 		example: '! B3LYP def2-TZVP COPT',
 		relatedKeywords: ['Opt', 'Scan', 'Surface']
 	},
+	'NEB-TS': {
+		name: 'NEB-TS',
+		category: 'Job Type',
+		description: 'Nudged Elastic Band with automatic transition state search. Generates a minimum energy path and then refines the transition state from the highest-energy image. More reliable than OptTS when a good TS guess is unavailable.',
+		example: '! B3LYP def2-SVP NEB-TS',
+		relatedKeywords: ['NEB', 'OptTS', 'Freq']
+	},
 
 	// Auxiliary Options (21 entries)
 	'TIGHTSCF': {
@@ -384,6 +576,20 @@ export const simpleKeywords: Record<string, KeywordDefinition> = {
 		description: 'Very tight SCF convergence criteria. Energy convergence to 1e-9 Hartree. Needed for very accurate numerical derivatives and sensitive properties. Increases iteration count.',
 		example: '! PBE0 def2-TZVP VeryTightSCF',
 		relatedKeywords: ['TightSCF', 'ExtremelyTightSCF']
+	},
+	'TIGHTOPT': {
+		name: 'TightOpt',
+		category: 'Geometry Convergence',
+		description: 'Tight geometry optimization convergence thresholds. More stringent than default Opt convergence criteria. Recommended for accurate thermochemistry, reaction energy calculations, and before frequency analyses.',
+		example: '! B3LYP def2-TZVP Opt TightOpt',
+		relatedKeywords: ['VeryTightOpt', 'TightSCF', 'Opt']
+	},
+	'VERYTIGHTOPT': {
+		name: 'VeryTightOpt',
+		category: 'Geometry Convergence',
+		description: 'Very tight geometry optimization convergence thresholds. Maximum practical stringency for geometry optimizations. Use for high-accuracy benchmark reference geometries and numerically sensitive calculations.',
+		example: '! B3LYP def2-TZVP Opt VeryTightOpt',
+		relatedKeywords: ['TightOpt', 'VeryTightSCF', 'Opt']
 	},
 	'SLOWCONV': {
 		name: 'SlowConv',

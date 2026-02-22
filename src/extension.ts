@@ -9,6 +9,7 @@ import { OrcaOutputSymbolProvider } from './orcaOutputSymbolProvider';
 import { DashboardPanel } from './dashboard/dashboardPanel';
 import { OrcaCodeLensProvider, OrcaOutputCodeLensProvider } from './orcaCodeLensProvider';
 import { OrcaHoverProvider } from './orcaHoverProvider';
+import { OrcaCompletionProvider } from './orcaCompletionProvider';
 
 let orcaRunner: OrcaRunner;
 let statusBarItem: vscode.StatusBarItem;
@@ -48,6 +49,14 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerHoverProvider(
             { language: 'orca', scheme: 'file' },
             new OrcaHoverProvider()
+        )
+    );
+    
+    // Register completion provider for ORCA input files
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(
+            { language: 'orca', scheme: 'file' },
+            new OrcaCompletionProvider()
         )
     );
     
